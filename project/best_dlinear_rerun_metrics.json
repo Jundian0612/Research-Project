@@ -1,0 +1,21 @@
+{
+  "Model": "DLINEAR(best)",
+  "Split": "TEST",
+  "RMSE": 1.6146871061714037,
+  "MSE": 2.6072144508361816,
+  "MAE": 1.1665427684783936,
+  "R2": 0.9254019856452942,
+  "params_used": {
+    "INPUT_CHUNK_LENGTH": 48,
+    "OUTPUT_CHUNK_LENGTH": 12,
+    "KERNEL_SIZE": 35,
+    "N_EPOCHS": 30,
+    "BATCH_SIZE": 128,
+    "LR": 0.0001,
+    "WEIGHT_DECAY": 1e-05,
+    "CONST_INIT": true,
+    "USE_REVIN": true,
+    "USE_COVARIATES": false,
+    "RANDOM_STATE": 42
+  }
+}

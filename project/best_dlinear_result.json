@@ -1,0 +1,57 @@
+{
+  "rmse_test": 1.6146871061714037,
+  "mse_test": 2.6072144508361816,
+  "mae_test": 1.1665427684783936,
+  "r2_test": 0.9254019856452942,
+  "params": {
+    "INPUT_CHUNK_LENGTH": 48,
+    "OUTPUT_CHUNK_LENGTH": 12,
+    "KERNEL_SIZE": 35,
+    "N_EPOCHS": 30,
+    "BATCH_SIZE": 128,
+    "LR": 0.0001,
+    "WEIGHT_DECAY": 1e-05,
+    "CONST_INIT": true,
+    "USE_REVIN": true,
+    "USE_COVARIATES": false,
+    "RANDOM_STATE": 42
+  },
+  "search_space": {
+    "INPUT_CHUNK_LENGTH": [
+      24,
+      36,
+      48
+    ],
+    "OUTPUT_CHUNK_LENGTH": [
+      12,
+      24
+    ],
+    "KERNEL_SIZE": [
+      15,
+      25,
+      35
+    ],
+    "N_EPOCHS": [
+      30,
+      50
+    ],
+    "BATCH_SIZE": [
+      32,
+      64,
+      128
+    ],
+    "LR": [
+      0.0001,
+      0.0002,
+      0.0003
+    ],
+    "WEIGHT_DECAY": [
+      0.0,
+      1e-05
+    ],
+    "CONST_INIT": [
+      true,
+      false
+    ]
+  }
+}
