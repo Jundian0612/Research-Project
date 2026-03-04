@@ -1,0 +1,11 @@
+prefix=/home/jundian/Research-Project/.conda
+exec_prefix=/home/jundian/Research-Project/.conda
+libdir=/home/jundian/Research-Project/.conda/lib
+includedir=/home/jundian/Research-Project/.conda/include
+
+Name: uuid
+Description: Universally unique id library
+Version: 2.41.3
+Cflags: -I${includedir}/uuid
+Libs.private:  -lpthread
+Libs: -L${libdir} -luuid
