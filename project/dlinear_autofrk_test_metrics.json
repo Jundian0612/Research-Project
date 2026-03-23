@@ -1,0 +1,31 @@
+{
+  "dlinear_best": {
+    "RMSE": 1.6146869981660206,
+    "MSE": 2.607214102046395,
+    "MAE": 1.1665428133877842,
+    "R2": 0.9254020273937706
+  },
+  "dlinear_autofrk": {
+    "RMSE": 1.6188267678634063,
+    "MSE": 2.6206001043510825,
+    "MAE": 1.1708235077646776,
+    "R2": 0.9252169913574032
+  },
+  "N": 100,
+  "H": 110,
+  "K": 96,
+  "residual_history_nan_ratio": 0.1095890410958904,
+  "params_used": {
+    "INPUT_CHUNK_LENGTH": 48,
+    "OUTPUT_CHUNK_LENGTH": 12,
+    "KERNEL_SIZE": 35,
+    "N_EPOCHS": 30,
+    "BATCH_SIZE": 128,
+    "LR": 0.0001,
+    "WEIGHT_DECAY": 1e-05,
+    "CONST_INIT": true,
+    "USE_REVIN": true,
+    "USE_COVARIATES": false,
+    "RANDOM_STATE": 42
+  }
+}

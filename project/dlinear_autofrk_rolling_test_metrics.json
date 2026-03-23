@@ -1,0 +1,38 @@
+{
+  "dlinear_best": {
+    "RMSE": 1.7001738547750869,
+    "MSE": 2.8905911364607784,
+    "MAE": 1.2565461747938027,
+    "R2": 0.9114101395653837
+  },
+  "dlinear_autofrk_rolling": {
+    "RMSE": 1.6743292283194555,
+    "MSE": 2.803378364804823,
+    "MAE": 1.203352158998035,
+    "R2": 0.9367789619431639
+  },
+  "N": 100,
+  "H": 83,
+  "K_first_step": 96,
+  "K_last_step": 96,
+  "residual_history_nan_ratio": 0.1032258064516129,
+  "residual_history_length_used": 417,
+  "params_used": {
+    "INPUT_CHUNK_LENGTH": 48,
+    "OUTPUT_CHUNK_LENGTH": 24,
+    "KERNEL_SIZE": 35,
+    "N_EPOCHS": 50,
+    "BATCH_SIZE": 128,
+    "LR": 0.0001,
+    "WEIGHT_DECAY": 0.0,
+    "CONST_INIT": true,
+    "USE_REVIN": true,
+    "USE_COVARIATES": false,
+    "RANDOM_STATE": 42
+  },
+  "split_ratio": {
+    "train": 0.7,
+    "val": 0.15,
+    "test": 0.15
+  }
+}

@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "/wsl.localhost/Ubuntu/home/jundian/Research-Project/geospatial-neural-adapter-dev/geospatial_neural_adapter/cpp_extensions"
+    "cmake.sourceDirectory": "/wsl.localhost/Ubuntu/home/jundian/Research-Project/geospatial-neural-adapter-dev/geospatial_neural_adapter/cpp_extensions",
+    "remote.autoForwardPortsFallback": 0
 }

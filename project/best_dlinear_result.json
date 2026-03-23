@@ -1,14 +1,18 @@
 {
-  "rmse_test": 1.6146871061714037,
-  "mse_test": 2.6072144508361816,
-  "mae_test": 1.1665427684783936,
-  "r2_test": 0.9254019856452942,
+  "rmse_val": 2.1123183448833216,
+  "mse_val": 4.461888790130615,
+  "mae_val": 1.6053669452667236,
+  "r2_val": 0.8403376340866089,
+  "rmse_test": 2.0098685932381155,
+  "mse_test": 4.039571762084961,
+  "mae_test": 1.4774255752563477,
+  "r2_test": 0.9177802801132202,
   "params": {
     "INPUT_CHUNK_LENGTH": 48,
-    "OUTPUT_CHUNK_LENGTH": 12,
-    "KERNEL_SIZE": 35,
+    "OUTPUT_CHUNK_LENGTH": 24,
+    "KERNEL_SIZE": 25,
     "N_EPOCHS": 30,
-    "BATCH_SIZE": 128,
+    "BATCH_SIZE": 64,
     "LR": 0.0001,
     "WEIGHT_DECAY": 1e-05,
     "CONST_INIT": true,
@@ -28,17 +32,16 @@
     ],
     "KERNEL_SIZE": [
       15,
-      25,
-      35
+      25
     ],
     "N_EPOCHS": [
       30,
       50
     ],
     "BATCH_SIZE": [
+      16,
       32,
-      64,
-      128
+      64
     ],
     "LR": [
       0.0001,
@@ -53,5 +56,15 @@
       true,
       false
     ]
-  }
+  },
+  "n_trials": 500,
+  "best_trial_number": 298,
+  "successful_trials": 500,
+  "split_ratio": {
+    "train": 0.7,
+    "val": 0.15,
+    "test": 0.15
+  },
+  "sample_size": 500,
+  "time_steps": 548
 }
