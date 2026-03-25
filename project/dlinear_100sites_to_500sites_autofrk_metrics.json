@@ -1,0 +1,29 @@
+{
+  "trend_only_500": {
+    "RMSE": 2.7814746300329345,
+    "MSE": 7.736601117516851,
+    "MAE": 2.089679146522022,
+    "R2": 0.6927131874833861
+  },
+  "trend_plus_residual_500": {
+    "RMSE": 2.7576016029042476,
+    "MSE": 7.604366600340076,
+    "MAE": 2.041843698266617,
+    "R2": 0.7443905323495419
+  },
+  "obs_sites": 100,
+  "target_sites": 500,
+  "H": 83,
+  "coords_500_var_name": "coords_500_raw",
+  "y_500_var_name": "y_500_raw",
+  "auto_build_500_target": true,
+  "target_seed_500": 123,
+  "exclude_obs_100_from_target_500": true,
+  "K_first_step": 96,
+  "K_last_step": 96,
+  "split_ratio": {
+    "train": 0.7,
+    "val": 0.15,
+    "test": 0.15
+  }
+}
