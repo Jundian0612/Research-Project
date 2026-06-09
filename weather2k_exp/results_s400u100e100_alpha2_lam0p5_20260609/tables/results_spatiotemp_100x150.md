@@ -1,0 +1,16 @@
+# Scenario summary: spatiotemp_100x150
+
+| scenario | target | space_split | n_train_space | n_unobs_space | n_target_space | model | alpha_obs | lambda_unobs | row_type | seed | RMSE | MSE | MAE | R2 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| spatiotemp_100x150 | Target_ST100x150 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 41 | 4.870080 | 23.717676 | 3.671856 | 0.176038 |
+| spatiotemp_100x150 | Target_ST100x150 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 42 | 4.656148 | 21.679715 | 3.529980 | 0.229065 |
+| spatiotemp_100x150 | Target_ST100x150 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 43 | 5.595632 | 31.311093 | 4.219820 | 0.132168 |
+| spatiotemp_100x150 | Target_ST100x150 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 44 | 4.639933 | 21.528976 | 3.620513 | 0.213929 |
+| spatiotemp_100x150 | Target_ST100x150 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 45 | 5.709799 | 32.601807 | 4.367143 | 0.005375 |
+| spatiotemp_100x150 | Target_ST100x150 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | mean_std | mean +/- std | 5.094318 +/- 0.464516 | 26.167853 +/- 4.806550 | 3.881862 +/- 0.342328 | 0.151315 +/- 0.080302 |
+| spatiotemp_100x150 | Target_ST100x150 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | seed | 41 | 4.879562 | 23.810122 | 3.651847 | -0.664130 |
+| spatiotemp_100x150 | Target_ST100x150 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | seed | 42 | 5.647634 | 31.895771 | 4.540160 | -1.809260 |
+| spatiotemp_100x150 | Target_ST100x150 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | seed | 43 | 5.944398 | 35.335865 | 4.778608 | -2.053462 |
+| spatiotemp_100x150 | Target_ST100x150 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | seed | 44 | 6.306730 | 39.774837 | 5.022615 | -2.351573 |
+| spatiotemp_100x150 | Target_ST100x150 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | seed | 45 | 4.582238 | 20.996904 | 3.629473 | -0.901646 |
+| spatiotemp_100x150 | Target_ST100x150 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | mean_std | mean +/- std | 5.472112 +/- 0.647061 | 30.362700 +/- 7.018909 | 4.324541 +/- 0.578898 | -1.556014 +/- 0.658507 |

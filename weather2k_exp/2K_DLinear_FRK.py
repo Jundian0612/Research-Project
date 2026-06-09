@@ -237,7 +237,7 @@ PL_TRAINER_KWARGS = {
     "enable_model_summary": False,
 }
 
-SAVE_DIR = Path(".")
+SAVE_DIR = Path(script_dir)
 BEST_RESULT_PATH = SAVE_DIR / "2K_best_dlinear_result_500to100.json"
 BEST_PARAMS_PATH = SAVE_DIR / "2K_best_dlinear_params_500to100.json"
 RERUN_METRICS_PATH = SAVE_DIR / "2K_best_dlinear_rerun_metrics_500to100.json"
@@ -555,21 +555,23 @@ def _run_seeded_dlinear_and_frk(sample_seed: int, best_params: dict) -> dict:
     cut_val_seed = int(len(ts_df_seed) * (train_frac + val_frac))
 
     train_raw_seed = TimeSeries.from_dataframe(ts_df_seed.iloc[:cut_train_seed])
-    trainval_raw_seed = TimeSeries.from_dataframe(ts_df_seed.iloc[:cut_val_seed])
-    test_raw_seed = TimeSeries.from_dataframe(ts_df_seed.iloc[cut_val_seed:])
     val_raw_seed = TimeSeries.from_dataframe(ts_df_seed.iloc[cut_train_seed:cut_val_seed])
+    test_raw_seed = TimeSeries.from_dataframe(ts_df_seed.iloc[cut_val_seed:])
 
     trainval_ts_seed = TimeSeries.from_dataframe(ts_df_seed.iloc[:cut_val_seed])
     train_ts_seed = TimeSeries.from_dataframe(ts_df_seed.iloc[:cut_train_seed])
-    val_ts_seed = TimeSeries.from_dataframe(ts_df_seed.iloc[cut_train_seed:cut_val_seed])
     test_ts_seed = TimeSeries.from_dataframe(ts_df_seed.iloc[cut_val_seed:])
 
     month_trainval_seed = month_ts[:cut_val_seed]
     month_train_seed = month_ts[:cut_train_seed]
-    month_val_seed = month_ts[cut_train_seed:cut_val_seed]
     month_test_seed = month_ts[cut_val_seed:]
 
-    print(f"Train len (raw): {len(train_raw_seed)}, Val len (raw): {len(val_raw_seed)}, Test len (raw): {len(test_raw_seed)}")
+    # 在 seed 重訓階段不使用 val 進行訓練；val 僅保留作為 test 時間對齊間隔
+    print(
+        f"Train len (raw): {len(train_raw_seed)}, "
+        f"Val gap len (raw): {len(val_raw_seed)}, "
+        f"Test len (raw): {len(test_raw_seed)}"
+    )
 
     train_df_seed = ts_df_seed.iloc[:cut_train_seed]
     mean_vec_seed = train_df_seed.mean(axis=0)
@@ -579,13 +581,11 @@ def _run_seeded_dlinear_and_frk(sample_seed: int, best_params: dict) -> dict:
     series_scaled_seed = TimeSeries.from_dataframe(ts_df_scaled_seed)
     trainval_scaled_seed = TimeSeries.from_dataframe(ts_df_scaled_seed.iloc[:cut_val_seed])
     train_scaled_seed = TimeSeries.from_dataframe(ts_df_scaled_seed.iloc[:cut_train_seed])
-    val_scaled_seed = TimeSeries.from_dataframe(ts_df_scaled_seed.iloc[cut_train_seed:cut_val_seed])
     test_scaled_seed = TimeSeries.from_dataframe(ts_df_scaled_seed.iloc[cut_val_seed:])
 
-    T_train_seed, T_val_seed, T_test_seed = len(train_scaled_seed), len(val_scaled_seed), len(test_scaled_seed)
-    print("T_train:", T_train_seed, "T_val:", T_val_seed, "T_test:", T_test_seed)
+    T_train_seed, T_test_seed = len(train_scaled_seed), len(test_scaled_seed)
+    print("T_train:", T_train_seed, "T_test:", T_test_seed)
 
-    val_true_raw_seed = ts_df_seed.to_numpy(dtype=np.float32)[cut_train_seed:cut_val_seed]
     test_true_raw_seed = ts_df_seed.to_numpy(dtype=np.float32)[cut_val_seed:]
 
     def inverse_scale_seed(x):
@@ -609,8 +609,8 @@ def _run_seeded_dlinear_and_frk(sample_seed: int, best_params: dict) -> dict:
     pred_kwargs_best = {"verbose": False, "show_warnings": False}
 
     if USE_COVARIATES:
-        fit_kwargs_best["past_covariates"] = month_trainval_seed
-        fit_kwargs_best["future_covariates"] = month_trainval_seed
+        fit_kwargs_best["past_covariates"] = month_train_seed
+        fit_kwargs_best["future_covariates"] = month_train_seed
         pred_kwargs_best["past_covariates"] = month_ts
         pred_kwargs_best["future_covariates"] = month_ts
 
@@ -799,7 +799,7 @@ frk_metrics_df = pd.DataFrame([run["frk_metrics"] for run in seed_runs])
 frk_mean_metrics = frk_metrics_df.mean(numeric_only=True).to_dict()
 frk_std_metrics = frk_metrics_df.std(numeric_only=True, ddof=0).to_dict()
 
-print("\n===== DLinear best TEST RESULTS (seed 41~45 average) =====")
+print("\n===== DLinear best TEST RESULTS (seed 41~45 mean) =====")
 print(
     pd.DataFrame(
         [
@@ -811,9 +811,21 @@ print(
         ]
     ).to_string(index=False)
 )
-print(f"Average training elapsed={_fmt_time(dlinear_elapsed_mean)}")
+print("\n===== DLinear best TEST RESULTS (seed 41~45 std) =====")
+print(
+    pd.DataFrame(
+        [
+            {
+                "Model": "DLINEAR(best)",
+                "Split": "TEST_STD",
+                **{key: float(value) for key, value in dlinear_std_metrics.items()},
+            }
+        ]
+    ).to_string(index=False)
+)
+print(f"Mean training elapsed={_fmt_time(dlinear_elapsed_mean)}")
 
-print("\n===== DLinear + autoFRK TEST RESULTS (seed 41~45 average) =====")
+print("\n===== DLinear + autoFRK TEST RESULTS (seed 41~45 mean) =====")
 print(
     pd.DataFrame(
         [
@@ -821,6 +833,18 @@ print(
                 "Model": "DLINEAR + autoFRK",
                 "Split": "TEST_MEAN",
                 **{key: float(value) for key, value in frk_mean_metrics.items()},
+            }
+        ]
+    ).to_string(index=False)
+)
+print("\n===== DLinear + autoFRK TEST RESULTS (seed 41~45 std) =====")
+print(
+    pd.DataFrame(
+        [
+            {
+                "Model": "DLINEAR + autoFRK",
+                "Split": "TEST_STD",
+                **{key: float(value) for key, value in frk_std_metrics.items()},
             }
         ]
     ).to_string(index=False)

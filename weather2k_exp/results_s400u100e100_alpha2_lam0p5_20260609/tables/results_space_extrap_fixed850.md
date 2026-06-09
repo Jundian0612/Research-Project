@@ -1,0 +1,16 @@
+# Scenario summary: space_extrap_fixed850
+
+| scenario | target | space_split | n_train_space | n_unobs_space | n_target_space | model | alpha_obs | lambda_unobs | row_type | seed | RMSE | MSE | MAE | R2 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 41 | 4.593611 | 21.101259 | 3.461202 | 0.504518 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 42 | 4.291615 | 18.417961 | 3.292027 | 0.525825 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 43 | 5.252243 | 27.586055 | 3.950586 | 0.422809 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 44 | 4.200511 | 17.644292 | 3.296685 | 0.552944 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 45 | 5.218524 | 27.232992 | 3.957941 | 0.415410 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | mean_std | mean +/- std | 4.711301 +/- 0.447390 | 22.396512 +/- 4.252365 | 3.591688 +/- 0.302258 | 0.484301 +/- 0.055447 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | seed | 41 | 5.119224 | 26.206455 | 3.730943 | 0.076260 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | seed | 42 | 4.240072 | 17.978209 | 3.310480 | 0.289961 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | seed | 43 | 4.637575 | 21.507099 | 3.616928 | 0.162190 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | seed | 44 | 4.345863 | 18.886528 | 3.494634 | 0.282811 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | seed | 45 | 4.802705 | 23.065977 | 3.830297 | 0.002533 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | mean_std | mean +/- std | 4.629088 +/- 0.316859 | 21.528854 +/- 2.960816 | 3.596656 +/- 0.181845 | 0.162751 +/- 0.112914 |

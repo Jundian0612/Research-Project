@@ -1,0 +1,412 @@
+# Scenario summary: space_extrap_fixed850
+
+| scenario | target | space_split | n_train_space | n_unobs_space | n_target_space | model | alpha_obs | lambda_unobs | row_type | seed | RMSE | MSE | MAE | R2 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 41 | 4.795734 | 22.999065 | 3.664087 | 0.480028 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 42 | 4.367490 | 19.074966 | 3.404091 | 0.504812 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 43 | 5.302971 | 28.121501 | 3.901691 | 0.396888 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 44 | 4.625981 | 21.399703 | 3.500347 | 0.478151 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 45 | 4.323089 | 18.689094 | 3.413948 | 0.506819 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | mean_std | mean +/- std | 4.683053 +/- 0.354798 | 22.056866 +/- 3.415641 | 3.576833 +/- 0.187279 | 0.473340 +/- 0.040060 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 41 | 4.780453 | 22.852733 | 3.642743 | 0.483336 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 42 | 4.357025 | 18.983670 | 3.392216 | 0.507182 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 43 | 5.296046 | 28.048106 | 3.888238 | 0.398462 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 44 | 4.618777 | 21.333105 | 3.493051 | 0.479775 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 45 | 4.310718 | 18.582294 | 3.399948 | 0.509637 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | mean_std | mean +/- std | 4.672604 +/- 0.356022 | 21.959982 +/- 3.421182 | 3.563239 +/- 0.185894 | 0.475679 +/- 0.040456 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 41 | 4.775749 | 22.807780 | 3.635106 | 0.484352 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 42 | 4.352959 | 18.948256 | 3.387485 | 0.508102 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 43 | 5.295067 | 28.037731 | 3.883153 | 0.398684 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 44 | 4.615481 | 21.302665 | 3.489858 | 0.480517 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 45 | 4.303336 | 18.518698 | 3.390540 | 0.511316 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | mean_std | mean +/- std | 4.668518 +/- 0.357718 | 21.923026 +/- 3.434995 | 3.557229 +/- 0.186241 | 0.476594 +/- 0.040850 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 41 | 4.843167 | 23.456270 | 3.689245 | 0.469691 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 42 | 4.353345 | 18.951616 | 3.387730 | 0.508014 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 43 | 5.334663 | 28.458634 | 3.914386 | 0.389657 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 44 | 4.626963 | 21.408788 | 3.498564 | 0.477930 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 45 | 4.345433 | 18.882789 | 3.417455 | 0.501708 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | mean_std | mean +/- std | 4.700714 +/- 0.367291 | 22.231619 +/- 3.547552 | 3.581476 +/- 0.196854 | 0.469400 +/- 0.042348 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 41 | 4.808639 | 23.123010 | 3.680954 | 0.477225 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 42 | 4.377340 | 19.161107 | 3.415734 | 0.502576 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 43 | 5.309466 | 28.190432 | 3.910982 | 0.395410 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 44 | 4.631582 | 21.451555 | 3.505810 | 0.476887 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 45 | 4.331783 | 18.764342 | 3.422615 | 0.504833 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | mean_std | mean +/- std | 4.691762 +/- 0.354200 | 22.138089 +/- 3.415167 | 3.587219 +/- 0.188009 | 0.471386 +/- 0.039820 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 41 | 4.795732 | 22.999042 | 3.664086 | 0.480028 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 42 | 4.367487 | 19.074944 | 3.404090 | 0.504813 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 43 | 5.302969 | 28.121481 | 3.901690 | 0.396888 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 44 | 4.625979 | 21.399680 | 3.500346 | 0.478152 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 45 | 4.323086 | 18.689073 | 3.413947 | 0.506820 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | mean_std | mean +/- std | 4.683051 +/- 0.354798 | 22.056844 +/- 3.415642 | 3.576831 +/- 0.187279 | 0.473340 +/- 0.040060 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 41 | 4.786585 | 22.911392 | 3.651463 | 0.482010 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 42 | 4.361495 | 19.022636 | 3.397601 | 0.506171 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 43 | 5.298660 | 28.075803 | 3.893911 | 0.397868 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 44 | 4.621824 | 21.361259 | 3.496130 | 0.479089 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 45 | 4.316217 | 18.629733 | 3.406444 | 0.508386 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | mean_std | mean +/- std | 4.676956 +/- 0.355309 | 22.000164 +/- 3.416940 | 3.569110 +/- 0.186268 | 0.474705 +/- 0.040252 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 41 | 4.780451 | 22.852714 | 3.642741 | 0.483336 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 42 | 4.357023 | 18.983652 | 3.392215 | 0.507183 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 43 | 5.296045 | 28.048089 | 3.888236 | 0.398462 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 44 | 4.618776 | 21.333088 | 3.493050 | 0.479776 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 45 | 4.310716 | 18.582277 | 3.399947 | 0.509638 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | mean_std | mean +/- std | 4.672602 +/- 0.356023 | 21.959964 +/- 3.421183 | 3.563238 +/- 0.185895 | 0.475679 +/- 0.040456 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 41 | 4.814058 | 23.175150 | 3.687614 | 0.476047 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 42 | 4.381719 | 19.199463 | 3.420654 | 0.501580 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 43 | 5.312206 | 28.219535 | 3.915108 | 0.394785 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 44 | 4.633914 | 21.473160 | 3.508004 | 0.476360 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 45 | 4.335273 | 18.794596 | 3.425879 | 0.504035 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | mean_std | mean +/- std | 4.695434 +/- 0.353948 | 22.172381 +/- 3.414973 | 3.591452 +/- 0.188441 | 0.470561 +/- 0.039720 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 41 | 4.803837 | 23.076853 | 3.674849 | 0.478269 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 42 | 4.373575 | 19.128156 | 3.411386 | 0.503431 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 43 | 5.307098 | 28.165288 | 3.907267 | 0.395949 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 44 | 4.629511 | 21.432371 | 3.503807 | 0.477355 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 45 | 4.328626 | 18.736999 | 3.419558 | 0.505555 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | mean_std | mean +/- std | 4.688529 +/- 0.354439 | 22.107933 +/- 3.415524 | 3.583373 +/- 0.187628 | 0.472112 +/- 0.039914 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 41 | 4.795731 | 22.999035 | 3.664086 | 0.480028 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 42 | 4.367486 | 19.074936 | 3.404089 | 0.504813 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 43 | 5.302968 | 28.121474 | 3.901689 | 0.396888 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 44 | 4.625978 | 21.399672 | 3.500345 | 0.478152 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 45 | 4.323085 | 18.689065 | 3.413946 | 0.506820 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | mean_std | mean +/- std | 4.683050 +/- 0.354798 | 22.056836 +/- 3.415642 | 3.576831 +/- 0.187279 | 0.473340 +/- 0.040060 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 41 | 4.789273 | 22.937139 | 3.655226 | 0.481428 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 42 | 4.362892 | 19.034826 | 3.398509 | 0.505854 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 43 | 5.299896 | 28.088895 | 3.896275 | 0.397587 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 44 | 4.623075 | 21.372825 | 3.497416 | 0.478807 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 45 | 4.318341 | 18.648073 | 3.408833 | 0.507902 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | mean_std | mean +/- std | 4.678696 +/- 0.355189 | 22.016351 +/- 3.416798 | 3.571252 +/- 0.186742 | 0.474315 +/- 0.040201 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 41 | 4.817037 | 23.203849 | 3.691163 | 0.475398 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 42 | 4.384184 | 19.221066 | 3.423354 | 0.501019 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 43 | 5.313747 | 28.235910 | 3.917358 | 0.394434 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 44 | 4.635203 | 21.485111 | 3.509201 | 0.476068 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 45 | 4.337174 | 18.811083 | 3.427607 | 0.503600 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | mean_std | mean +/- std | 4.697469 +/- 0.353817 | 22.191403 +/- 3.414950 | 3.593737 +/- 0.188678 | 0.470104 +/- 0.039667 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 41 | 4.808638 | 23.122997 | 3.680953 | 0.477226 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 42 | 4.377339 | 19.161095 | 3.415734 | 0.502576 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 43 | 5.309465 | 28.190420 | 3.910981 | 0.395410 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 44 | 4.631581 | 21.451541 | 3.505809 | 0.476887 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 45 | 4.331781 | 18.764330 | 3.422614 | 0.504834 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | mean_std | mean +/- std | 4.691761 +/- 0.354200 | 22.138077 +/- 3.415168 | 3.587218 +/- 0.188009 | 0.471386 +/- 0.039820 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 41 | 4.801635 | 23.055695 | 3.671961 | 0.478747 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 42 | 4.371887 | 19.113399 | 3.409395 | 0.503814 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 43 | 5.306031 | 28.153970 | 3.905537 | 0.396192 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 44 | 4.628559 | 21.423555 | 3.502882 | 0.477569 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 45 | 4.327151 | 18.724238 | 3.418100 | 0.505892 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | mean_std | mean +/- std | 4.687053 +/- 0.354554 | 22.094171 +/- 3.415754 | 3.581575 +/- 0.187448 | 0.472443 +/- 0.039958 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 41 | 4.795730 | 22.999031 | 3.664085 | 0.480028 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 42 | 4.367486 | 19.074933 | 3.404089 | 0.504813 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 43 | 5.302968 | 28.121471 | 3.901689 | 0.396889 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 44 | 4.625978 | 21.399668 | 3.500345 | 0.478152 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 45 | 4.323085 | 18.689062 | 3.413946 | 0.506820 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | mean_std | mean +/- std | 4.683049 +/- 0.354798 | 22.056833 +/- 3.415642 | 3.576831 +/- 0.187279 | 0.473340 +/- 0.040060 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 41 | 4.584719 | 21.019651 | 3.588671 | 0.246284 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 42 | 4.576830 | 20.947369 | 3.574204 | 0.154588 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 43 | 5.023541 | 25.235968 | 3.957166 | -0.057220 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 44 | 5.271959 | 27.793552 | 3.993041 | 0.023257 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 45 | 4.337661 | 18.815306 | 3.436536 | 0.255772 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | mean_std | mean +/- std | 4.758942 +/- 0.338879 | 22.762369 +/- 3.266255 | 3.709924 +/- 0.223225 | 0.124536 +/- 0.123484 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 41 | 4.748297 | 22.546328 | 3.677100 | 0.490612 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 42 | 4.470190 | 19.982596 | 3.438339 | 0.485695 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 43 | 4.921924 | 24.225335 | 3.693970 | 0.437508 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 44 | 4.522321 | 20.451386 | 3.457072 | 0.500281 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 45 | 5.053924 | 25.542152 | 3.847898 | 0.456863 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | mean_std | mean +/- std | 4.743331 +/- 0.224428 | 22.549560 +/- 2.133330 | 3.622876 +/- 0.155032 | 0.474192 +/- 0.023361 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 41 | 4.737638 | 22.445212 | 3.662000 | 0.492896 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 42 | 4.457532 | 19.869591 | 3.424831 | 0.488604 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 43 | 4.906751 | 24.076203 | 3.675657 | 0.440970 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 44 | 4.509845 | 20.338701 | 3.442956 | 0.503034 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 45 | 5.046321 | 25.465351 | 3.837633 | 0.458496 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | mean_std | mean +/- std | 4.731617 +/- 0.225412 | 22.439012 +/- 2.137868 | 3.608616 +/- 0.155572 | 0.476800 +/- 0.023261 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 41 | 4.802205 | 23.061168 | 3.710350 | 0.478980 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 42 | 4.499837 | 20.248531 | 3.449621 | 0.478851 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 43 | 4.951657 | 24.518911 | 3.702792 | 0.430691 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 44 | 4.552511 | 20.725356 | 3.466313 | 0.493586 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 45 | 5.041403 | 25.415747 | 3.829911 | 0.459551 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | mean_std | mean +/- std | 4.769523 +/- 0.213534 | 22.793943 +/- 2.033665 | 3.631797 +/- 0.149019 | 0.468332 +/- 0.021706 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 41 | 4.804931 | 23.087360 | 3.712097 | 0.478388 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 42 | 4.499234 | 20.243105 | 3.448932 | 0.478990 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 43 | 4.954056 | 24.542675 | 3.703980 | 0.430139 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 44 | 4.552226 | 20.722760 | 3.465928 | 0.493650 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 45 | 5.091473 | 25.923095 | 3.863115 | 0.448763 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | mean_std | mean +/- std | 4.780384 +/- 0.227439 | 22.903799 +/- 2.175867 | 3.638810 +/- 0.158665 | 0.465986 +/- 0.023108 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 41 | 4.759063 | 22.648680 | 3.690983 | 0.488299 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 42 | 4.481780 | 20.086352 | 3.451370 | 0.483025 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 43 | 4.932320 | 24.327777 | 3.705509 | 0.435129 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 44 | 4.530206 | 20.522765 | 3.465159 | 0.498537 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 45 | 5.059152 | 25.595016 | 3.853915 | 0.455739 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | mean_std | mean +/- std | 4.752504 +/- 0.223212 | 22.636118 +/- 2.125301 | 3.633387 +/- 0.154001 | 0.472146 +/- 0.023303 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 41 | 4.748292 | 22.546278 | 3.677097 | 0.490613 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 42 | 4.470186 | 19.982559 | 3.438337 | 0.485696 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 43 | 4.921919 | 24.225290 | 3.693968 | 0.437509 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 44 | 4.522316 | 20.451338 | 3.457069 | 0.500282 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 45 | 5.053920 | 25.542105 | 3.847895 | 0.456864 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | mean_std | mean +/- std | 4.743326 +/- 0.224428 | 22.549514 +/- 2.133328 | 3.622873 +/- 0.155031 | 0.474193 +/- 0.023361 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 41 | 4.741559 | 22.482377 | 3.667793 | 0.492057 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 42 | 4.463337 | 19.921378 | 3.431264 | 0.487271 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 43 | 4.913239 | 24.139917 | 3.683386 | 0.439491 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 44 | 4.515580 | 20.390462 | 3.449584 | 0.501769 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 45 | 5.049733 | 25.499802 | 3.842481 | 0.457764 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | mean_std | mean +/- std | 4.736689 +/- 0.224856 | 22.486787 +/- 2.134808 | 3.614902 +/- 0.155134 | 0.475670 +/- 0.023297 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 41 | 4.737634 | 22.445172 | 3.661997 | 0.492897 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 42 | 4.457528 | 19.869560 | 3.424829 | 0.488604 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 43 | 4.906747 | 24.076165 | 3.675654 | 0.440971 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 44 | 4.509841 | 20.338662 | 3.442953 | 0.503035 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 45 | 5.046317 | 25.465313 | 3.837631 | 0.458497 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | mean_std | mean +/- std | 4.731613 +/- 0.225412 | 22.438974 +/- 2.137866 | 3.608613 +/- 0.155572 | 0.476801 +/- 0.023261 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 41 | 4.763969 | 22.695399 | 3.696891 | 0.487244 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 42 | 4.486836 | 20.131700 | 3.456895 | 0.481858 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 43 | 4.936997 | 24.373938 | 3.710913 | 0.434057 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 44 | 4.533155 | 20.549496 | 3.467977 | 0.497883 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 45 | 5.061217 | 25.615914 | 3.856058 | 0.455295 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | mean_std | mean +/- std | 4.756435 +/- 0.222750 | 22.673289 +/- 2.122353 | 3.637747 +/- 0.153649 | 0.471267 +/- 0.023305 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 41 | 4.754897 | 22.609042 | 3.685775 | 0.489195 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 42 | 4.477397 | 20.047086 | 3.446474 | 0.484035 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 43 | 4.928157 | 24.286731 | 3.700586 | 0.436082 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 44 | 4.527429 | 20.497612 | 3.462404 | 0.499151 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 45 | 5.057263 | 25.575911 | 3.851841 | 0.456145 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | mean_std | mean +/- std | 4.749029 +/- 0.223616 | 22.603277 +/- 2.127841 | 3.629416 +/- 0.154321 | 0.472922 +/- 0.023302 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 41 | 4.748290 | 22.546262 | 3.677096 | 0.490613 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 42 | 4.470184 | 19.982547 | 3.438337 | 0.485696 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 43 | 4.921918 | 24.225274 | 3.693967 | 0.437509 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 44 | 4.522314 | 20.451322 | 3.457068 | 0.500282 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 45 | 5.053918 | 25.542089 | 3.847894 | 0.456865 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | mean_std | mean +/- std | 4.743325 +/- 0.224428 | 22.549499 +/- 2.133327 | 3.622872 +/- 0.155031 | 0.474193 +/- 0.023361 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 41 | 4.743447 | 22.500286 | 3.670451 | 0.491652 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 42 | 4.465782 | 19.943206 | 3.434010 | 0.486709 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 43 | 4.915872 | 24.165793 | 3.686592 | 0.438890 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 44 | 4.517708 | 20.409689 | 3.452001 | 0.501299 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 45 | 5.051032 | 25.512926 | 3.844223 | 0.457485 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | mean_std | mean +/- std | 4.738768 +/- 0.224626 | 22.506380 +/- 2.133494 | 3.617455 +/- 0.154945 | 0.475207 +/- 0.023309 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 41 | 4.766758 | 22.721985 | 3.700170 | 0.486643 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 42 | 4.489672 | 20.157157 | 3.459929 | 0.481202 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 43 | 4.939576 | 24.399411 | 3.713848 | 0.433466 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 44 | 4.534709 | 20.563585 | 3.469411 | 0.497539 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 45 | 5.062331 | 25.627193 | 3.857160 | 0.455055 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | mean_std | mean +/- std | 4.758609 +/- 0.222495 | 22.693866 +/- 2.120711 | 3.640104 +/- 0.153466 | 0.470781 +/- 0.023306 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 41 | 4.759060 | 22.648652 | 3.690981 | 0.488300 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 42 | 4.481778 | 20.086331 | 3.451370 | 0.483025 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 43 | 4.932317 | 24.327750 | 3.705508 | 0.435130 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 44 | 4.530203 | 20.522737 | 3.465157 | 0.498537 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 45 | 5.059149 | 25.594989 | 3.853913 | 0.455740 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | mean_std | mean +/- std | 4.752501 +/- 0.223212 | 22.636092 +/- 2.125299 | 3.633386 +/- 0.154001 | 0.472146 +/- 0.023303 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 41 | 4.753049 | 22.591473 | 3.683403 | 0.489592 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 42 | 4.475417 | 20.029358 | 3.444252 | 0.484492 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 43 | 4.926237 | 24.267815 | 3.698282 | 0.436521 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 44 | 4.526097 | 20.485559 | 3.461048 | 0.499446 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 45 | 5.056376 | 25.566938 | 3.850829 | 0.456336 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | mean_std | mean +/- std | 4.747435 +/- 0.223799 | 22.588228 +/- 2.128980 | 3.627563 +/- 0.154465 | 0.473277 +/- 0.023301 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 41 | 4.748290 | 22.546253 | 3.677095 | 0.490614 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 42 | 4.470183 | 19.982540 | 3.438337 | 0.485697 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 43 | 4.921917 | 24.225267 | 3.693967 | 0.437509 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 44 | 4.522313 | 20.451314 | 3.457068 | 0.500282 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 45 | 5.053917 | 25.542081 | 3.847894 | 0.456865 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | mean_std | mean +/- std | 4.743324 +/- 0.224428 | 22.549491 +/- 2.133327 | 3.622872 +/- 0.155031 | 0.474193 +/- 0.023361 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | STDK |  |  | seed | 41 | 4.434389 | 19.663803 | 3.453034 | 0.253105 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | STDK |  |  | seed | 42 | 4.610932 | 21.260693 | 3.549938 | 0.185872 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | STDK |  |  | seed | 43 | 4.714859 | 22.229897 | 3.661151 | 0.115355 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | STDK |  |  | seed | 44 | 4.704404 | 22.131420 | 3.573839 | 0.175052 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | STDK |  |  | seed | 45 | 4.453148 | 19.830526 | 3.471467 | 0.266959 |
+| space_extrap_fixed850 | Target_Space100 | 200/300/100 | 200 | 300 | 100 | STDK |  |  | mean_std | mean +/- std | 4.583546 +/- 0.119876 | 21.023268 +/- 1.096458 | 3.541886 +/- 0.075051 | 0.199268 +/- 0.055295 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 41 | 4.451465 | 19.815543 | 3.389438 | 0.521651 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 42 | 4.528580 | 20.508038 | 3.484814 | 0.498526 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 43 | 4.407928 | 19.429826 | 3.407782 | 0.502500 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 44 | 4.659271 | 21.708810 | 3.596780 | 0.498725 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 45 | 4.561250 | 20.804998 | 3.515195 | 0.502510 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | mean_std | mean +/- std | 4.521699 +/- 0.087652 | 20.453443 +/- 0.794635 | 3.478802 +/- 0.075245 | 0.504782 +/- 0.008611 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 41 | 4.440519 | 19.718207 | 3.377149 | 0.524001 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 42 | 4.519530 | 20.426154 | 3.473135 | 0.500528 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 43 | 4.445232 | 19.760084 | 3.426321 | 0.494044 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 44 | 4.655892 | 21.677332 | 3.591174 | 0.499452 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 45 | 4.557222 | 20.768270 | 3.511807 | 0.503388 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | mean_std | mean +/- std | 4.523679 +/- 0.079614 | 20.470009 +/- 0.723562 | 3.475917 +/- 0.073205 | 0.504283 +/- 0.010314 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 41 | 4.502685 | 20.274174 | 3.422687 | 0.510580 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 42 | 4.568507 | 20.871255 | 3.505499 | 0.489644 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 43 | 4.444690 | 19.755268 | 3.425482 | 0.494167 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 44 | 4.713260 | 22.214824 | 3.631284 | 0.487041 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 45 | 4.603783 | 21.194821 | 3.531356 | 0.493189 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | mean_std | mean +/- std | 4.566585 +/- 0.091480 | 20.862068 +/- 0.838019 | 3.503262 +/- 0.077105 | 0.494924 +/- 0.008231 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 41 | 4.503137 | 20.278241 | 3.422893 | 0.510482 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 42 | 4.568450 | 20.870733 | 3.505238 | 0.489657 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 43 | 4.447138 | 19.777039 | 3.426758 | 0.493609 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 44 | 4.713526 | 22.217332 | 3.631414 | 0.486983 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 45 | 4.604324 | 21.199799 | 3.531663 | 0.493070 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | mean_std | mean +/- std | 4.567315 +/- 0.090896 | 20.868629 +/- 0.832923 | 3.503593 +/- 0.076870 | 0.494760 +/- 0.008220 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 41 | 4.460927 | 19.899869 | 3.399448 | 0.519616 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 42 | 4.537468 | 20.588612 | 3.495392 | 0.496555 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 43 | 4.418759 | 19.525430 | 3.420040 | 0.500052 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 44 | 4.664330 | 21.755975 | 3.603412 | 0.497636 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 45 | 4.562624 | 20.817538 | 3.515297 | 0.502210 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | mean_std | mean +/- std | 4.528821 +/- 0.085210 | 20.517485 +/- 0.773895 | 3.486718 +/- 0.072899 | 0.503214 +/- 0.008432 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 41 | 4.451458 | 19.815474 | 3.389433 | 0.521653 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 42 | 4.528573 | 20.507978 | 3.484811 | 0.498527 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 43 | 4.407920 | 19.429756 | 3.407778 | 0.502502 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 44 | 4.659263 | 21.708731 | 3.596774 | 0.498727 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 45 | 4.561242 | 20.804925 | 3.515190 | 0.502512 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | mean_std | mean +/- std | 4.521691 +/- 0.087652 | 20.453373 +/- 0.794632 | 3.478797 +/- 0.075245 | 0.504784 +/- 0.008611 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 41 | 4.444928 | 19.757385 | 3.382183 | 0.523055 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 42 | 4.522709 | 20.454894 | 3.477192 | 0.499825 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 43 | 4.400377 | 19.363320 | 3.399701 | 0.504203 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 44 | 4.656702 | 21.684874 | 3.592955 | 0.499278 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 45 | 4.559361 | 20.787770 | 3.513810 | 0.502922 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | mean_std | mean +/- std | 4.516815 +/- 0.089598 | 20.409648 +/- 0.811354 | 3.473168 +/- 0.077062 | 0.505857 +/- 0.008795 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 41 | 4.440512 | 19.718151 | 3.377145 | 0.524002 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 42 | 4.519525 | 20.426102 | 3.473131 | 0.500529 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 43 | 4.445231 | 19.760078 | 3.426321 | 0.494044 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 44 | 4.655886 | 21.677274 | 3.591170 | 0.499453 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 45 | 4.557215 | 20.768210 | 3.511802 | 0.503390 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | mean_std | mean +/- std | 4.523674 +/- 0.079613 | 20.469963 +/- 0.723552 | 3.475914 +/- 0.073204 | 0.504284 +/- 0.010314 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 41 | 4.465019 | 19.936397 | 3.403571 | 0.518734 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 42 | 4.542061 | 20.630320 | 3.501135 | 0.495536 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 43 | 4.423191 | 19.564614 | 3.424862 | 0.499049 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 44 | 4.666841 | 21.779404 | 3.606422 | 0.497095 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 45 | 4.562925 | 20.820287 | 3.514863 | 0.502144 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | mean_std | mean +/- std | 4.532007 +/- 0.084339 | 20.546204 +/- 0.766598 | 3.490171 +/- 0.072124 | 0.502512 +/- 0.008406 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 41 | 4.457356 | 19.868025 | 3.395767 | 0.520384 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 42 | 4.533681 | 20.554261 | 3.490597 | 0.497395 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 43 | 4.414792 | 19.490387 | 3.415612 | 0.500949 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 44 | 4.662281 | 21.736860 | 3.600828 | 0.498077 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 45 | 4.562232 | 20.813963 | 3.515463 | 0.502296 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | mean_std | mean +/- std | 4.526068 +/- 0.086050 | 20.492699 +/- 0.780998 | 3.483653 +/- 0.073680 | 0.503820 +/- 0.008476 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 41 | 4.451455 | 19.815451 | 3.389431 | 0.521653 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 42 | 4.528571 | 20.507958 | 3.484810 | 0.498528 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 43 | 4.407917 | 19.429733 | 3.407776 | 0.502502 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 44 | 4.659260 | 21.708705 | 3.596772 | 0.498728 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 45 | 4.561239 | 20.804900 | 3.515188 | 0.502512 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | mean_std | mean +/- std | 4.521688 +/- 0.087652 | 20.453349 +/- 0.794631 | 3.478795 +/- 0.075245 | 0.504785 +/- 0.008611 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 41 | 4.446838 | 19.774368 | 3.384308 | 0.522645 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 42 | 4.524318 | 20.469455 | 3.479265 | 0.499469 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 43 | 4.403009 | 19.386491 | 3.402793 | 0.503609 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 44 | 4.657333 | 21.690753 | 3.593939 | 0.499142 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 45 | 4.560024 | 20.793817 | 3.514361 | 0.502777 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | mean_std | mean +/- std | 4.518305 +/- 0.088889 | 20.422977 +/- 0.805225 | 3.474933 +/- 0.076358 | 0.505529 +/- 0.008738 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 41 | 4.467304 | 19.956802 | 3.405829 | 0.518241 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 42 | 4.544736 | 20.654624 | 3.504423 | 0.494941 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 43 | 4.425628 | 19.586185 | 3.427446 | 0.498496 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 44 | 4.668312 | 21.793139 | 3.608124 | 0.496778 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 45 | 4.563049 | 20.821419 | 3.514533 | 0.502117 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | mean_std | mean +/- std | 4.533806 +/- 0.083895 | 20.562434 +/- 0.762897 | 3.492071 +/- 0.071749 | 0.502115 +/- 0.008404 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 41 | 4.460922 | 19.899829 | 3.399445 | 0.519617 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 42 | 4.537464 | 20.588577 | 3.495391 | 0.496556 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 43 | 4.418754 | 19.525389 | 3.420037 | 0.500053 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 44 | 4.664325 | 21.755929 | 3.603409 | 0.497637 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 45 | 4.562619 | 20.817497 | 3.515294 | 0.502211 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | mean_std | mean +/- std | 4.528817 +/- 0.085209 | 20.517444 +/- 0.773893 | 3.486715 +/- 0.072899 | 0.503215 +/- 0.008432 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 41 | 4.455738 | 19.853601 | 3.394061 | 0.520733 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 42 | 4.532038 | 20.539371 | 3.488494 | 0.497759 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 43 | 4.412952 | 19.474149 | 3.413526 | 0.501365 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 44 | 4.661402 | 21.728668 | 3.599684 | 0.498267 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 45 | 4.562009 | 20.811922 | 3.515462 | 0.502344 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | mean_std | mean +/- std | 4.524828 +/- 0.086460 | 20.481542 +/- 0.784470 | 3.482245 +/- 0.074072 | 0.504094 +/- 0.008502 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 41 | 4.451454 | 19.815440 | 3.389430 | 0.521654 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 42 | 4.528570 | 20.507948 | 3.484809 | 0.498528 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 43 | 4.407916 | 19.429721 | 3.407775 | 0.502503 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 44 | 4.659259 | 21.708692 | 3.596771 | 0.498728 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 45 | 4.561238 | 20.804888 | 3.515188 | 0.502513 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | mean_std | mean +/- std | 4.521687 +/- 0.087652 | 20.453338 +/- 0.794631 | 3.478795 +/- 0.075245 | 0.504785 +/- 0.008611 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | STDK |  |  | seed | 41 | 4.731521 | 22.387287 | 3.595860 | 0.217328 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | STDK |  |  | seed | 42 | 4.466679 | 19.951220 | 3.521619 | 0.227109 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | STDK |  |  | seed | 43 | 4.628415 | 21.422230 | 3.628762 | 0.182292 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | STDK |  |  | seed | 44 | 4.704914 | 22.136211 | 3.716503 | 0.203394 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | STDK |  |  | seed | 45 | 4.650622 | 21.628288 | 3.659125 | 0.151732 |
+| space_extrap_fixed850 | Target_Space100 | 300/200/100 | 300 | 200 | 100 | STDK |  |  | mean_std | mean +/- std | 4.636430 +/- 0.092535 | 21.505047 +/- 0.850076 | 3.624374 +/- 0.064940 | 0.196371 +/- 0.026923 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 41 | 4.675231 | 21.857786 | 3.519899 | 0.486754 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 42 | 4.377699 | 19.164249 | 3.341788 | 0.506612 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 43 | 5.325088 | 28.356567 | 3.996434 | 0.406687 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 44 | 4.298701 | 18.478834 | 3.356663 | 0.531799 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 45 | 5.291316 | 27.998030 | 4.017288 | 0.398987 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | mean_std | mean +/- std | 4.793607 +/- 0.438660 | 23.171093 +/- 4.242295 | 3.646414 +/- 0.300939 | 0.466168 +/- 0.053699 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 41 | 4.724414 | 22.320091 | 3.553936 | 0.475899 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 42 | 4.416013 | 19.501171 | 3.360284 | 0.497937 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 43 | 5.371742 | 28.855609 | 4.025616 | 0.396246 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 44 | 4.341895 | 18.852052 | 3.376620 | 0.522343 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 45 | 5.351172 | 28.635044 | 4.057571 | 0.385313 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | mean_std | mean +/- std | 4.841047 +/- 0.443909 | 23.632793 +/- 4.334727 | 3.674805 +/- 0.307254 | 0.455547 +/- 0.054995 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 41 | 4.724700 | 22.322791 | 3.553959 | 0.475836 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 42 | 4.418753 | 19.525380 | 3.361966 | 0.497314 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 43 | 5.371952 | 28.857866 | 4.025484 | 0.396198 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 44 | 4.342029 | 18.853216 | 3.376484 | 0.522313 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 45 | 5.351970 | 28.643588 | 4.058046 | 0.385130 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | mean_std | mean +/- std | 4.841881 +/- 0.443573 | 23.640568 +/- 4.332215 | 3.675188 +/- 0.307023 | 0.455358 +/- 0.054945 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 41 | 4.724872 | 22.324418 | 3.553970 | 0.475797 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 42 | 4.418533 | 19.523437 | 3.361653 | 0.497364 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 43 | 5.372139 | 28.859882 | 4.025458 | 0.396156 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 44 | 4.342123 | 18.854035 | 3.376410 | 0.522292 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 45 | 5.352577 | 28.650084 | 4.058418 | 0.384990 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | mean_std | mean +/- std | 4.842049 +/- 0.443769 | 23.642371 +/- 4.334291 | 3.675182 +/- 0.307188 | 0.455320 +/- 0.054989 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 41 | 4.684918 | 21.948458 | 3.531098 | 0.484625 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 42 | 4.388549 | 19.259361 | 3.353850 | 0.504163 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 43 | 5.331301 | 28.422775 | 4.006147 | 0.405302 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 44 | 4.305664 | 18.538744 | 3.364725 | 0.530281 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 45 | 5.291294 | 27.997794 | 4.020174 | 0.398992 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | mean_std | mean +/- std | 4.800345 +/- 0.436017 | 23.233426 +/- 4.221680 | 3.655199 +/- 0.298985 | 0.464673 +/- 0.053105 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 41 | 4.675221 | 21.857688 | 3.519891 | 0.486757 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 42 | 4.377690 | 19.164172 | 3.341784 | 0.506614 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 43 | 5.325079 | 28.356471 | 3.996429 | 0.406689 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 44 | 4.298691 | 18.478740 | 3.356656 | 0.531801 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 45 | 5.291307 | 27.997928 | 4.017281 | 0.398989 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | mean_std | mean +/- std | 4.793598 +/- 0.438660 | 23.171000 +/- 4.242290 | 3.646408 +/- 0.300938 | 0.466170 +/- 0.053699 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 41 | 4.670182 | 21.810597 | 3.513201 | 0.487862 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 42 | 4.369348 | 19.091201 | 3.332011 | 0.508492 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 43 | 5.321823 | 28.321797 | 3.990055 | 0.407415 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 44 | 4.293660 | 18.435518 | 3.350209 | 0.532896 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 45 | 5.292990 | 28.015740 | 4.016216 | 0.398607 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | mean_std | mean +/- std | 4.789600 +/- 0.441246 | 23.134971 +/- 4.264176 | 3.640338 +/- 0.302982 | 0.467055 +/- 0.054272 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 41 | 4.724414 | 22.320089 | 3.553936 | 0.475899 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 42 | 4.416011 | 19.501158 | 3.360283 | 0.497938 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 43 | 5.371740 | 28.855596 | 4.025615 | 0.396246 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 44 | 4.341895 | 18.852049 | 3.376620 | 0.522343 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 45 | 5.351170 | 28.635021 | 4.057570 | 0.385313 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | mean_std | mean +/- std | 4.841046 +/- 0.443908 | 23.632782 +/- 4.334722 | 3.674805 +/- 0.307254 | 0.455548 +/- 0.054995 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 41 | 4.689634 | 21.992666 | 3.536182 | 0.483587 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 42 | 4.393889 | 19.306259 | 3.360068 | 0.502955 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 43 | 5.334339 | 28.455172 | 4.011289 | 0.404624 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 44 | 4.308527 | 18.563403 | 3.367789 | 0.529656 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 45 | 5.291768 | 28.002808 | 4.021656 | 0.398885 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | mean_std | mean +/- std | 4.803631 +/- 0.434958 | 23.264062 +/- 4.213791 | 3.659397 +/- 0.298287 | 0.463942 +/- 0.052872 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 41 | 4.681028 | 21.912023 | 3.526744 | 0.485481 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 42 | 4.383956 | 19.219071 | 3.348426 | 0.505200 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 43 | 5.328820 | 28.396327 | 4.003058 | 0.405855 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 44 | 4.303086 | 18.516552 | 3.361846 | 0.530843 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 45 | 5.291078 | 27.995502 | 4.018983 | 0.399042 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | mean_std | mean +/- std | 4.797594 +/- 0.437024 | 23.207895 +/- 4.229414 | 3.651811 +/- 0.299984 | 0.465284 +/- 0.053327 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 41 | 4.675217 | 21.857655 | 3.519889 | 0.486757 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 42 | 4.377687 | 19.164146 | 3.341783 | 0.506614 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 43 | 5.325076 | 28.356439 | 3.996427 | 0.406690 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 44 | 4.298687 | 18.478709 | 3.356654 | 0.531802 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 45 | 5.291304 | 27.997894 | 4.017278 | 0.398990 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | mean_std | mean +/- std | 4.793594 +/- 0.438660 | 23.170969 +/- 4.242288 | 3.646406 +/- 0.300938 | 0.466171 +/- 0.053699 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 41 | 4.671444 | 21.822392 | 3.515033 | 0.487585 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 42 | 4.371771 | 19.112386 | 3.334834 | 0.507947 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 43 | 5.322644 | 28.330539 | 3.991754 | 0.407232 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 44 | 4.295145 | 18.448270 | 3.352191 | 0.532573 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 45 | 5.292263 | 28.008047 | 4.016380 | 0.398772 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | mean_std | mean +/- std | 4.790654 +/- 0.440415 | 23.144327 +/- 4.256984 | 3.642039 +/- 0.302308 | 0.466822 +/- 0.054088 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 41 | 4.692364 | 22.018275 | 3.539043 | 0.482986 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 42 | 4.396902 | 19.332747 | 3.363503 | 0.502274 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 43 | 5.336155 | 28.474545 | 4.014250 | 0.404219 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 44 | 4.310085 | 18.576836 | 3.369402 | 0.529316 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 45 | 5.292123 | 28.006565 | 4.022536 | 0.398804 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | mean_std | mean +/- std | 4.805526 +/- 0.434415 | 23.281794 +/- 4.209898 | 3.661747 +/- 0.297959 | 0.463520 +/- 0.052753 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 41 | 4.684912 | 21.948402 | 3.531094 | 0.484627 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 42 | 4.388544 | 19.259316 | 3.353848 | 0.504164 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 43 | 5.331296 | 28.422717 | 4.006144 | 0.405303 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 44 | 4.305658 | 18.538690 | 3.364722 | 0.530282 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 45 | 5.291288 | 27.997734 | 4.020170 | 0.398994 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | mean_std | mean +/- std | 4.800340 +/- 0.436017 | 23.233372 +/- 4.221676 | 3.655196 +/- 0.298984 | 0.464674 +/- 0.053105 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 41 | 4.679349 | 21.896303 | 3.524802 | 0.485850 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 42 | 4.381897 | 19.201024 | 3.345993 | 0.505665 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 43 | 5.327735 | 28.384757 | 4.001173 | 0.406097 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 44 | 4.301896 | 18.506310 | 3.360474 | 0.531103 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 45 | 5.291056 | 27.995272 | 4.018471 | 0.399046 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | mean_std | mean +/- std | 4.796386 +/- 0.437504 | 23.196733 +/- 4.233165 | 3.650183 +/- 0.300338 | 0.465552 +/- 0.053434 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 41 | 4.675215 | 21.857639 | 3.519888 | 0.486758 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 42 | 4.377686 | 19.164133 | 3.341782 | 0.506614 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 43 | 5.325075 | 28.356423 | 3.996426 | 0.406690 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 44 | 4.298685 | 18.478693 | 3.356653 | 0.531802 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 45 | 5.291302 | 27.997877 | 4.017277 | 0.398991 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | mean_std | mean +/- std | 4.793593 +/- 0.438660 | 23.170953 +/- 4.242287 | 3.646405 +/- 0.300938 | 0.466171 +/- 0.053699 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | seed | 41 | 5.119224 | 26.206455 | 3.730943 | 0.076260 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | seed | 42 | 4.240072 | 17.978209 | 3.310480 | 0.289961 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | seed | 43 | 4.637575 | 21.507099 | 3.616928 | 0.162190 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | seed | 44 | 4.345863 | 18.886528 | 3.494634 | 0.282811 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | seed | 45 | 4.802705 | 23.065977 | 3.830297 | 0.002533 |
+| space_extrap_fixed850 | Target_Space100 | 400/100/100 | 400 | 100 | 100 | STDK |  |  | mean_std | mean +/- std | 4.629088 +/- 0.316859 | 21.528854 +/- 2.960816 | 3.596656 +/- 0.181845 | 0.162751 +/- 0.112914 |

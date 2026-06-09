@@ -1,0 +1,106 @@
+# Scenario summary: spatiotemp_100x150
+
+| scenario | target | model | alpha_obs | lambda_unobs | row_type | seed | RMSE | MSE | MAE | R2 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 41 | 5.303051 | 28.122352 | 4.020028 | 0.118713 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 42 | 5.104050 | 26.051322 | 3.945944 | 0.073347 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 43 | 5.819331 | 33.864610 | 4.410180 | -0.004742 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 44 | 5.366159 | 28.795663 | 4.159242 | 0.004551 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | seed | 45 | 4.819856 | 23.231011 | 3.775114 | 0.074533 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 0.5 | mean_std | mean +/- std | 5.282489 +/- 0.329087 | 28.012992 +/- 3.509457 | 4.062101 +/- 0.213644 | 0.053281 +/- 0.046641 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 41 | 5.530582 | 30.587335 | 4.186933 | 0.041467 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 42 | 5.271704 | 27.790858 | 4.090813 | 0.011472 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 43 | 6.168427 | 38.049488 | 4.674790 | -0.128905 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 44 | 5.513084 | 30.394097 | 4.311136 | -0.050705 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | seed | 45 | 4.895101 | 23.962010 | 3.824132 | 0.045412 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 1.0 | mean_std | mean +/- std | 5.475779 +/- 0.415449 | 30.156758 +/- 4.615394 | 4.217561 +/- 0.279143 | -0.016252 +/- 0.066000 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 41 | 6.710193 | 45.026684 | 5.300681 | -0.411027 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 42 | 5.745926 | 33.015668 | 4.520993 | -0.174376 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 43 | 7.290478 | 53.151069 | 5.696934 | -0.576960 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 44 | 6.033514 | 36.403295 | 4.778366 | -0.258440 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | seed | 45 | 5.478314 | 30.011922 | 4.307276 | -0.195602 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 1.5 | mean_std | mean +/- std | 6.251685 +/- 0.661939 | 39.521728 +/- 8.468215 | 4.920850 +/- 0.510537 | -0.323281 +/- 0.151480 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 41 | 5.716166 | 32.674550 | 4.327934 | -0.023941 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 42 | 6.505992 | 42.327934 | 5.207724 | -0.505616 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 43 | 6.200401 | 38.444967 | 4.693210 | -0.140639 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 44 | 6.188014 | 38.291521 | 4.905387 | -0.323715 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | seed | 45 | 4.992586 | 24.925913 | 3.889018 | 0.007012 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 0.5 | 2.0 | mean_std | mean +/- std | 5.920632 +/- 0.528297 | 35.332977 +/- 6.045512 | 4.604655 +/- 0.458407 | -0.197380 +/- 0.192897 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 41 | 5.359682 | 28.726189 | 4.109126 | 0.099791 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 42 | 5.087872 | 25.886443 | 3.949644 | 0.079212 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 43 | 5.796043 | 33.594109 | 4.418594 | 0.003283 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 44 | 5.367738 | 28.812614 | 4.154603 | 0.003965 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | seed | 45 | 4.854755 | 23.568645 | 3.812237 | 0.061082 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 0.5 | mean_std | mean +/- std | 5.293218 +/- 0.315347 | 28.117600 +/- 3.362042 | 4.088841 +/- 0.204626 | 0.049467 +/- 0.039384 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 41 | 5.303045 | 28.122288 | 4.020024 | 0.118715 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 42 | 5.104044 | 26.051264 | 3.945939 | 0.073349 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 43 | 5.819326 | 33.864553 | 4.410176 | -0.004741 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 44 | 5.366158 | 28.795649 | 4.159241 | 0.004552 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 45 | 4.819852 | 23.230976 | 3.775110 | 0.074534 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | mean_std | mean +/- std | 5.282485 +/- 0.329087 | 28.012946 +/- 3.509454 | 4.062098 +/- 0.213644 | 0.053282 +/- 0.046642 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 41 | 5.333508 | 28.446303 | 4.016119 | 0.108562 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 42 | 5.148471 | 26.506749 | 3.983380 | 0.057148 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 43 | 5.923508 | 35.087952 | 4.471518 | -0.041038 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 44 | 5.406220 | 29.227219 | 4.204080 | -0.010367 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | seed | 45 | 4.820194 | 23.234275 | 3.767986 | 0.074403 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 1.5 | mean_std | mean +/- std | 5.326380 +/- 0.360794 | 28.500499 +/- 3.889312 | 4.088617 +/- 0.236254 | 0.037741 +/- 0.055239 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 41 | 5.530582 | 30.587334 | 4.186933 | 0.041467 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 42 | 5.271697 | 27.790787 | 4.090807 | 0.011474 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 43 | 6.168437 | 38.049612 | 4.674799 | -0.128909 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 44 | 5.513092 | 30.394180 | 4.311143 | -0.050708 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | seed | 45 | 4.895102 | 23.962022 | 3.824132 | 0.045411 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.0 | 2.0 | mean_std | mean +/- std | 5.475782 +/- 0.415453 | 30.156787 +/- 4.615441 | 4.217563 +/- 0.279147 | -0.016253 +/- 0.066002 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 41 | 5.387861 | 29.029043 | 4.147423 | 0.090300 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 42 | 5.092904 | 25.937668 | 3.962343 | 0.077390 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 43 | 5.793883 | 33.569083 | 4.428293 | 0.004026 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 44 | 5.373894 | 28.878734 | 4.158584 | 0.001680 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | seed | 45 | 4.869690 | 23.713885 | 3.827013 | 0.055296 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 0.5 | mean_std | mean +/- std | 5.303646 +/- 0.311477 | 28.225683 +/- 3.323105 | 4.104731 +/- 0.203380 | 0.045738 +/- 0.036770 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 41 | 5.335028 | 28.462521 | 4.074165 | 0.108053 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 42 | 5.087589 | 25.883564 | 3.942474 | 0.079315 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 43 | 5.801923 | 33.662309 | 4.412500 | 0.001260 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 44 | 5.363899 | 28.771416 | 4.153078 | 0.005390 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | seed | 45 | 4.840944 | 23.434738 | 3.798082 | 0.066417 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 1.0 | mean_std | mean +/- std | 5.285877 +/- 0.320028 | 28.042910 +/- 3.411230 | 4.076060 +/- 0.207000 | 0.052087 +/- 0.042055 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 41 | 5.303043 | 28.122268 | 4.020023 | 0.118716 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 42 | 5.104042 | 26.051244 | 3.945937 | 0.073350 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 43 | 5.819324 | 33.864534 | 4.410175 | -0.004740 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 44 | 5.366157 | 28.795645 | 4.159240 | 0.004552 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | seed | 45 | 4.819851 | 23.230963 | 3.775109 | 0.074535 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 1.5 | mean_std | mean +/- std | 5.282484 +/- 0.329087 | 28.012931 +/- 3.509453 | 4.062097 +/- 0.213645 | 0.053283 +/- 0.046642 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 41 | 5.309158 | 28.187155 | 4.003059 | 0.116683 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 42 | 5.147232 | 26.493996 | 3.978634 | 0.057601 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 43 | 5.876522 | 34.533513 | 4.438857 | -0.024588 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 44 | 5.386786 | 29.017466 | 4.182973 | -0.003116 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | seed | 45 | 4.814108 | 23.175633 | 3.765168 | 0.076739 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 1.5 | 2.0 | mean_std | mean +/- std | 5.306761 +/- 0.346178 | 28.281553 +/- 3.712230 | 4.073738 +/- 0.225610 | 0.044664 +/- 0.051888 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 41 | 5.402853 | 29.190823 | 4.167244 | 0.085230 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 42 | 5.097008 | 25.979493 | 3.970416 | 0.075902 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 43 | 5.793797 | 33.568082 | 4.433897 | 0.004055 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 44 | 5.377619 | 28.918787 | 4.161260 | 0.000295 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | seed | 45 | 4.877371 | 23.788747 | 3.834447 | 0.052314 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 0.5 | mean_std | mean +/- std | 5.309730 +/- 0.309770 | 28.289186 +/- 3.306500 | 4.113453 +/- 0.203060 | 0.043559 +/- 0.035473 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 41 | 5.359680 | 28.726168 | 4.109126 | 0.099791 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 42 | 5.087870 | 25.886424 | 3.949643 | 0.079213 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 43 | 5.796040 | 33.594085 | 4.418592 | 0.003284 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 44 | 5.367737 | 28.812604 | 4.154602 | 0.003966 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | seed | 45 | 4.854753 | 23.568630 | 3.812236 | 0.061083 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 1.0 | mean_std | mean +/- std | 5.293216 +/- 0.315347 | 28.117582 +/- 3.362039 | 4.088840 +/- 0.204626 | 0.049467 +/- 0.039384 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 41 | 5.324505 | 28.350349 | 4.058246 | 0.111569 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 42 | 5.089461 | 25.902617 | 3.941075 | 0.078637 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 43 | 5.806726 | 33.718063 | 4.410925 | -0.000394 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 44 | 5.363090 | 28.762730 | 4.153424 | 0.005690 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | seed | 45 | 4.834690 | 23.374230 | 3.791529 | 0.068827 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 1.5 | mean_std | mean +/- std | 5.283694 +/- 0.322757 | 28.021598 +/- 3.440790 | 4.071040 +/- 0.208562 | 0.052866 +/- 0.043422 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 41 | 5.303042 | 28.122257 | 4.020022 | 0.118716 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 42 | 5.104041 | 26.051235 | 3.945937 | 0.073350 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 43 | 5.819323 | 33.864525 | 4.410174 | -0.004740 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 44 | 5.366157 | 28.795643 | 4.159240 | 0.004552 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | seed | 45 | 4.819850 | 23.230957 | 3.775109 | 0.074535 |
+| spatiotemp_100x150 | Target_ST100x150 | DLINEAR + differentiable_FRK | 2.0 | 2.0 | mean_std | mean +/- std | 5.282483 +/- 0.329087 | 28.012923 +/- 3.509452 | 4.062096 +/- 0.213645 | 0.053283 +/- 0.046642 |
+| spatiotemp_100x150 | Target_ST100x150 | STDK |  |  | seed | 41 | 4.571949 | 20.902721 | 3.612136 | -0.654119 |
+| spatiotemp_100x150 | Target_ST100x150 | STDK |  |  | seed | 42 | 4.549855 | 20.701183 | 3.596909 | -0.769000 |
+| spatiotemp_100x150 | Target_ST100x150 | STDK |  |  | seed | 43 | 5.176398 | 26.795099 | 4.079817 | -1.743806 |
+| spatiotemp_100x150 | Target_ST100x150 | STDK |  |  | seed | 44 | 5.129418 | 26.310925 | 3.943478 | -0.848342 |
+| spatiotemp_100x150 | Target_ST100x150 | STDK |  |  | seed | 45 | 4.286500 | 18.374079 | 3.470148 | -0.448253 |
+| spatiotemp_100x150 | Target_ST100x150 | STDK |  |  | mean_std | mean +/- std | 4.742824 +/- 0.349888 | 22.616801 +/- 3.338056 | 3.740498 +/- 0.230877 | -0.892704 +/- 0.446342 |

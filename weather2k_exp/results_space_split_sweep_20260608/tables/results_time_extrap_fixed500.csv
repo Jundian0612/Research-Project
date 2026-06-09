@@ -1,0 +1,49 @@
+scenario,target,space_split,n_train_space,n_unobs_space,n_target_space,model,alpha_obs,lambda_unobs,row_type,seed,RMSE,MSE,MAE,R2
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,41,5.225956,27.310613,3.995422,0.079349
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,42,5.159297,26.618348,3.973679,0.120166
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,43,5.357093,28.698446,4.110567,0.036883
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,44,5.174256,26.772921,3.983815,0.075460
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,45,5.252169,27.585274,4.051359,0.086051
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,DLINEAR + differentiable_FRK,1.0,1.0,mean_std,mean +/- std,5.233754 +/- 0.070280,27.397121 +/- 0.739249,4.022968 +/- 0.051382,0.079582 +/- 0.026568
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,STDK,,,seed,41,4.774484,22.795696,3.720092,-0.925040
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,STDK,,,seed,42,4.518585,20.417614,3.557194,-0.596132
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,STDK,,,seed,43,4.952297,24.525246,3.848119,-1.236740
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,STDK,,,seed,44,4.798411,23.024750,3.708052,-0.698761
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,STDK,,,seed,45,4.496284,20.216574,3.582212,-0.626760
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,STDK,,,mean_std,mean +/- std,4.708012 +/- 0.174915,22.195976 +/- 1.646368,3.683134 +/- 0.105122,-0.816687 +/- 0.239503
+time_extrap_fixed500,Target_Time150,200/300/100,200,300,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,41,5.039802,25.399603,3.879288,0.147389
+time_extrap_fixed500,Target_Time150,200/300/100,200,300,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,42,5.076254,25.768358,3.929103,0.141182
+time_extrap_fixed500,Target_Time150,200/300/100,200,300,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,43,5.187073,26.905722,4.000909,0.104550
+time_extrap_fixed500,Target_Time150,200/300/100,200,300,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,44,4.947384,24.476611,3.846411,0.156046
+time_extrap_fixed500,Target_Time150,200/300/100,200,300,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,45,4.964620,24.647454,3.863516,0.136323
+time_extrap_fixed500,Target_Time150,200/300/100,200,300,100,DLINEAR + differentiable_FRK,1.0,1.0,mean_std,mean +/- std,5.043027 +/- 0.086208,25.439550 +/- 0.873389,3.903845 +/- 0.055835,0.137098 +/- 0.017559
+time_extrap_fixed500,Target_Time150,200/300/100,200,300,100,STDK,,,seed,41,4.756046,22.619970,3.701716,-0.930243
+time_extrap_fixed500,Target_Time150,200/300/100,200,300,100,STDK,,,seed,42,4.358180,18.993731,3.472378,-0.564914
+time_extrap_fixed500,Target_Time150,200/300/100,200,300,100,STDK,,,seed,43,4.348620,18.910500,3.442564,-0.616206
+time_extrap_fixed500,Target_Time150,200/300/100,200,300,100,STDK,,,seed,44,4.428294,19.609789,3.464559,-0.573236
+time_extrap_fixed500,Target_Time150,200/300/100,200,300,100,STDK,,,seed,45,4.815856,23.192472,3.722958,-0.913929
+time_extrap_fixed500,Target_Time150,200/300/100,200,300,100,STDK,,,mean_std,mean +/- std,4.541399 +/- 0.202448,20.665292 +/- 1.854449,3.560835 +/- 0.124268,-0.719706 +/- 0.166237
+time_extrap_fixed500,Target_Time150,300/200/100,300,200,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,41,4.877535,23.790351,3.781897,0.226640
+time_extrap_fixed500,Target_Time150,300/200/100,300,200,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,42,4.989388,24.893992,3.892015,0.170608
+time_extrap_fixed500,Target_Time150,300/200/100,300,200,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,43,5.128242,26.298862,3.967469,0.144388
+time_extrap_fixed500,Target_Time150,300/200/100,300,200,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,44,4.916761,24.174542,3.847985,0.164585
+time_extrap_fixed500,Target_Time150,300/200/100,300,200,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,45,4.891426,23.926052,3.798574,0.185861
+time_extrap_fixed500,Target_Time150,300/200/100,300,200,100,DLINEAR + differentiable_FRK,1.0,1.0,mean_std,mean +/- std,4.960670 +/- 0.092238,24.616760 +/- 0.923245,3.857588 +/- 0.067176,0.178416 +/- 0.027536
+time_extrap_fixed500,Target_Time150,300/200/100,300,200,100,STDK,,,seed,41,4.343732,18.868008,3.409012,-0.630180
+time_extrap_fixed500,Target_Time150,300/200/100,300,200,100,STDK,,,seed,42,4.574812,20.928902,3.580744,-0.681430
+time_extrap_fixed500,Target_Time150,300/200/100,300,200,100,STDK,,,seed,43,5.256226,27.627909,4.212207,-1.459333
+time_extrap_fixed500,Target_Time150,300/200/100,300,200,100,STDK,,,seed,44,4.682681,21.927504,3.776841,-0.717599
+time_extrap_fixed500,Target_Time150,300/200/100,300,200,100,STDK,,,seed,45,4.117691,16.955376,3.317885,-0.398050
+time_extrap_fixed500,Target_Time150,300/200/100,300,200,100,STDK,,,mean_std,mean +/- std,4.595028 +/- 0.383738,21.261539 +/- 3.615435,3.659338 +/- 0.317774,-0.777318 +/- 0.358720
+time_extrap_fixed500,Target_Time150,400/100/100,400,100,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,41,5.014137,25.141566,3.916684,0.171118
+time_extrap_fixed500,Target_Time150,400/100/100,400,100,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,42,4.882040,23.834311,3.848187,0.211843
+time_extrap_fixed500,Target_Time150,400/100/100,400,100,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,43,5.140035,26.419956,3.987230,0.099692
+time_extrap_fixed500,Target_Time150,400/100/100,400,100,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,44,4.792717,22.970137,3.752391,0.215613
+time_extrap_fixed500,Target_Time150,400/100/100,400,100,100,DLINEAR + differentiable_FRK,1.0,1.0,seed,45,4.988441,24.884540,3.880880,0.122468
+time_extrap_fixed500,Target_Time150,400/100/100,400,100,100,DLINEAR + differentiable_FRK,1.0,1.0,mean_std,mean +/- std,4.963474 +/- 0.118451,24.650102 +/- 1.176153,3.877075 +/- 0.077586,0.164147 +/- 0.046613
+time_extrap_fixed500,Target_Time150,400/100/100,400,100,100,STDK,,,seed,41,4.229722,17.890551,3.333752,-0.473356
+time_extrap_fixed500,Target_Time150,400/100/100,400,100,100,STDK,,,seed,42,5.463929,29.854521,4.327641,-1.472985
+time_extrap_fixed500,Target_Time150,400/100/100,400,100,100,STDK,,,seed,43,5.414719,29.319178,4.337530,-1.659188
+time_extrap_fixed500,Target_Time150,400/100/100,400,100,100,STDK,,,seed,44,6.015375,36.184731,4.753566,-1.959328
+time_extrap_fixed500,Target_Time150,400/100/100,400,100,100,STDK,,,seed,45,4.134894,17.097351,3.321449,-0.365154
+time_extrap_fixed500,Target_Time150,400/100/100,400,100,100,STDK,,,mean_std,mean +/- std,5.051728 +/- 0.741156,26.069266 +/- 7.410794,4.014788 +/- 0.581784,-1.186002 +/- 0.645903

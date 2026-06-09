@@ -426,7 +426,7 @@ print("\n===== STDK fixed-parameter run (500 -> 100 sampling) =====")
 logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
 
 STDK_CONFIG = build_stdk_model_config()
-SAVE_DIR = Path(".")
+SAVE_DIR = Path(script_dir)
 RESULT_PATH = SAVE_DIR / "2K_stdk_metrics.json"
 TIME_STRIDE = 1  # 使用完整時間序列，不跳過任何時間點
 
@@ -570,14 +570,32 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
 
     create_model = load_stdk_create_model(script_dir)
 
-    model = create_model(STDK_CONFIG, train_coords=coords_train).to(device)
+    # 在 seed 重訓階段用 train+val 進行訓練，不使用 early stopping
+    trainval_dataset = DictDataset(
+        torch.from_numpy(np.vstack([X_train, X_val])),
+        torch.from_numpy(np.vstack([coords_train, coords_val])),
+        torch.from_numpy(np.vstack([t_train, t_val])),
+        torch.from_numpy(np.vstack([y_train, y_val])),
+    )
+    trainval_loader = DataLoader(
+        trainval_dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        generator=g,
+        num_workers=0,
+        pin_memory=False,
+        collate_fn=collate_fn,
+    )
 
+    model = create_model(STDK_CONFIG, train_coords=np.vstack([coords_train, coords_val])).to(device)
+
+    # 訓練時只用 trainval_loader，測試時用 val_loader（此時 val_loader 不再用於 early stopping）
     train_start = time.time()
     model = _silent_call(
         train_stdk_model,
         model,
-        train_loader,
-        val_loader,
+        trainval_loader,
+        val_loader,  # 此參數在新的訓練流程中作為 early stopping 參考，但在此配置下不影響最終模型
         device,
         STDK_CONFIG,
     )
@@ -698,9 +716,20 @@ summary_metrics = pd.DataFrame(
     ]
 )
 
-print("\n===== STDK TEST RESULTS (seed 41~45 average) =====")
+print("\n===== STDK TEST RESULTS (seed 41~45 mean) =====")
 print(summary_metrics.to_string(index=False))
-print(f"Average training elapsed={_fmt_time(elapsed_mean)}")
+summary_metrics_std = pd.DataFrame(
+    [
+        {
+            "Model": "STDK",
+            "Split": "TEST_STD",
+            **{key: float(value) for key, value in std_metrics.items()},
+        }
+    ]
+)
+print("\n===== STDK TEST RESULTS (seed 41~45 std) =====")
+print(summary_metrics_std.to_string(index=False))
+print(f"Mean training elapsed={_fmt_time(elapsed_mean)}")
 
 payload = {
     "Model": "STDK",
