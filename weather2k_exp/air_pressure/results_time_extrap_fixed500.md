@@ -1,0 +1,16 @@
+# Scenario summary: time_extrap_fixed500
+
+| scenario | target | space_split | n_train_space | n_unobs_space | n_target_space | model | alpha_obs | lambda_unobs | row_type | seed | RMSE | MSE | MAE | R2 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 41 | 67.987512 | 4622.301778 | 52.467220 | 0.328460 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 42 | 69.286240 | 4800.583094 | 51.538627 | 0.294077 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 43 | 74.143584 | 5497.271080 | 58.980441 | 0.125308 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 44 | 66.499142 | 4422.135848 | 53.752629 | 0.239655 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 45 | 71.153934 | 5062.882268 | 56.482731 | 0.281996 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | mean_std | mean +/- std | 69.814082 +/- 2.651173 | 4881.034814 +/- 373.314654 | 54.644330 +/- 2.733566 | 0.253899 +/- 0.070287 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 41 | 29.430499 | 866.154297 | 19.528633 | -199.354904 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 42 | 32.907146 | 1082.880249 | 23.761101 | -200.463150 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 43 | 46.028876 | 2118.657471 | 31.985828 | -504.169495 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 44 | 34.435873 | 1185.829346 | 25.534660 | -205.265259 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 45 | 32.290937 | 1042.704590 | 21.740234 | -225.118973 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | mean_std | mean +/- std | 35.018666 +/- 5.739181 | 1259.245190 +/- 441.926290 | 24.510091 +/- 4.242273 | -266.874356 +/- 119.010504 |

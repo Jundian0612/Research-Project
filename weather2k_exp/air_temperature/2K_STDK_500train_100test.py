@@ -89,8 +89,7 @@ if len(weather_var_names) != nvar:
         f"變數名稱數量 = {len(weather_var_names)}，但資料中的氣象變數數量 = {nvar}，請確認 Weather2K 變數順序"
     )
 
-# 目前實驗目標：相對濕度
-target_var_name = "relative_humidity"
+target_var_name = "air_temperature"
 if target_var_name not in weather_var_names:
     raise ValueError(f"{target_var_name} 不在 weather_var_names 中")
 
