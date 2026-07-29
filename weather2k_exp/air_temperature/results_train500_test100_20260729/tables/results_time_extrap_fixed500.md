@@ -1,0 +1,22 @@
+# Scenario summary: time_extrap_fixed500
+
+| scenario | target | space_split | n_train_space | n_unobs_space | n_target_space | model | alpha_obs | lambda_unobs | row_type | seed | RMSE | MSE | MAE | R2 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | SVGP |  |  | seed | 41 | 5.688009 | 32.353451 | 4.429684 | -1.423358 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | SVGP |  |  | seed | 42 | 5.077076 | 25.776699 | 3.948793 | -0.861432 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | SVGP |  |  | seed | 43 | 4.963073 | 24.632092 | 3.875940 | -0.875471 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | SVGP |  |  | seed | 44 | 5.939957 | 35.283092 | 4.663878 | -1.545120 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | SVGP |  |  | seed | 45 | 5.003866 | 25.038675 | 3.944071 | -0.886016 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | SVGP |  |  | mean_std | mean +/- std | 5.334396 +/- 0.401271 | 28.616802 +/- 4.362317 | 4.172473 +/- 0.315521 | -1.118279 +/- 0.301377 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 41 | 4.539916 | 20.610842 | 3.406417 | 0.305201 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 42 | 4.587309 | 21.043400 | 3.457534 | 0.304439 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 43 | 4.660127 | 21.716780 | 3.551063 | 0.271187 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 44 | 4.460548 | 19.896488 | 3.383871 | 0.312922 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | seed | 45 | 4.570270 | 20.887366 | 3.489103 | 0.307964 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | DLINEAR + differentiable_FRK | 1.0 | 1.0 | mean_std | mean +/- std | 4.563634 +/- 0.064969 | 20.830975 +/- 0.592398 | 3.457598 +/- 0.059638 | 0.300342 +/- 0.014878 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 41 | 4.045070 | 16.362595 | 3.269509 | -0.406887 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 42 | 4.176291 | 17.441410 | 3.363816 | -0.342024 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 43 | 4.672330 | 21.830667 | 3.733704 | -0.817626 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 44 | 5.915250 | 34.990181 | 4.752232 | -2.076502 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 45 | 4.836762 | 23.394268 | 3.808164 | -0.951164 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | mean_std | mean +/- std | 4.729141 +/- 0.662610 | 22.803824 +/- 6.633971 | 3.785485 +/- 0.525705 | -0.918841 +/- 0.623904 |

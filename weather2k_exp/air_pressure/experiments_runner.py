@@ -1,7 +1,8 @@
 """
 簡易實驗 runner：執行三個指定的外推情境，呼叫 DLinear+FRK 與 STDK 腳本。
 時間固定使用最後 1000 個時間點並切成 700/150/150。
-空間固定抽 600 個空間點，並掃描多組 train/unobs/target 切分。
+空間固定抽 600 個空間點；obs100 + unobs400 共 500 站提供訓練監督，
+其餘 100 站保留作空間/時空測試。
 會產生對應的結果檔案，檔名會包含場景後綴。
 """
 import os
@@ -34,8 +35,7 @@ TARGET_PREFIX_BY_SCENARIO = {
 SCENARIOS = [
     {
         "name": "time_extrap_fixed500",
-        # 固定前 500 個空間點做時間外推：
-        # 用 100 個 train 空間點跑 DLinear，再用 FRK 外推到 400 個 val 空間點。
+        # 固定 500 個受監督空間點（obs100 + unobs400）做時間外推。
         "env": {
             "EXPERIMENT_SCENARIO": "time_extrap_fixed500",
             "N_SAMPLE_TARGET": "600",
@@ -52,7 +52,7 @@ SCENARIOS = [
     },
     {
         "name": "space_extrap_fixed850",
-        # 固定前 850 個訓練/驗證時間點，只做 100 -> 400/100 的空間外推。
+        # 固定前 850 個訓練/驗證時間點，評估保留的 100 個空間點。
         "env": {
             "EXPERIMENT_SCENARIO": "space_extrap_fixed850",
             "N_SAMPLE_TARGET": "600",
@@ -271,7 +271,11 @@ if __name__ == "__main__":
 
         for space_split in SPACE_SPLITS:
             sc_env = apply_space_split(sc["env"], space_split)
-            base_suffix = f"{sc['env']['RESULT_SUFFIX']}_{split_suffix(space_split)}"
+            train_n, unobs_n, target_n = space_split
+            base_suffix = (
+                f"{sc['env']['RESULT_SUFFIX']}_{split_suffix(space_split)}_"
+                f"train{train_n + unobs_n}_test{target_n}"
+            )
             print(f"\n=== Space split {sc_env['SPACE_SPLIT_LABEL']} ===")
 
             if RUN_DLINEAR:

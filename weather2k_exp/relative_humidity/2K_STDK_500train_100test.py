@@ -1,4 +1,7 @@
+"""STDK baseline trained on 500 stations and evaluated on 100 held-out stations."""
+
 import importlib.util
+import ast
 import contextlib
 import copy
 import gc
@@ -369,16 +372,18 @@ N_SAMPLE_TARGET = int(_env.get("N_SAMPLE_TARGET", "600"))
 N_TRAIN_TARGET = int(_env.get("N_TRAIN_TARGET", "100"))
 N_UNKNOWN_PRIMARY_TARGET = int(_env.get("N_UNKNOWN_PRIMARY_TARGET", "400"))
 N_UNKNOWN_EVAL_TARGET = int(_env.get("N_UNKNOWN_EVAL_TARGET", "100"))
+N_SUPERVISED_TRAIN_TARGET = N_TRAIN_TARGET + N_UNKNOWN_PRIMARY_TARGET
 N_LAST = int(_env.get("N_LAST", "1000"))
 TIME_TRAIN_LEN = int(_env.get("TIME_TRAIN_LEN", "700"))
 TIME_VAL_LEN = int(_env.get("TIME_VAL_LEN", "150"))
 TIME_TEST_LEN = int(_env.get("TIME_TEST_LEN", "150"))
-SEED_LIST = eval(_env.get("SEED_LIST", str(list(range(41, 46)))))
+SEED_LIST = ast.literal_eval(_env.get("SEED_LIST", str(list(range(41, 46)))))
 RESULT_SUFFIX = _env.get("RESULT_SUFFIX", "")
 
 print(
     f"\n===== STDK run ({EXPERIMENT_SCENARIO}) "
-    f"sample={N_SAMPLE_TARGET} train={N_TRAIN_TARGET} "
+    f"sample={N_SAMPLE_TARGET} obs={N_TRAIN_TARGET} "
+    f"supervised_train={N_SUPERVISED_TRAIN_TARGET} "
     f"unknown_primary={N_UNKNOWN_PRIMARY_TARGET} unknown_eval={N_UNKNOWN_EVAL_TARGET} "
     f"time={TIME_TRAIN_LEN}/{TIME_VAL_LEN}/{TIME_TEST_LEN} n_last={N_LAST} ====="
 )
@@ -424,6 +429,9 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
     sample_idx_unknown_eval = np.random.choice(sample_idx_unknown, size=n_unknown_eval, replace=False)
     sample_idx_unknown_eval = np.sort(sample_idx_unknown_eval)
     sample_idx_unknown_primary = np.setdiff1d(sample_idx_unknown, sample_idx_unknown_eval)
+    sample_idx_train500 = np.sort(
+        np.concatenate([sample_idx_train, sample_idx_unknown_primary])
+    )
 
     if len(sample_idx_unknown_primary) != N_UNKNOWN_PRIMARY_TARGET:
         print(f"[Warning] unknown primary size is {len(sample_idx_unknown_primary)}, expected {N_UNKNOWN_PRIMARY_TARGET}.")
@@ -437,7 +445,7 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
     coords_unknown_primary_full = coords_sample_full[sample_idx_unknown_primary, :]
     coords_unknown_eval_full = coords_sample_full[sample_idx_unknown_eval, :]
 
-    print(f"STDK 訓練站點數: {len(sample_idx_train)}")
+    print(f"STDK 訓練站點數: {len(sample_idx_train500)} (obs100 + unobs400)")
     print(f"STDK unknown 總站點數: {len(sample_idx_unknown)}")
     print(f"STDK unknown400 站點數: {len(sample_idx_unknown_primary)}")
     print(f"STDK unknown100 站點數: {len(sample_idx_unknown_eval)}")
@@ -446,7 +454,7 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
 
     ts_df, used_time_idx = _build_stdk_dataset(y_train_full, time_stride=TIME_STRIDE)
     print("Total time steps (original):", ntime)
-    print("TRAIN_SIZE:", len(sample_idx_train))
+    print("TRAIN_SIZE:", len(sample_idx_train500))
     print("UNKNOWN_SIZE:", len(sample_idx_unknown))
     print("UNKNOWN400_SIZE:", len(sample_idx_unknown_primary))
     print("UNKNOWN100_SIZE:", len(sample_idx_unknown_eval))
@@ -466,12 +474,14 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
     unknown_primary_y_matrix = y_unknown_primary_full[:, used_time_idx].astype(np.float32)
     unknown_eval_y_matrix = y_unknown_eval_full[:, used_time_idx].astype(np.float32)
     full_y_matrix = y_sample_full[:, used_time_idx].astype(np.float32)
+    train500_y_matrix = full_y_matrix[sample_idx_train500, :]
 
     coords_full_norm = normalize_coords(coords_sample_full)
     coords_train_norm = coords_full_norm[sample_idx_train, :]
     coords_unknown_norm = coords_full_norm[sample_idx_unknown, :]
     coords_unknown_primary_norm = coords_full_norm[sample_idx_unknown_primary, :]
     coords_unknown_eval_norm = coords_full_norm[sample_idx_unknown_eval, :]
+    coords_train500_norm = coords_full_norm[sample_idx_train500, :]
 
     n_full = coords_full_norm.shape[0]
     n_train = coords_train_norm.shape[0]
@@ -507,7 +517,7 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
     print(f"Total time steps (used): {n_time_used}")
     print(f"Train len: {len(train_time_idx)}, Val len: {len(val_time_idx)}, Test len: {len(test_time_idx)}")
     print(f"Eval window: {eval_time_label}, Eval len: {len(eval_time_idx)}")
-    print("STDK train block: 1 = Train700 x obs100")
+    print("STDK train block: 1+2 = Train700 x (obs100 + unobs400)")
     print("STDK validation block: 4+5 = Val150 x (obs100 + unobs400)")
 
     t_norm_all = np.linspace(0.0, 1.0, n_time_used, dtype=np.float32)
@@ -525,10 +535,10 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
         return y_std_arr * y_std + y_mean
 
     X_train, coords_train, t_train, y_train = build_flat_inputs(
-        train_y_matrix, coords_train_norm, train_time_idx, t_norm_all
+        train500_y_matrix, coords_train500_norm, train_time_idx, t_norm_all
     )
-    # STDK 對齊 DLinear+FRK：三個情境都只用 1 訓練，
-    # validation 則用 4+5（obs100 的 Val150 + unobs400 的 Val150）選模型。
+    # 對齊 DLinear+FRK 的可用監督資訊：Train700 使用 obs100 +
+    # unobs400 共 500 站，validation 使用相同 500 站的 Val150。
     X_val_obs, coords_val_obs, t_val_obs, y_val_obs = build_flat_inputs(
         train_y_matrix, coords_train_norm, val_time_idx, t_norm_all
     )
@@ -790,7 +800,8 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
         "params_used": STDK_CONFIG,
         "sampling_info": {
             "full_sample_size": int(N_SAMPLE_TARGET),
-            "train_sample_size": int(N_TRAIN_TARGET),
+            "observed_sample_size": int(N_TRAIN_TARGET),
+            "train_sample_size": int(N_SUPERVISED_TRAIN_TARGET),
             "unknown_primary_sample_size": int(N_UNKNOWN_PRIMARY_TARGET),
             "unknown_eval_sample_size": int(N_UNKNOWN_EVAL_TARGET),
             "sample_seed": int(sample_seed),
@@ -804,6 +815,7 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
             "eval_time_len": int(eval_len),
             "sample_idx_global": sample_idx_global.tolist(),
             "sample_idx_train": sample_idx_train.tolist(),
+            "sample_idx_train500": sample_idx_train500.tolist(),
             "sample_idx_unknown": sample_idx_unknown.tolist(),
             "sample_idx_unknown_primary": sample_idx_unknown_primary.tolist(),
             "sample_idx_unknown_eval": sample_idx_unknown_eval.tolist(),
@@ -868,7 +880,8 @@ payload = {
     "params_used": STDK_CONFIG,
     "sampling_info": {
         "full_sample_size": int(N_SAMPLE_TARGET),
-        "train_sample_size": int(N_TRAIN_TARGET),
+        "observed_sample_size": int(N_TRAIN_TARGET),
+        "train_sample_size": int(N_SUPERVISED_TRAIN_TARGET),
         "unknown_primary_sample_size": int(N_UNKNOWN_PRIMARY_TARGET),
         "unknown_eval_sample_size": int(N_UNKNOWN_EVAL_TARGET),
         "time_stride": int(TIME_STRIDE),
