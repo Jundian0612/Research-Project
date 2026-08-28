@@ -1,0 +1,7 @@
+scenario,target,space_split,n_train_space,n_unobs_space,n_target_space,model,alpha_obs,lambda_unobs,row_type,seed,RMSE,MSE,MAE,R2
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,SVGP,,,seed,41,3.320592,11.026330,2.603338,0.032303
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,SVGP,,,seed,42,3.347205,11.203783,2.659564,0.079405
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,SVGP,,,seed,43,3.612039,13.046826,2.772180,-0.153490
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,SVGP,,,seed,44,3.359349,11.285225,2.625392,0.051749
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,SVGP,,,seed,45,3.347595,11.206392,2.693164,-0.002305
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,SVGP,,,mean_std,mean +/- std,3.397356 +/- 0.108090,11.553711 +/- 0.751357,2.670727 +/- 0.059190,0.001532 +/- 0.081951

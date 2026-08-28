@@ -17,11 +17,36 @@ SVGP_SCRIPT = ROOT / "2K_SVGP_500train_100test.py"
 DLIN_SCRIPT = ROOT / "2K_DLinear_FRK_hybridloss.py"
 STDK_SCRIPT = ROOT / "2K_STDK_500train_100test.py"
 PY = sys.executable
-ALPHA_LIST = [value.strip() for value in os.environ.get("ALPHA_LIST", "1.0").split(",") if value.strip()]
-LAMBDA_LIST = [value.strip() for value in os.environ.get("LAMBDA_LIST", "1.0").split(",") if value.strip()]
+PARAMS_PATH = ROOT / "2K_best_dlinear_and_frk_params_500to100.json"
+if not PARAMS_PATH.exists():
+    raise FileNotFoundError(
+        f"Missing tuned DLinear+FRK parameters: {PARAMS_PATH}. "
+        "Run tune_dlinear_and_frk_hyperparams.py first."
+    )
+with open(PARAMS_PATH, "r", encoding="utf-8") as _params_handle:
+    _params_payload = json.load(_params_handle)
+FORMAL_PARAMS = _params_payload.get("formal_run_params", _params_payload)
+FORMAL_ALPHA = str(FORMAL_PARAMS["DIFF_FRK_OBS_LOSS_WEIGHT"])
+FORMAL_LAMBDA = str(FORMAL_PARAMS["DIFF_FRK_LOSS_WEIGHT"])
+
+_alpha_override = os.environ.get("ALPHA_LIST")
+_lambda_override = os.environ.get("LAMBDA_LIST")
+if (_alpha_override is None) != (_lambda_override is None):
+    raise ValueError("Set both ALPHA_LIST and LAMBDA_LIST, or leave both unset to use tuned values.")
+ALPHA_LIST = (
+    [value.strip() for value in _alpha_override.split(",") if value.strip()]
+    if _alpha_override is not None else [None]
+)
+LAMBDA_LIST = (
+    [value.strip() for value in _lambda_override.split(",") if value.strip()]
+    if _lambda_override is not None else [None]
+)
 SPACE_SPLITS = [
     tuple(int(part) for part in value.strip().replace(":", "/").split("/"))
-    for value in os.environ.get("SPACE_SPLITS", "100/400/100").split(",")
+    for value in os.environ.get(
+        "SPACE_SPLITS",
+        "100/400/100",
+    ).split(",")
     if value.strip()
 ]
 RUN_STDK = os.environ.get("RUN_STDK", "1") == "1"
@@ -108,6 +133,14 @@ def lambda_suffix(lambda_value: str) -> str:
 
 def alpha_suffix(alpha_value: str) -> str:
     return f"alpha{alpha_value.replace('.', 'p')}"
+
+
+def svgp_suffix() -> str:
+    kernel = os.environ.get("SVGP_KERNEL", "matern_periodic").strip().lower()
+    inducing = os.environ.get("SVGP_NUM_INDUCING", "1024").strip()
+    lr = os.environ.get("SVGP_LR", "0.001").strip().replace(".", "p")
+    epochs = os.environ.get("SVGP_EPOCHS", "500").strip()
+    return f"{kernel}_m{inducing}_lr{lr}_e{epochs}"
 
 
 def split_suffix(space_split: tuple[int, int, int]) -> str:
@@ -325,6 +358,51 @@ if __name__ == "__main__":
         summary_rows = []
         rc = 0
 
+        # STDK and SVGP both consume the same combined train500, so run each
+        # baseline once per scenario. 100/400 is retained only as the canonical
+        # interface split; it does not change their combined 500-station input.
+        baseline_split = (100, 400, 100)
+        baseline_env = apply_space_split(sc["env"], baseline_split)
+        baseline_suffix = f"{sc['env']['RESULT_SUFFIX']}_train500_test100"
+
+        if RUN_SVGP:
+            svgp_env = dict(baseline_env)
+            svgp_env["RESULT_SUFFIX"] = f"{baseline_suffix}_{svgp_suffix()}"
+            print("\n--- SVGP baseline: train500/test100 (run once) ---")
+            rc = run_script(SVGP_SCRIPT, svgp_env)
+            if rc == 0:
+                result_path = _svgp_result_path(svgp_env["RESULT_SUFFIX"])
+                if result_path.exists():
+                    payload = _load_json(result_path)
+                    result_rows.extend(_svgp_seed_rows(payload, sc["name"], baseline_split))
+                    summary_row = _svgp_summary_row(payload, sc["name"], baseline_split)
+                    result_rows.append(summary_row)
+                    summary_rows.append(summary_row)
+                    _write_result_files(result_rows, sc["name"])
+
+        if rc != 0:
+            print(f"SVGP failed for scenario {sc['name']}; skipping remaining models.")
+            continue
+
+        if RUN_STDK:
+            stdk_env = dict(baseline_env)
+            stdk_env["RESULT_SUFFIX"] = baseline_suffix
+            print("\n--- STDK baseline: train500/test100 (run once) ---")
+            rc = run_script(STDK_SCRIPT, stdk_env)
+            if rc == 0:
+                result_path = ROOT / f"2K_stdk_metrics_{stdk_env['RESULT_SUFFIX']}.json"
+                if result_path.exists():
+                    payload = _load_json(result_path)
+                    result_rows.extend(_seed_rows(payload, sc["name"], baseline_split))
+                    summary_row = _summary_row(payload, sc["name"], baseline_split)
+                    result_rows.append(summary_row)
+                    summary_rows.append(summary_row)
+                    _write_result_files(result_rows, sc["name"])
+
+        if rc != 0:
+            print(f"STDK failed for scenario {sc['name']}; skipping DLinear+FRK sweep.")
+            continue
+
         for space_split in SPACE_SPLITS:
             sc_env = apply_space_split(sc["env"], space_split)
             train_n, unobs_n, target_n = space_split
@@ -334,53 +412,37 @@ if __name__ == "__main__":
             )
             print(f"\n=== Space split {sc_env['SPACE_SPLIT_LABEL']} ===")
 
-            if RUN_SVGP:
-                svgp_env = dict(sc_env)
-                svgp_env["RESULT_SUFFIX"] = base_suffix
-                print(f"\n--- SVGP split={sc_env['SPACE_SPLIT_LABEL']} ---")
-                rc = run_script(SVGP_SCRIPT, svgp_env)
-                if rc != 0:
-                    print(
-                        f"Script {SVGP_SCRIPT.name} exited with code {rc}. "
-                        f"Aborting scenario {sc['name']} at split={sc_env['SPACE_SPLIT_LABEL']}"
-                    )
-                    break
-                result_path = _svgp_result_path(svgp_env["RESULT_SUFFIX"])
-                if result_path.exists():
-                    payload = _load_json(result_path)
-                    result_rows.extend(_svgp_seed_rows(payload, sc["name"], space_split))
-                    summary_row = _svgp_summary_row(payload, sc["name"], space_split)
-                    result_rows.append(summary_row)
-                    summary_rows.append(summary_row)
-                    _write_result_files(result_rows, sc["name"])
-
             if RUN_DLINEAR:
                 for alpha_value in ALPHA_LIST:
                     for lambda_value in LAMBDA_LIST:
                         dlinear_env = dict(sc_env)
-                        dlinear_env["DIFF_FRK_OBS_LOSS_WEIGHT"] = str(alpha_value)
-                        dlinear_env["DIFF_FRK_LOSS_WEIGHT"] = str(lambda_value)
+                        effective_alpha = FORMAL_ALPHA if alpha_value is None else str(alpha_value)
+                        effective_lambda = FORMAL_LAMBDA if lambda_value is None else str(lambda_value)
+                        if alpha_value is not None:
+                            dlinear_env["DIFF_FRK_OBS_LOSS_WEIGHT"] = effective_alpha
+                            dlinear_env["DIFF_FRK_LOSS_WEIGHT"] = effective_lambda
                         dlinear_env["RESULT_SUFFIX"] = (
                             f"{base_suffix}_"
-                            f"{alpha_suffix(str(alpha_value))}_{lambda_suffix(str(lambda_value))}"
+                            f"{alpha_suffix(effective_alpha)}_{lambda_suffix(effective_lambda)}"
                         )
                         print(
                             f"\n--- DLinear+FRK split={sc_env['SPACE_SPLIT_LABEL']}, "
-                            f"alpha={alpha_value}, lambda={lambda_value} ---"
+                            f"alpha={effective_alpha}, lambda={effective_lambda} "
+                            f"({'override' if alpha_value is not None else 'tuned JSON'}) ---"
                         )
                         rc = run_script(DLIN_SCRIPT, dlinear_env)
                         if rc != 0:
                             print(
                                 f"Script {DLIN_SCRIPT.name} exited with code {rc}. "
                                 f"Aborting scenario {sc['name']} at split={sc_env['SPACE_SPLIT_LABEL']}, "
-                                f"alpha={alpha_value}, lambda={lambda_value}"
+                                f"alpha={effective_alpha}, lambda={effective_lambda}"
                             )
                             break
                         result_path = ROOT / f"dlinear_autofrk_frkloss_test_100to500_metrics_{dlinear_env['RESULT_SUFFIX']}.json"
                         if result_path.exists():
                             payload = _load_json(result_path)
-                            result_rows.extend(_seed_rows(payload, sc["name"], space_split, alpha_value, lambda_value))
-                            summary_row = _summary_row(payload, sc["name"], space_split, alpha_value, lambda_value)
+                            result_rows.extend(_seed_rows(payload, sc["name"], space_split, effective_alpha, effective_lambda))
+                            summary_row = _summary_row(payload, sc["name"], space_split, effective_alpha, effective_lambda)
                             result_rows.append(summary_row)
                             summary_rows.append(summary_row)
                             _write_result_files(result_rows, sc["name"])
@@ -390,26 +452,6 @@ if __name__ == "__main__":
                     rc = 0
                 if rc != 0:
                     break
-
-            if RUN_STDK:
-                stdk_env = dict(sc_env)
-                stdk_env["RESULT_SUFFIX"] = base_suffix
-                print(f"\n--- STDK baseline split={sc_env['SPACE_SPLIT_LABEL']} (lambda-independent) ---")
-                rc = run_script(STDK_SCRIPT, stdk_env)
-                if rc != 0:
-                    print(
-                        f"Script {STDK_SCRIPT.name} exited with code {rc}. "
-                        f"Aborting scenario {sc['name']} at split={sc_env['SPACE_SPLIT_LABEL']}"
-                    )
-                    break
-                result_path = ROOT / f"2K_stdk_metrics_{stdk_env['RESULT_SUFFIX']}.json"
-                if result_path.exists():
-                    payload = _load_json(result_path)
-                    result_rows.extend(_seed_rows(payload, sc["name"], space_split))
-                    summary_row = _summary_row(payload, sc["name"], space_split)
-                    result_rows.append(summary_row)
-                    summary_rows.append(summary_row)
-                    _write_result_files(result_rows, sc["name"])
         else:
             rc = 0
 

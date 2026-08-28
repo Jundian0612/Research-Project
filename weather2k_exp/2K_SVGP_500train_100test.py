@@ -149,7 +149,12 @@ def _compute_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
         "RMSE": float(np.sqrt(mse)),
         "MSE": float(mse),
         "MAE": float(mae),
-        "R2": float(r2_score(y_true, y_pred)),
+        "R2": float(
+            r2_score(
+                np.asarray(y_true).reshape(-1),
+                np.asarray(y_pred).reshape(-1),
+            )
+        ),
     }
 
 
@@ -214,20 +219,28 @@ def normalize_coords(coords):
 
 def build_svgp_config():
     return {
-        # Match the STDK and DLinear+FRK experiment budget. SVGP-specific
-        # optimization settings remain configurable because the models differ.
-        "epochs": int(os.environ.get("SVGP_EPOCHS", "350")),
-        "lr": float(os.environ.get("SVGP_LR", "1e-2")),
+        # Defaults use the validation-selected SVGP configuration from
+        # svgp_tuning_current (seeds 41 and 42; test metrics were not used).
+        "epochs": int(os.environ.get("SVGP_EPOCHS", "500")),
+        "lr": float(os.environ.get("SVGP_LR", "1e-3")),
         "weight_decay": float(os.environ.get("SVGP_WEIGHT_DECAY", "0.0")),
         "batch_size": int(os.environ.get("SVGP_BATCH_SIZE", "4096")),
         "patience": int(os.environ.get("SVGP_PATIENCE", "30")),
         "num_inducing": int(os.environ.get("SVGP_NUM_INDUCING", "1024")),
         "init_noise": float(os.environ.get("SVGP_INIT_NOISE", "0.1")),
+        "variational_jitter": float(
+            os.environ.get("SVGP_VARIATIONAL_JITTER", "1e-2")
+        ),
+        "kernel": os.environ.get("SVGP_KERNEL", "matern_periodic").strip().lower(),
+        "matern_nu": float(os.environ.get("SVGP_MATERN_NU", "1.5")),
+        "period_length": float(
+            os.environ.get("SVGP_PERIOD_LENGTH", str(8.0 / 999.0))
+        ),
     }
 
 
 class SVGPModel(gpytorch.models.ApproximateGP):
-    def __init__(self, inducing_points):
+    def __init__(self, inducing_points, config):
         variational_distribution = gpytorch.variational.CholeskyVariationalDistribution(
             inducing_points.size(0)
         )
@@ -236,18 +249,63 @@ class SVGPModel(gpytorch.models.ApproximateGP):
             inducing_points,
             variational_distribution,
             learn_inducing_locations=True,
+            jitter_val=float(config["variational_jitter"]),
         )
         super().__init__(variational_strategy)
 
         self.mean_module = gpytorch.means.ConstantMean()
-        self.covar_module = gpytorch.kernels.ScaleKernel(
-            gpytorch.kernels.RBFKernel(ard_num_dims=3)
-        )
+        kernel_name = str(config["kernel"])
+        if kernel_name == "rbf":
+            base_kernel = gpytorch.kernels.RBFKernel(ard_num_dims=3)
+        elif kernel_name == "matern":
+            base_kernel = gpytorch.kernels.MaternKernel(
+                nu=float(config["matern_nu"]),
+                ard_num_dims=3,
+            )
+        elif kernel_name == "matern_periodic":
+            spatial_kernel = gpytorch.kernels.MaternKernel(
+                nu=float(config["matern_nu"]),
+                ard_num_dims=2,
+                active_dims=(0, 1),
+            )
+            temporal_matern = gpytorch.kernels.MaternKernel(
+                nu=float(config["matern_nu"]),
+                active_dims=(2,),
+            )
+            temporal_periodic = gpytorch.kernels.PeriodicKernel(
+                active_dims=(2,),
+            )
+            temporal_periodic.initialize(
+                period_length=float(config["period_length"])
+            )
+            base_kernel = spatial_kernel * (
+                temporal_matern + temporal_periodic
+            )
+        else:
+            raise ValueError(
+                f"Unsupported SVGP_KERNEL={kernel_name!r}; "
+                "choose rbf, matern, or matern_periodic"
+            )
+        self.covar_module = gpytorch.kernels.ScaleKernel(base_kernel)
 
     def forward(self, x):
         mean = self.mean_module(x)
         cov = self.covar_module(x)
         return gpytorch.distributions.MultivariateNormal(mean, cov)
+
+
+def stable_svgp_call(model, x):
+    """Use the configured Kzz jitter for Cholesky fallback as well."""
+    jitter = float(model.variational_strategy.jitter_val or 1e-6)
+    with (
+        gpytorch.settings.cholesky_jitter(
+            float_value=jitter,
+            double_value=jitter,
+            half_value=jitter,
+        ),
+        gpytorch.settings.cholesky_max_tries(3),
+    ):
+        return model(x)
 
 
 def train_svgp_model(model, likelihood, train_loader, val_loader, device, config):
@@ -261,6 +319,7 @@ def train_svgp_model(model, likelihood, train_loader, val_loader, device, config
     best_state = None
     best_likelihood_state = None
     best_val_loss = float("inf")
+    best_epoch = 0
     patience = int(config["patience"])
     patience_counter = 0
 
@@ -281,7 +340,7 @@ def train_svgp_model(model, likelihood, train_loader, val_loader, device, config
             optimizer.zero_grad(set_to_none=True)
             X_batch = batch["X"].to(device)
             y_batch = batch["y"].to(device)
-            output = model(X_batch)
+            output = stable_svgp_call(model, X_batch)
             loss = -mll(output, y_batch)
             loss.backward()
             optimizer.step()
@@ -308,7 +367,7 @@ def train_svgp_model(model, likelihood, train_loader, val_loader, device, config
             for batch in val_bar:
                 X_batch = batch["X"].to(device)
                 y_batch = batch["y"].to(device)
-                y_pred = likelihood(model(X_batch)).mean
+                y_pred = likelihood(stable_svgp_call(model, X_batch)).mean
                 squared_error = torch.sum((y_pred - y_batch) ** 2)
                 val_squared_error += float(squared_error.item())
                 val_count += int(y_batch.numel())
@@ -319,6 +378,7 @@ def train_svgp_model(model, likelihood, train_loader, val_loader, device, config
 
         if val_loss < best_val_loss - 1e-12:
             best_val_loss = val_loss
+            best_epoch = epoch + 1
             best_state = copy.deepcopy(model.state_dict())
             best_likelihood_state = copy.deepcopy(likelihood.state_dict())
             patience_counter = 0
@@ -345,7 +405,12 @@ def train_svgp_model(model, likelihood, train_loader, val_loader, device, config
     if best_likelihood_state is not None:
         likelihood.load_state_dict(best_likelihood_state)
 
-    return model, likelihood
+    training_summary = {
+        "best_epoch": int(best_epoch),
+        "epochs_ran": int(epoch + 1),
+        "best_val_rmse_scaled": float(best_val_loss),
+    }
+    return model, likelihood, training_summary
 
 
 def predict_svgp(model, likelihood, X, batch_size, device):
@@ -361,7 +426,7 @@ def predict_svgp(model, likelihood, X, batch_size, device):
     with torch.no_grad(), gpytorch.settings.fast_pred_var():
         for batch in tqdm(loader, desc="predict", unit="batch", total=len(loader), leave=False):
             X_batch = batch["X"].to(device)
-            pred = likelihood(model(X_batch)).mean
+            pred = likelihood(stable_svgp_call(model, X_batch)).mean
             preds.append(pred.cpu().numpy())
 
     return np.concatenate(preds, axis=0).reshape(-1)
@@ -417,24 +482,27 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
         f"{N_UNKNOWN_PRIMARY_TARGET} unknown400, {N_UNKNOWN_EVAL_TARGET} unknown100)"
     )
 
-    n_train = min(N_TRAIN_TARGET, n_sample)
-    n_unknown_total = n_sample - n_train
-    n_unknown_eval = min(N_UNKNOWN_EVAL_TARGET, n_unknown_total)
-    np.random.seed(sample_seed)
-    sample_idx_train = np.random.choice(n_sample, size=n_train, replace=False)
-    sample_idx_train = np.sort(sample_idx_train)
-    sample_idx_unknown = np.setdiff1d(np.arange(n_sample), sample_idx_train)
-    if len(sample_idx_unknown) != n_unknown_total:
-        raise RuntimeError("Unexpected unknown index split")
-
+    # Select the held-out target100 first so it is identical across models and
+    # independent of the DLinear obs/unobs space split.
     np.random.seed(sample_seed + 1)
-    if len(sample_idx_unknown) < n_unknown_eval:
-        raise RuntimeError("Not enough unknown stations to sample eval holdouts")
-    sample_idx_unknown_eval = np.random.choice(sample_idx_unknown, size=n_unknown_eval, replace=False)
-    sample_idx_unknown_eval = np.sort(sample_idx_unknown_eval)
-    sample_idx_unknown_primary = np.setdiff1d(sample_idx_unknown, sample_idx_unknown_eval)
-    sample_idx_train500 = np.sort(
-        np.concatenate([sample_idx_train, sample_idx_unknown_primary])
+    n_unknown_eval = min(N_UNKNOWN_EVAL_TARGET, n_sample)
+    sample_idx_unknown_eval = np.sort(
+        np.random.choice(n_sample, size=n_unknown_eval, replace=False)
+    )
+    sample_idx_train500 = np.setdiff1d(
+        np.arange(n_sample), sample_idx_unknown_eval
+    )
+
+    n_train = min(N_TRAIN_TARGET, len(sample_idx_train500))
+    np.random.seed(sample_seed)
+    sample_idx_train = np.sort(
+        np.random.choice(sample_idx_train500, size=n_train, replace=False)
+    )
+    sample_idx_unknown_primary = np.setdiff1d(
+        sample_idx_train500, sample_idx_train
+    )
+    sample_idx_unknown = np.sort(
+        np.concatenate([sample_idx_unknown_primary, sample_idx_unknown_eval])
     )
 
     if len(sample_idx_unknown_primary) != N_UNKNOWN_PRIMARY_TARGET:
@@ -603,10 +671,10 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
 
     likelihood = gpytorch.likelihoods.GaussianLikelihood().to(device)
     likelihood.initialize(noise=float(SVGP_CONFIG["init_noise"]))
-    model = SVGPModel(inducing_points).to(device)
+    model = SVGPModel(inducing_points, SVGP_CONFIG).to(device)
 
     train_start = time.time()
-    model, likelihood = _silent_call(
+    model, likelihood, training_summary = _silent_call(
         train_svgp_model,
         model,
         likelihood,
@@ -751,6 +819,7 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
         "results": result_sections,
         "elapsed_seconds": float(elapsed),
         "params_used": SVGP_CONFIG,
+        "training_summary": training_summary,
         "sampling_info": {
             "full_sample_size": int(N_SAMPLE_TARGET),
             "observed_sample_size": int(N_TRAIN_TARGET),

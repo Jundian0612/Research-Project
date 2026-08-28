@@ -18,9 +18,13 @@ export TIME_VAL_LEN="${TIME_VAL_LEN:-150}"
 export TIME_TEST_LEN="${TIME_TEST_LEN:-150}"
 export SEED_LIST="${SEED_LIST:-[41, 42, 43, 44, 45]}"
 export RESULT_SUFFIX="${RESULT_SUFFIX:-500train_100test}"
-export SVGP_EPOCHS="${SVGP_EPOCHS:-350}"
+# Validation-selected formal-run defaults from svgp_tuning_current.
+export SVGP_EPOCHS="${SVGP_EPOCHS:-500}"
 export SVGP_PATIENCE="${SVGP_PATIENCE:-30}"
 export SVGP_NUM_INDUCING="${SVGP_NUM_INDUCING:-1024}"
+export SVGP_KERNEL="${SVGP_KERNEL:-matern_periodic}"
+export SVGP_LR="${SVGP_LR:-0.001}"
+export SVGP_VARIATIONAL_JITTER="${SVGP_VARIATIONAL_JITTER:-0.01}"
 
 if [[ ! -f "$SCRIPT_DIR/2K_SVGP_500train_100test.py" ]]; then
   echo "[Error] Missing script: $SCRIPT_DIR/2K_SVGP_500train_100test.py"

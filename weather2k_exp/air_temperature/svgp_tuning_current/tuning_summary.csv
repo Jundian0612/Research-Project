@@ -1,0 +1,13 @@
+stage,label,kernel,lr,num_inducing,epochs,seed_count,mean_best_val_rmse_scaled,std_best_val_rmse_scaled,mean_best_epoch,mean_epochs_ran,status,error
+stage1,"stage1_rbf_m1024_lr0p001_e500_seeds[41, 42]",rbf,0.001,1024,500,2,0.6825470860061238,0.013021412045484848,8.5,38.5,success,
+stage1,"stage1_rbf_m1024_lr0p003_e500_seeds[41, 42]",rbf,0.003,1024,500,2,0.6847141566927588,0.014091462646261321,4.0,34.0,success,
+stage1,"stage1_rbf_m1024_lr0p01_e500_seeds[41, 42]",rbf,0.01,1024,500,2,0.6913291729336588,0.019097273418870575,1.0,31.0,success,
+stage1,"stage1_matern_m1024_lr0p001_e500_seeds[41, 42]",matern,0.001,1024,500,2,0.6958479437259049,0.0044883896295110914,4.5,34.5,success,
+stage1,"stage1_matern_m1024_lr0p003_e500_seeds[41, 42]",matern,0.003,1024,500,2,0.6762924261170535,0.0060726208275174165,20.0,50.0,success,
+stage1,"stage1_matern_m1024_lr0p01_e500_seeds[41, 42]",matern,0.01,1024,500,2,0.6804970416255303,4.828809232271247e-05,6.5,36.5,success,
+stage1,"stage1_matern_periodic_m1024_lr0p001_e500_seeds[41, 42]",matern_periodic,0.001,1024,500,2,0.47390148650594877,0.0035451027213475594,37.0,67.0,success,
+stage1,"stage1_matern_periodic_m1024_lr0p003_e500_seeds[41, 42]",matern_periodic,0.003,1024,500,2,0.5645009287669664,0.0736898233726555,31.5,61.5,success,
+stage1,"stage1_matern_periodic_m1024_lr0p01_e500_seeds[41, 42]",matern_periodic,0.01,1024,500,2,0.5862428797506483,0.06381602620899468,1.5,31.5,success,
+stage2,"stage2_matern_periodic_m512_lr0p001_e500_seeds[41, 42]",matern_periodic,0.001,512,500,2,0.49327674953141687,0.01860282602302124,41.0,71.0,success,
+stage2,"stage2_reuse_stage1_matern_periodic_m1024_lr0p001_e500_seeds[41, 42]",matern_periodic,0.001,1024,500,2,0.47390148650594877,0.0035451027213475594,37.0,67.0,success,
+stage2,"stage2_matern_periodic_m2048_lr0p001_e500_seeds[41, 42]",matern_periodic,0.001,2048,500,0,,,,,failed,subprocess exit code 1

@@ -9,7 +9,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import optuna
 import torch
 import torch.nn.functional as F
 
@@ -130,6 +129,7 @@ def _scenario_default(key, fallback):
 
 N_SAMPLE_TARGET = int(_env.get("N_SAMPLE_TARGET", _scenario_default("N_SAMPLE_TARGET", "600")))
 N_STDK = int(_env.get("N_STDK", _scenario_default("N_STDK", "100")))
+N_UNKNOWN_EVAL_TARGET = int(_env.get("N_UNKNOWN_EVAL_TARGET", "100"))
 DATA_SEED = int(_env.get("DATA_SEED", "42"))
 N_LAST = int(_env.get("N_LAST", _scenario_default("N_LAST", "1000")))
 TIME_TRAIN_LEN = int(_env.get("TIME_TRAIN_LEN", "700"))
@@ -232,7 +232,10 @@ def _compute_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
     mse = mean_squared_error(y_true, y_pred)
     mae = mean_absolute_error(y_true, y_pred)
     rmse = float(np.sqrt(mse))
-    r2 = r2_score(y_true, y_pred)
+    r2 = r2_score(
+        np.asarray(y_true).reshape(-1),
+        np.asarray(y_pred).reshape(-1),
+    )
     return {"rmse": float(rmse), "mse": float(mse), "mae": float(mae), "r2": float(r2)}
 
 
@@ -425,25 +428,12 @@ print(
     f"space={N_SAMPLE_TARGET}->{N_STDK} time={TIME_TRAIN_LEN}/{TIME_VAL_LEN}/{TIME_TEST_LEN} ====="
 )
 
-optuna.logging.set_verbosity(optuna.logging.WARNING)
 logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
 _suppress_autofrk_logs()
-
-RUN_SEARCH = False
-N_TRIALS = 500
-TIMEOUT_SECONDS = None
 
 USE_COVARIATES = False
 USE_REVIN = True
 RANDOM_STATE = 42
-
-FRK_LOSS_WEIGHT = 0.01
-FRK_OBS_RECON_WEIGHT = 1.0
-FRK_UNOBS_MEAN_WEIGHT = 0.0
-FRK_UNOBS_STD_WEIGHT = 0.0
-FRK_LOSS_APPLY_EVERY = 1
-FRK_TRAIN_N_NEIGHBOR = 3
-FRK_TEST_N_NEIGHBOR = 5
 
 # 以 DLinear+FRK 後的 500 站 validation RMSE 作為 early stopping 準則
 VAL500_PATIENCE = 30
@@ -459,29 +449,59 @@ SAVE_DIR = Path(script_dir)
 _env = os.environ
 RESULT_SUFFIX = _env.get("RESULT_SUFFIX", "")
 suffix = f"_{RESULT_SUFFIX}" if RESULT_SUFFIX else ""
-BASE_PARAMS_PATH = SAVE_DIR / "2K_best_dlinear_params_500to100.json"
-BEST_RESULT_PATH = SAVE_DIR / f"2K_best_dlinear_frkloss_result_500to100{suffix}.json"
-BEST_PARAMS_PATH = SAVE_DIR / f"2K_best_dlinear_frkloss_params_500to100{suffix}.json"
+PARAMS_PATH = Path(
+    _env.get(
+        "DLINEAR_FRK_PARAMS_PATH",
+        str(SAVE_DIR / "2K_best_dlinear_and_frk_params_500to100.json"),
+    )
+).expanduser().resolve()
 RERUN_METRICS_PATH = SAVE_DIR / f"2K_best_dlinear_frkloss_rerun_metrics_500to100{suffix}.json"
 FRK_METRICS_PATH = SAVE_DIR / f"dlinear_autofrk_frkloss_test_100to500_metrics{suffix}.json"
 
-if BASE_PARAMS_PATH.exists():
-    print(f"Using existing DLinear params: {BASE_PARAMS_PATH}")
-elif BEST_PARAMS_PATH.exists():
-    print(f"Using cached hybrid params: {BEST_PARAMS_PATH}")
-else:
-    print("No parameter file found; Optuna search may be needed.")
+if not PARAMS_PATH.exists():
+    raise RuntimeError(
+        "Combined DLinear+FRK parameter file not found: "
+        f"{PARAMS_PATH}. Run tune_dlinear_and_frk_hyperparams.py first, "
+        "or set DLINEAR_FRK_PARAMS_PATH to a valid tuning/trial JSON."
+    )
 
-SEARCH_SPACE = {
-    "INPUT_CHUNK_LENGTH": [24, 36, 48],
-    "OUTPUT_CHUNK_LENGTH": [12, 24],
-    "KERNEL_SIZE": [15, 25],
-    "N_EPOCHS": [350],
-    "BATCH_SIZE": [16, 32, 64],
-    "LR": [1e-4, 2e-4, 3e-4],
-    "WEIGHT_DECAY": [0.0, 1e-5],
-    "CONST_INIT": [True, False],
+params_payload = _json_load(PARAMS_PATH)
+best_params = dict(params_payload.get("formal_run_params", params_payload))
+best_params.pop("sampling_info", None)
+
+required_dlinear_params = {
+    "INPUT_CHUNK_LENGTH",
+    "OUTPUT_CHUNK_LENGTH",
+    "KERNEL_SIZE",
+    "N_EPOCHS",
+    "BATCH_SIZE",
+    "LR",
+    "WEIGHT_DECAY",
+    "CONST_INIT",
 }
+missing_dlinear_params = sorted(required_dlinear_params - best_params.keys())
+if missing_dlinear_params:
+    raise ValueError(
+        f"Missing DLinear parameters in {PARAMS_PATH}: {missing_dlinear_params}"
+    )
+
+FRK_LOSS_WEIGHT = float(best_params.get("FRK_LOSS_WEIGHT", 0.01))
+FRK_OBS_RECON_WEIGHT = float(best_params.get("FRK_OBS_RECON_WEIGHT", 1.0))
+FRK_UNOBS_MEAN_WEIGHT = float(best_params.get("FRK_UNOBS_MEAN_WEIGHT", 0.0))
+FRK_UNOBS_STD_WEIGHT = float(best_params.get("FRK_UNOBS_STD_WEIGHT", 0.0))
+FRK_LOSS_APPLY_EVERY = int(best_params.get("FRK_LOSS_APPLY_EVERY", 1))
+FRK_TRAIN_N_NEIGHBOR = int(best_params.get("FRK_TRAIN_N_NEIGHBOR", 3))
+FRK_TEST_N_NEIGHBOR = int(best_params.get("FRK_TEST_N_NEIGHBOR", 5))
+SPATIAL_SURROGATE_BANDWIDTH = best_params.get("SPATIAL_SURROGATE_BANDWIDTH", "auto")
+DIFF_FRK_OBS_LOSS_WEIGHT = float(
+    _env.get("DIFF_FRK_OBS_LOSS_WEIGHT", best_params.get("DIFF_FRK_OBS_LOSS_WEIGHT", 1.0))
+)
+DIFF_FRK_LOSS_WEIGHT = float(
+    _env.get("DIFF_FRK_LOSS_WEIGHT", best_params.get("DIFF_FRK_LOSS_WEIGHT", 1.0))
+)
+
+print("\n===== LOADED DLinear + FRK PARAMS =====")
+print(f"Using params from: {PARAMS_PATH}")
 
 print("Preparing repo DLinear dataset...")
 EVAL_SEEDS = eval(_env.get("SEED_LIST", str(list(range(41, 46)))))
@@ -580,114 +600,6 @@ def _make_frk_loss(obs_coords, full_coords, obs_idx_in_full):
         unobs_std_weight=FRK_UNOBS_STD_WEIGHT,
         apply_every=FRK_LOSS_APPLY_EVERY,
     )
-
-
-best_params = None
-best_val_metrics = None
-
-if BASE_PARAMS_PATH.exists():
-    best_params = _json_load(BASE_PARAMS_PATH)
-    best_params.pop("sampling_info", None)
-    print("\n===== LOADED EXISTING DLinear PARAMS =====")
-    print(f"Using params from: {BASE_PARAMS_PATH}")
-
-elif BEST_PARAMS_PATH.exists():
-    best_params = _json_load(BEST_PARAMS_PATH)
-    best_params.pop("sampling_info", None)
-    print("\n===== LOADED CACHED HYBRID PARAMS =====")
-    print(f"Using params from: {BEST_PARAMS_PATH}")
-
-elif RUN_SEARCH:
-
-    def objective(trial):
-        print(f"[Trial {trial.number + 1}/{N_TRIALS}]", flush=True)
-        model_kwargs = _build_model_kwargs(
-            in_len=trial.suggest_categorical("INPUT_CHUNK_LENGTH", SEARCH_SPACE["INPUT_CHUNK_LENGTH"]),
-            out_len=trial.suggest_categorical("OUTPUT_CHUNK_LENGTH", SEARCH_SPACE["OUTPUT_CHUNK_LENGTH"]),
-            ksize=trial.suggest_categorical("KERNEL_SIZE", SEARCH_SPACE["KERNEL_SIZE"]),
-            n_epochs=trial.suggest_categorical("N_EPOCHS", SEARCH_SPACE["N_EPOCHS"]),
-            bs=trial.suggest_categorical("BATCH_SIZE", SEARCH_SPACE["BATCH_SIZE"]),
-            lr=trial.suggest_categorical("LR", SEARCH_SPACE["LR"]),
-            wd=trial.suggest_categorical("WEIGHT_DECAY", SEARCH_SPACE["WEIGHT_DECAY"]),
-            const_init=trial.suggest_categorical("CONST_INIT", SEARCH_SPACE["CONST_INIT"]),
-            loss_fn=_make_frk_loss(coords_sample, coords_sample_full, sample_idx_local),
-        )
-
-        model = None
-        pred_val = None
-
-        try:
-            model = DLinearModel(**model_kwargs)
-            fit_kwargs = {"verbose": False}
-            pred_kwargs = {"verbose": False, "show_warnings": False}
-
-            if USE_COVARIATES:
-                fit_kwargs["past_covariates"] = month_train
-                fit_kwargs["future_covariates"] = month_train
-                pred_kwargs["past_covariates"] = month_trainval
-                pred_kwargs["future_covariates"] = month_trainval
-
-            _silent_call(model.fit, series=train_scaled, **fit_kwargs)
-            pred_val = _silent_call(model.predict, n=len(val_scaled), **pred_kwargs)
-
-            pred_val_raw = inverse_scale(_ts_to_2d(pred_val))
-            val_metrics = _compute_metrics(val_true_raw, pred_val_raw)
-
-            trial.set_user_attr("rmse_val", val_metrics["rmse"])
-            trial.set_user_attr("mse_val", val_metrics["mse"])
-            trial.set_user_attr("mae_val", val_metrics["mae"])
-            trial.set_user_attr("r2_val", val_metrics["r2"])
-            return float(val_metrics["rmse"])
-        finally:
-            del model
-            del pred_val
-            gc.collect()
-            _cleanup_torch_cache()
-
-    study = optuna.create_study(
-        direction="minimize",
-        sampler=optuna.samplers.TPESampler(seed=RANDOM_STATE),
-        pruner=optuna.pruners.MedianPruner(n_startup_trials=10, n_warmup_steps=0),
-    )
-    study.optimize(objective, n_trials=N_TRIALS, timeout=TIMEOUT_SECONDS, gc_after_trial=True, show_progress_bar=False)
-
-    best_trial = study.best_trial
-    best_params = dict(best_trial.params)
-    best_val_metrics = {
-        "rmse_val": float(best_trial.user_attrs["rmse_val"]),
-        "mse_val": float(best_trial.user_attrs["mse_val"]),
-        "mae_val": float(best_trial.user_attrs["mae_val"]),
-        "r2_val": float(best_trial.user_attrs["r2_val"]),
-    }
-
-    print("\n===== SEARCH FINISHED =====")
-    print(f"Best trial number: {best_trial.number}")
-    print(f"Best validation RMSE: {best_val_metrics['rmse_val']:.6f}")
-
-    best_payload = {
-        "rmse_val": best_val_metrics["rmse_val"],
-        "mse_val": best_val_metrics["mse_val"],
-        "mae_val": best_val_metrics["mae_val"],
-        "r2_val": best_val_metrics["r2_val"],
-        "params": best_params,
-        "best_val_rmse": float(best_trial.value),
-        "best_trial_number": int(best_trial.number),
-        "sampling_info": sampling_info,
-        "n_trials": int(N_TRIALS),
-        "search_space": SEARCH_SPACE,
-    }
-    params_payload = dict(best_params)
-    params_payload["sampling_info"] = sampling_info
-
-    _json_dump(best_payload, BEST_RESULT_PATH)
-    _json_dump(params_payload, BEST_PARAMS_PATH)
-
-    print("\nSaved:")
-    print(BEST_RESULT_PATH)
-    print(BEST_PARAMS_PATH)
-
-else:
-    raise RuntimeError("No parameter file found. Place 2K_best_dlinear_params_500to100.json in the folder or enable RUN_SEARCH.")
 
 
 def _to_2d_np(x):
@@ -861,7 +773,7 @@ class DifferentiableDLinear(torch.nn.Module):
 class DifferentiableSpatialSurrogate(torch.nn.Module):
     """固定 RBF 權重的 FRK-like surrogate；可微分，但不是 autoFRK EM。"""
 
-    def __init__(self, obs_coords, full_coords, obs_idx, unobs_idx, bandwidth=None):
+    def __init__(self, obs_coords, full_coords, obs_idx, unobs_idx, bandwidth=None, n_neighbor=None):
         super().__init__()
         obs_coords = np.asarray(obs_coords, dtype=np.float32)
         full_coords = np.asarray(full_coords, dtype=np.float32)
@@ -878,6 +790,12 @@ class DifferentiableSpatialSurrogate(torch.nn.Module):
             bandwidth = float(np.median(positive_dist)) if positive_dist.size else 0.25
         bandwidth = max(float(bandwidth), 1e-3)
         weights = np.exp(-d2 / (2.0 * bandwidth * bandwidth))
+        if n_neighbor is not None:
+            k = max(1, min(int(n_neighbor), weights.shape[1]))
+            nearest = np.argpartition(d2, kth=k - 1, axis=1)[:, :k]
+            keep = np.zeros_like(weights, dtype=bool)
+            np.put_along_axis(keep, nearest, True, axis=1)
+            weights = np.where(keep, weights, 0.0)
         weights = weights / np.maximum(weights.sum(axis=1, keepdims=True), 1e-12)
         self.obs_idx = obs_idx
         self.unobs_idx = unobs_idx
@@ -946,17 +864,26 @@ def _run_seeded_diff_dlinear_frk(sample_seed: int, best_params: dict) -> dict:
     y_sample_full_seed = y_all[sample_idx_global_seed, :]
     coords_sample_full_seed = gg[sample_idx_global_seed, :]
 
-    n_obs = min(N_STDK, n_sample)
-    np.random.seed(sample_seed)
-    sample_idx_local_seed = np.random.choice(n_sample, size=n_obs, replace=False)
-    sample_idx_local_seed = np.sort(sample_idx_local_seed)
-
-    all_unknown_idx = np.setdiff1d(np.arange(n_sample), sample_idx_local_seed)
+    # Fix the held-out target stations before varying the obs/unobs split.
+    # Thus all four space splits share exactly the same train500/test100
+    # benchmark for a given seed.
     np.random.seed(sample_seed + 1)
-    n_eval_holdout = min(100, len(all_unknown_idx))
-    unobs_eval_idx = np.sort(np.random.choice(all_unknown_idx, size=n_eval_holdout, replace=False))
-    unobs_primary_idx = np.setdiff1d(all_unknown_idx, unobs_eval_idx)
-    val500_idx = np.sort(np.concatenate([sample_idx_local_seed, unobs_primary_idx]))
+    n_eval_holdout = min(N_UNKNOWN_EVAL_TARGET, n_sample)
+    unobs_eval_idx = np.sort(
+        np.random.choice(n_sample, size=n_eval_holdout, replace=False)
+    )
+    train500_idx = np.setdiff1d(np.arange(n_sample), unobs_eval_idx)
+
+    n_obs = min(N_STDK, len(train500_idx))
+    np.random.seed(sample_seed)
+    sample_idx_local_seed = np.sort(
+        np.random.choice(train500_idx, size=n_obs, replace=False)
+    )
+    unobs_primary_idx = np.setdiff1d(train500_idx, sample_idx_local_seed)
+    all_unknown_idx = np.sort(
+        np.concatenate([unobs_primary_idx, unobs_eval_idx])
+    )
+    val500_idx = train500_idx
 
     _, used_time_idx_seed = _build_darts_dataset(y_sample_full_seed[sample_idx_local_seed, :], time_stride=TIME_STRIDE)
     if len(used_time_idx_seed) > N_LAST:
@@ -1014,6 +941,12 @@ def _run_seeded_diff_dlinear_frk(sample_seed: int, best_params: dict) -> dict:
         full_coords=coords_sample_full_seed,
         obs_idx=sample_idx_local_seed,
         unobs_idx=surrogate_unobs_idx,
+        bandwidth=(
+            None
+            if str(SPATIAL_SURROGATE_BANDWIDTH).lower() == "auto"
+            else float(SPATIAL_SURROGATE_BANDWIDTH)
+        ),
+        n_neighbor=FRK_TRAIN_N_NEIGHBOR,
     ).to(device)
 
     dataset = WindowDataset(x_train, y_train_obs, y_train_unobs)
@@ -1028,8 +961,8 @@ def _run_seeded_diff_dlinear_frk(sample_seed: int, best_params: dict) -> dict:
         lr=float(best_params.get("LR", 3e-4)),
         weight_decay=float(best_params.get("WEIGHT_DECAY", 0.0)),
     )
-    obs_loss_weight = float(os.environ.get("DIFF_FRK_OBS_LOSS_WEIGHT", "1.0"))
-    spatial_loss_weight = float(os.environ.get("DIFF_FRK_LOSS_WEIGHT", "1.0"))
+    obs_loss_weight = DIFF_FRK_OBS_LOSS_WEIGHT
+    spatial_loss_weight = DIFF_FRK_LOSS_WEIGHT
     max_train_epochs = int(best_params.get("N_EPOCHS", 350))
     best_state_dict = None
     best_val_rmse = float("inf")
@@ -1773,8 +1706,11 @@ frk_payload = {
         "frk_loss_weight": float(FRK_LOSS_WEIGHT),
         "frk_loss_apply_every": int(FRK_LOSS_APPLY_EVERY),
         "spatial_surrogate": "differentiable_rbf_frk_like",
-        "diff_frk_obs_loss_weight": float(os.environ.get("DIFF_FRK_OBS_LOSS_WEIGHT", "1.0")),
-        "diff_frk_loss_weight": float(os.environ.get("DIFF_FRK_LOSS_WEIGHT", "1.0")),
+        "spatial_surrogate_bandwidth": SPATIAL_SURROGATE_BANDWIDTH,
+        "frk_train_n_neighbor": int(FRK_TRAIN_N_NEIGHBOR),
+        "frk_test_n_neighbor": int(FRK_TEST_N_NEIGHBOR),
+        "diff_frk_obs_loss_weight": float(DIFF_FRK_OBS_LOSS_WEIGHT),
+        "diff_frk_loss_weight": float(DIFF_FRK_LOSS_WEIGHT),
     },
     "seed_runs": seed_runs,
 }

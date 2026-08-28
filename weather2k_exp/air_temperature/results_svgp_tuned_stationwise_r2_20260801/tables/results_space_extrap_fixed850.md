@@ -1,0 +1,10 @@
+# Scenario summary: space_extrap_fixed850
+
+| scenario | target | space_split | n_train_space | n_unobs_space | n_target_space | model | alpha_obs | lambda_unobs | row_type | seed | RMSE | MSE | MAE | R2 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | SVGP |  |  | seed | 41 | 3.251627 | 10.573078 | 2.510879 | 0.545657 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | SVGP |  |  | seed | 42 | 3.292390 | 10.839832 | 2.505401 | 0.554485 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | SVGP |  |  | seed | 43 | 3.183639 | 10.135559 | 2.462616 | 0.586500 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | SVGP |  |  | seed | 44 | 3.200514 | 10.243290 | 2.440305 | 0.609839 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | SVGP |  |  | seed | 45 | 3.216000 | 10.342654 | 2.481288 | 0.578881 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | SVGP |  |  | mean_std | mean +/- std | 3.228834 +/- 0.038906 | 10.426883 +/- 0.252020 | 2.480098 +/- 0.026375 | 0.575072 +/- 0.022991 |
