@@ -1,0 +1,146 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+
+\setmainfont{Latin Modern Roman}
+\setCJKmainfont{Noto Serif CJK TC}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+\renewcommand{\arraystretch}{1.25}
+
+\title{STDK + QConvLSTM 目前最佳重現結果}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{重現定位}
+
+本實驗根據 Nag、Sun 與 Reich（2023）的論文、作者公開的
+\texttt{Space-Time.DeepKriging} 程式、官方 $100\times500$ 模擬資料，以及作者公開的
+ConvLSTM 架構完成。此結果屬於 \textbf{best-effort reproduction}。由於作者未公開完整的
+50K STDK-to-QConvLSTM 銜接程式及部分中間資料，因此不能視為原始 Table~2 pipeline
+的逐行重跑。
+
+\section{目前最佳結果與 Paper Table 2 比較}
+
+正式結果包含 seeds 41--45。每個 seed 對 100 個空間位置預測時間 496--500，
+共 500 筆預測。
+
+\begin{table}[htbp]
+\centering
+\caption{五個 seeds 的重現結果與論文比較}
+\begin{tabular}{lrrrr}
+\toprule
+指標 & 五-seed 平均 & Sample SD & Paper Table 2 & 差距 \\
+\midrule
+MSPE & \textbf{0.329245} & 0.025844 & 0.267 & +0.062245（高 23.31\%） \\
+MPIW & \textbf{1.734538} & 0.039369 & 1.462 & +0.272538（寬 18.64\%） \\
+Coverage & \textbf{86.00\%} & 1.822 pp & 90.39\% & $-4.39$ pp \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{各 seed 的正式結果}
+\begin{tabular}{rrrr}
+\toprule
+Seed & MSPE & MPIW & Coverage \\
+\midrule
+41 & 0.305722 & 1.711418 & 86.8\% \\
+42 & 0.326305 & 1.739726 & 85.8\% \\
+43 & 0.348131 & 1.738061 & 83.8\% \\
+44 & 0.362395 & 1.794288 & 85.0\% \\
+45 & 0.303671 & 1.689198 & 88.6\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+五個 seeds 的結果方向一致：目前 MSPE 較高、預測區間較寬，但 coverage 仍低於
+paper。這表示差距不太可能只由單一 random seed 造成，還可能來自中心預測偏差、
+評估位置集合或未公開的 quantile/forecasting 設定。
+
+\section{目前重現流程}
+
+\begin{enumerate}[leftmargin=*]
+  \item 讀取作者公開的 LOC/Z1 $100\times500$ 模擬資料。
+  \item 加入論文的非平穩時間平均函數。
+  \item 使用時間 1--495 訓練 q05、q50、q95 STDK。
+  \item 在每個目標位置建立 $8\times8$、位置 $\pm0.2$ 的局部網格。
+  \item 由 STDK 產生各時間點的 q05、q50、q95 空間 frames。
+  \item 將連續 5 張歷史網格輸入三層 QConvLSTM。
+  \item 一次直接輸出時間 496--500 的 q05、q50、q95。
+  \item 計算 MSPE、MPIW 及 90\% coverage。
+  \item 彙整 100 個位置，並計算 seeds 41--45 的平均與 sample SD。
+\end{enumerate}
+
+\section{與作者相同或高度一致的部分}
+
+\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.20\textwidth}
+                  >{\raggedright\arraybackslash}p{0.47\textwidth}
+                  >{\raggedright\arraybackslash}p{0.25\textwidth}}
+\toprule
+項目 & 目前使用方式 & 作者依據 \\
+\midrule
+\endhead
+模擬資料與平均函數 & 官方 \texttt{LOC\_50000...}、\texttt{Z1\_50000...}，加上 \texttt{GpGp\_example.R} 的非平穩平均 & 作者 \texttt{synthetic\_ds}、R code、論文 Section 3.2 \\
+最終時間切分 & 1--495 observed；496--500 final test & 作者 50K forecasting Notebook \\
+STDK basis & 空間 $5^2$、$9^2$、$11^2$；時間 70、250、410，std 0.2、0.09、0.009 & 作者 50K STDK Notebook \\
+STDK 網路 & $8\times100$、$4\times50$ ReLU、scalar output & 作者 50K STDK Notebook \\
+STDK 訓練 & Adam 0.001、batch 512、最多 350 epochs、patience 30 及指定 regularization & 作者 Keras code \\
+局部網格 & $8\times8$、目標位置 $\pm0.2$ & 作者 \texttt{CONV\_LSTM.ipynb} \\
+ConvLSTM & 64 filters；$5\times5\rightarrow3\times3\rightarrow1\times1$；前兩層 BatchNorm & 作者 \texttt{CONV\_LSTM.ipynb} \\
+ConvLSTM 訓練量 & 25 epochs、batch 5、5\% validation & 作者 \texttt{CONV\_LSTM.ipynb} \\
+Quantile 與限制 & 0.05、0.50、0.95；median-centred Eq.~(7) non-crossing constraint & 論文 \\
+評估方式 & q50 MSPE、q95$-$q05 MPIW、90\% coverage & 論文 Table 2 \\
+\bottomrule
+\end{longtable}
+\normalsize
+
+\section{與作者不相同或無法確認的重大部分}
+
+\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.20\textwidth}
+                  >{\raggedright\arraybackslash}p{0.32\textwidth}
+                  >{\raggedright\arraybackslash}p{0.40\textwidth}}
+\toprule
+重大差異 & 目前實作 & 原因與可能影響 \\
+\midrule
+\endhead
+50K STDK $\rightarrow$ QConvLSTM 銜接 & 重新訓練 STDK，再產生三套局部 quantile grids 與目標序列 & 作者未公開 \texttt{training\_data.csv}、\texttt{model\_real.h5} 及完整 50K 銜接程式，無法逐筆核對 input/target。 \\
+Lookback／輸出 & 5 張歷史網格直接輸出未來 5 點 & 數字 5 來自 50K forecasting，direct multi-output 來自 ConvLSTM Notebook；50K QConvLSTM 究竟使用 direct 或 recursive 並未公開。 \\
+Quantile lambda & 設為前 495 時點 response range 的一半 & 論文僅說與一半 response range 成比例；Notebook 另見固定乘數 10，Table 2 實際常數未知，會影響 MPIW 與 coverage。 \\
+評估位置 & 使用全部 100 個官方位置 & 公開 \texttt{50k\_lstm\_data.csv} code 只迴圈 50 欄，但 CSV、位置索引與生成程式未公開；不同位置集合會影響指標。 \\
+STDK 訓練範圍 & 僅使用時間 1--495 & 作者 interpolation Notebook 看似先使用全部 50,000 筆再隨機 90/10；目前排除 496--500 可避免 final-test leakage，但數值可能不同。 \\
+框架與權重 & 使用 PyTorch 相容重寫並重新訓練 & 作者使用 Keras，且未公開 \texttt{model\_real.h5}；初始化、BatchNorm 與 optimizer trajectory 無法逐值相同。 \\
+\bottomrule
+\end{longtable}
+\normalsize
+
+\section{結論與使用限制}
+
+目前版本使用作者公開的原始 50K realization、STDK basis 與網路設定、三層
+ConvLSTM 架構及 Eq.~(7) quantile ordering，完成五 seeds $\times$ 100 locations，
+且未讓時間 496--500 進入訓練。因此，可視為依公開資訊所能完成的目前最佳重現，
+適合稱為：
+
+\begin{quote}
+\textit{STDK + QConvLSTM best-effort reproduction based on publicly released data and code.}
+\end{quote}
+
+但不應稱為作者 Table~2 的 exact rerun。時間 496--500 已作為 final test，後續不應再
+根據這些結果調整 lambda、interval scale、grid radius 或模型架構。
+
+\end{document}

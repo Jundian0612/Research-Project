@@ -1,0 +1,159 @@
+{
+  "completed_locations": 100,
+  "prediction_count": 500,
+  "evaluation": {
+    "role": "final_test",
+    "train_time_indices": [
+      1,
+      495
+    ],
+    "forecast_time_indices": [
+      496,
+      500
+    ],
+    "truth_source": "original simulation observations"
+  },
+  "metrics": {
+    "MSPE": 0.32630506837176215,
+    "MPIW": 1.7397261490821838,
+    "Coverage_percent": 85.8,
+    "MSPE_SD_across_locations": 0.2655927532154682,
+    "MSPE_SE_across_locations": 0.02655927532154682,
+    "MPIW_SD_across_locations": 0.14272670722449987,
+    "MPIW_SE_across_locations": 0.014272670722449986,
+    "MSPE_SE_across_all_predictions": 0.019767108230165656,
+    "MPIW_SE_across_all_predictions": 0.0069325263678519265
+  },
+  "validation_summary": {
+    "q50_MSPE_model_scale_mean_across_locations": 0.028600328573957084,
+    "q50_MSPE_model_scale_SD_across_locations": 0.014709690120260658,
+    "completed_locations_with_validation_metrics": 100,
+    "selection_rule": "Internal early-stopping diagnostic only; compare end-to-end profiles with evaluation.role=chronological_validation metrics against original observations."
+  },
+  "paper_table2": {
+    "MSPE": 0.267,
+    "MSPE_SE": 0.219,
+    "MPIW": 1.462,
+    "MPIW_SE": 0.126,
+    "Coverage_percent": 90.39
+  },
+  "differences_for_unambiguous_metrics": {
+    "MSPE": 0.05930506837176214,
+    "MPIW": 0.27772614908218385,
+    "Coverage_percent": -4.590000000000003
+  },
+  "paper_comparison_note": "Valid only for final times 496--500.",
+  "se_warning": "The paper/repository do not identify the SE aggregation; candidate SD/SE definitions are all retained above.",
+  "config": {
+    "seed": 42,
+    "train_times": 495,
+    "horizon": 5,
+    "lookback": 5,
+    "grid_size": 8,
+    "neighbourhood_radius": 0.2,
+    "target_index": 0,
+    "stdk_epochs": 350,
+    "stdk_batch_size": 512,
+    "stdk_lr": 0.001,
+    "stdk_patience": 30,
+    "stdk_activity_l2": 1e-05,
+    "stdk_regularization_profile": "github_dense4_5_kernel_bias_activity",
+    "qconv_epochs": 25,
+    "qconv_batch_size": 5,
+    "qconv_lr": 0.001,
+    "qconv_patience": 5,
+    "conv_filters": 64,
+    "qconv_profile": "github_3block",
+    "stdk_validation_fraction": 0.1,
+    "qconv_validation_fraction": 0.05,
+    "add_paper_nonstationary_mean": true,
+    "stdk_profile": "repository",
+    "validation_mode": "repository_random",
+    "normalization": "none",
+    "grid_boundary": "shift",
+    "forecast_grid_update": "none_paper_direct5",
+    "quantile_lambda": 5.243666172027588,
+    "interval_scale": 1.0,
+    "forecast_mode": "paper_eq7_direct5",
+    "convlstm_implementation": "keras_compatible_pytorch"
+  },
+  "parameter_provenance": {
+    "simulation_LOC_Z1": {
+      "source": "OFFICIAL_REPO",
+      "value": "synthetic_ds stationary_1"
+    },
+    "nonstationary_mean": {
+      "source": "PAPER",
+      "value": "Nag et al. Section 3.2"
+    },
+    "train_test_split": {
+      "source": "PAPER",
+      "value": "495 observed / 5 future"
+    },
+    "stdk_basis_profile": {
+      "source": "OFFICIAL_REPO",
+      "value": "repository"
+    },
+    "stdk_validation_fraction": {
+      "source": "OFFICIAL_REPO",
+      "value": "0.1"
+    },
+    "qconv_validation_fraction": {
+      "source": "OFFICIAL_REPO",
+      "value": "0.05"
+    },
+    "quantile_levels": {
+      "source": "PAPER",
+      "value": "0.05, 0.50, 0.95"
+    },
+    "quantile_constraint": {
+      "source": "PAPER",
+      "value": "Eq. (7)"
+    },
+    "quantile_lambda": {
+      "source": "INFERRED_FROM_PAPER",
+      "value": "5.243666172027588"
+    },
+    "interval_scale": {
+      "source": "CHRONOLOGICAL_VALIDATION_CALIBRATION",
+      "value": "1.0"
+    },
+    "qconv_profile": {
+      "source": "OFFICIAL_REPO",
+      "value": "github_3block"
+    },
+    "paper_input_convolution": {
+      "source": "PAPER",
+      "value": "valid 3x3, 64 maps"
+    },
+    "grid_size": {
+      "source": "INFERRED",
+      "value": "8"
+    },
+    "neighbourhood_radius": {
+      "source": "INFERRED",
+      "value": "0.2"
+    },
+    "grid_boundary": {
+      "source": "INFERRED",
+      "value": "shift"
+    },
+    "lookback": {
+      "source": "OFFICIAL_REPO_QLSTM",
+      "value": "5"
+    },
+    "forecast_mode": {
+      "source": "INFERRED",
+      "value": "paper_eq7_direct5"
+    },
+    "recursive_forecast": {
+      "source": "NOT_USED",
+      "value": "author QConv future-grid rule unavailable"
+    },
+    "test_tuned_lambda": {
+      "source": "NOT_USED",
+      "value": "lambda not selected on final five test times"
+    }
+  },
+  "elapsed_seconds_current_invocation": 13796.696029663086
+}

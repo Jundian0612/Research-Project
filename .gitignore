@@ -1,1 +1,16 @@
 Josh's Weather2K/Weather2K
+
+# Python-generated files
+__pycache__/
+*.py[cod]
+
+# Training logs and model checkpoints
+*.log
+*.pt
+*.pth
+*.ckpt
+*.h5
+
+# STDK + QConvLSTM raw training artifacts (about 20 GB locally)
+qconvlstm_simulation_results/
+STDK_QConvLSTM_reproduction_results/raw_results/

@@ -1,0 +1,53 @@
+{
+  "seeds": [
+    41,
+    42,
+    43,
+    44,
+    45
+  ],
+  "seed_count": 5,
+  "aggregation_unit": "one complete 100-location, 500-prediction experiment per seed",
+  "std_definition": "sample standard deviation across seed-level metrics (ddof=1)",
+  "metrics": {
+    "MSPE": {
+      "mean": 0.3292449444592423,
+      "std_sample_ddof1": 0.025843777913601776,
+      "values": [
+        0.3057218198228985,
+        0.32630506837176215,
+        0.3481314119523921,
+        0.36239494281042917,
+        0.3036714793387295
+      ]
+    },
+    "MPIW": {
+      "mean": 1.7345382493019101,
+      "std_sample_ddof1": 0.039369153900094385,
+      "values": [
+        1.7114175105690956,
+        1.7397261490821838,
+        1.7380612575411796,
+        1.7942884073257446,
+        1.6891979219913482
+      ]
+    },
+    "Coverage_percent": {
+      "mean": 86.0,
+      "std_sample_ddof1": 1.8220867158288583,
+      "values": [
+        86.8,
+        85.8,
+        83.8,
+        85.0,
+        88.6
+      ]
+    }
+  },
+  "paper_table2": {
+    "MSPE": 0.267,
+    "MPIW": 1.462,
+    "Coverage_percent": 90.39
+  },
+  "interval_scale": 1.0
+}
