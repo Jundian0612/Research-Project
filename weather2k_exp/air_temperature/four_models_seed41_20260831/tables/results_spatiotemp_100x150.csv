@@ -1,0 +1,9 @@
+scenario,target,space_split,n_train_space,n_unobs_space,n_target_space,model,alpha_obs,lambda_unobs,row_type,seed,RMSE,MSE,MAE,R2
+spatiotemp_100x150,Target_ST100x150,100/400/100,100,400,100,SVGP,,,seed,41,3.255117,10.595787,2.551797,0.630973
+spatiotemp_100x150,Target_ST100x150,100/400/100,100,400,100,SVGP,,,mean_std,mean +/- std,3.255117 +/- 0.000000,10.595787 +/- 0.000000,2.551797 +/- 0.000000,0.630973 +/- 0.000000
+spatiotemp_100x150,Target_ST100x150,100/400/100,100,400,100,STDK,,,seed,41,4.307308,18.552900,3.526602,0.353845
+spatiotemp_100x150,Target_ST100x150,100/400/100,100,400,100,STDK,,,mean_std,mean +/- std,4.307308 +/- 0.000000,18.552900 +/- 0.000000,3.526602 +/- 0.000000,0.353845 +/- 0.000000
+spatiotemp_100x150,Target_ST100x150,100/400/100,100,400,100,STDK+SharedQConvLSTM,,,seed,41,5.859388,34.332424,4.607038,-0.195720
+spatiotemp_100x150,Target_ST100x150,100/400/100,100,400,100,STDK+SharedQConvLSTM,,,mean_std,mean +/- std,5.859388,34.332424,4.607038,-0.195720
+spatiotemp_100x150,Target_ST100x150,100/400/100,100,400,100,DLINEAR + differentiable_FRK,2.0,1.5,seed,41,3.735412,13.953302,2.920093,0.514038
+spatiotemp_100x150,Target_ST100x150,100/400/100,100,400,100,DLINEAR + differentiable_FRK,2.0,1.5,mean_std,mean +/- std,3.735412 +/- 0.000000,13.953302 +/- 0.000000,2.920093 +/- 0.000000,0.514038 +/- 0.000000

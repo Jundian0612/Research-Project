@@ -1,8 +1,4 @@
-"""Two-stage STDK interpolation + shared univariate LSTM forecasting.
-
-STDK forms complete spatial histories; one LSTM shared across stations performs
-autoregressive temporal forecasting. The benchmark remains train500/test100.
-"""
+"""Pure STDK baseline trained on 500 stations and tested on 100 held-out stations."""
 
 import importlib.util
 import ast
@@ -368,89 +364,6 @@ def normalize_coords(coords):
     return ((coords - min_vals) / denom).astype(np.float32)
 
 
-class SharedUnivariateLSTM(torch.nn.Module):
-    """One univariate LSTM shared by every station sequence."""
-
-    def __init__(self, hidden_size=50, num_layers=1):
-        super().__init__()
-        self.lstm = torch.nn.LSTM(1, hidden_size, num_layers=num_layers, batch_first=True)
-        self.head = torch.nn.Linear(hidden_size, 1)
-
-    def forward(self, x):
-        output, _ = self.lstm(x)
-        return self.head(output[:, -1, :])
-
-
-def make_shared_lstm_windows(series_time_station, lookback):
-    values = np.asarray(series_time_station, dtype=np.float32)
-    x, y = [], []
-    for station in range(values.shape[1]):
-        sequence = values[:, station]
-        for start in range(0, len(sequence) - lookback):
-            x.append(sequence[start : start + lookback])
-            y.append(sequence[start + lookback])
-    return np.asarray(x, dtype=np.float32)[..., None], np.asarray(y, dtype=np.float32)[:, None]
-
-
-def forecast_shared_lstm(model, history_time_station, n_steps, lookback, device, batch_size):
-    history = np.asarray(history_time_station, dtype=np.float32).copy()
-    predictions = []
-    model.eval()
-    with torch.no_grad():
-        for _ in range(int(n_steps)):
-            windows = history[-lookback:, :].T[..., None]
-            step_parts = []
-            for start in range(0, len(windows), batch_size):
-                xb = torch.from_numpy(windows[start : start + batch_size]).to(device)
-                step_parts.append(model(xb).cpu().numpy().reshape(-1))
-            step = np.concatenate(step_parts)
-            predictions.append(step)
-            history = np.vstack([history, step[None, :]])
-    return np.asarray(predictions, dtype=np.float32)
-
-
-def train_shared_lstm(train_series, val_truth, val_station_idx, device, config, seed):
-    lookback = int(config["lookback"])
-    x, y = make_shared_lstm_windows(train_series, lookback)
-    dataset = torch.utils.data.TensorDataset(torch.from_numpy(x), torch.from_numpy(y))
-    generator = torch.Generator().manual_seed(seed + 3000)
-    loader = DataLoader(
-        dataset,
-        batch_size=int(config["batch_size"]),
-        shuffle=True,
-        generator=generator,
-        num_workers=0,
-    )
-    torch.manual_seed(seed + 4000)
-    model = SharedUnivariateLSTM(config["hidden_size"], config["num_layers"]).to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=float(config["lr"]))
-    criterion = torch.nn.MSELoss()
-    best_state, best_val, wait, best_epoch = None, float("inf"), 0, 0
-    for epoch in range(1, int(config["epochs"]) + 1):
-        model.train()
-        for xb, yb in loader:
-            xb, yb = xb.to(device), yb.to(device)
-            optimizer.zero_grad(set_to_none=True)
-            loss = criterion(model(xb), yb)
-            loss.backward()
-            optimizer.step()
-        val_pred = forecast_shared_lstm(
-            model, train_series, len(val_truth), lookback, device, int(config["predict_batch_size"])
-        )[:, val_station_idx]
-        val_rmse = float(np.sqrt(mean_squared_error(val_truth, val_pred)))
-        if val_rmse < best_val - 1e-6:
-            best_val, best_epoch, wait = val_rmse, epoch, 0
-            best_state = copy.deepcopy(model.state_dict())
-        else:
-            wait += 1
-        print(f"SharedLSTM epoch {epoch:03d} val_rmse_scaled={val_rmse:.6f} best={best_val:.6f}")
-        if wait >= int(config["patience"]):
-            break
-    if best_state is not None:
-        model.load_state_dict(best_state)
-    return model, {"best_epoch": best_epoch, "best_val_rmse_scaled": best_val}
-
-
 def _build_stdk_dataset(y_values, time_stride=3):
     time_idx = np.arange(0, y_values.shape[1], time_stride)
     ts_df = pd.DataFrame(
@@ -504,21 +417,12 @@ print(
 logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
 
 STDK_CONFIG = build_stdk_model_config()
-LSTM_CONFIG = {
-    "mode": "shared_univariate",
-    "lookback": int(_env.get("STDK_LSTM_LOOKBACK", "5")),
-    "hidden_size": int(_env.get("STDK_LSTM_HIDDEN_SIZE", "50")),
-    "num_layers": int(_env.get("STDK_LSTM_NUM_LAYERS", "1")),
-    "epochs": int(_env.get("STDK_LSTM_EPOCHS", "120")),
-    "batch_size": int(_env.get("STDK_LSTM_BATCH_SIZE", "1024")),
-    "predict_batch_size": int(_env.get("STDK_LSTM_PREDICT_BATCH_SIZE", "1024")),
-    "lr": float(_env.get("STDK_LSTM_LR", "0.001")),
-    "patience": int(_env.get("STDK_LSTM_PATIENCE", "15")),
-    "loss": "MSE",
-}
 SAVE_DIR = Path(script_dir)
+RESULT_DIR = Path(
+    _env.get("WEATHER2K_OUTPUT_DIR", str(SAVE_DIR))
+).expanduser().resolve()
 suffix = f"_{RESULT_SUFFIX}" if RESULT_SUFFIX else ""
-RESULT_PATH = SAVE_DIR / f"2K_stdk_metrics{suffix}.json"
+RESULT_PATH = RESULT_DIR / f"2K_stdk_metrics{suffix}.json"
 TIME_STRIDE = int(os.environ.get("TIME_STRIDE", "1"))
 
 
@@ -747,52 +651,12 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
     gc.collect()
     _cleanup_torch_cache()
 
-    # Stage 1: STDK interpolation forms a complete Train700 spatial time series.
-    pred_hist_std = predict_stdk_matrix_chunked(
+    # Pure STDK predicts directly at the requested scenario coordinates/times.
+    pred_eval_full = to_raw(predict_stdk_matrix_chunked(
         model,
         full_y_matrix,
         coords_full_norm,
-        train_time_idx,
-        t_norm_all,
-        batch_size,
-        device,
-        time_chunk_size=int(_env.get("STDK_PRED_TIME_CHUNK", "50")),
-    )
-    gc.collect()
-    _cleanup_torch_cache()
-
-    # Stage 2: one shared univariate LSTM forecasts every station.
-    val_truth_scaled = to_std(full_y_matrix[sample_idx_train500][:, val_time_idx].T)
-    lstm_model, lstm_summary = train_shared_lstm(
-        pred_hist_std,
-        val_truth_scaled,
-        sample_idx_train500,
-        device,
-        LSTM_CONFIG,
-        sample_seed,
-    )
-    pred_future_std = forecast_shared_lstm(
-        lstm_model,
-        pred_hist_std,
-        TIME_VAL_LEN + TIME_TEST_LEN,
-        LSTM_CONFIG["lookback"],
-        device,
-        LSTM_CONFIG["predict_batch_size"],
-    )
-    pred_val_full = to_raw(pred_future_std[:TIME_VAL_LEN])
-    pred_test_full = to_raw(pred_future_std[TIME_VAL_LEN:])
-    del pred_future_std
-    gc.collect()
-    _cleanup_torch_cache()
-    elapsed = time.time() - train_start
-
-    # Pure spatial interpolation uses STDK directly over Train700+Val150.
-    space_idx = np.arange(0, cut_val)
-    pred_space_full = to_raw(predict_stdk_matrix_chunked(
-        model,
-        full_y_matrix,
-        coords_full_norm,
-        space_idx,
+        eval_time_idx,
         t_norm_all,
         batch_size,
         device,
@@ -800,11 +664,7 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
     ))
     gc.collect()
     _cleanup_torch_cache()
-
-    if EXPERIMENT_SCENARIO == "space_extrap_fixed850":
-        pred_eval_full = pred_space_full
-    else:
-        pred_eval_full = pred_test_full
+    elapsed = time.time() - train_start
     eval_len = int(pred_eval_full.shape[0])
     pred_test_train = pred_eval_full[:, sample_idx_train]
     pred_test_unknown = pred_eval_full[:, sample_idx_unknown]
@@ -838,7 +698,7 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
     unknown_metric = safe_metrics(test_true_unknown, pred_test_unknown)
     unknown_primary_metric = safe_metrics(test_true_unknown_primary, pred_test_unknown_primary)
     unknown_eval_metric = safe_metrics(test_true_unknown_eval, pred_test_unknown_eval)
-    full_metric = safe_metrics(test_true_full, pred_test_full)
+    full_metric = safe_metrics(test_true_full, pred_eval_full)
 
     empty_metric = {"RMSE": float("nan"), "MSE": float("nan"), "MAE": float("nan"), "R2": float("nan")}
     train700_metric = empty_metric
@@ -849,13 +709,21 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
         # 這裡只看固定 500 空間點，也就是圖上的 1+2、4+5、7+8。
         eval500_idx = np.sort(np.concatenate([sample_idx_train, sample_idx_unknown_primary]))
         eval500_y_matrix = full_y_matrix[eval500_idx, :]
-        pred_train700 = to_raw(pred_hist_std[:, eval500_idx])
-        pred_val150 = pred_val_full[:, eval500_idx]
+        pred_train700 = to_raw(predict_stdk_matrix_chunked(
+            model, full_y_matrix, coords_full_norm, train_time_idx, t_norm_all,
+            batch_size, device,
+            time_chunk_size=int(_env.get("STDK_PRED_TIME_CHUNK", "50")),
+        ))[:, eval500_idx]
+        pred_val150 = to_raw(predict_stdk_matrix_chunked(
+            model, full_y_matrix, coords_full_norm, val_time_idx, t_norm_all,
+            batch_size, device,
+            time_chunk_size=int(_env.get("STDK_PRED_TIME_CHUNK", "50")),
+        ))[:, eval500_idx]
         true_train700 = eval500_y_matrix[:, train_time_idx].T.astype(np.float32)
         true_val150 = eval500_y_matrix[:, val_time_idx].T.astype(np.float32)
         train700_metric = safe_metrics(true_train700, pred_train700)
         val150_metric = safe_metrics(true_val150, pred_val150)
-        target_time150_metric = safe_metrics(test_true_full[:, eval500_idx], pred_test_full[:, eval500_idx])
+        target_time150_metric = safe_metrics(test_true_full[:, eval500_idx], pred_eval_full[:, eval500_idx])
 
     def prefixed(prefix, metric):
         return {
@@ -897,17 +765,15 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
         result_sections = {"Target": full_metric}
 
     print(f"Training elapsed={_fmt_time(elapsed)}")
-    print(pd.DataFrame([{"Model": "STDK+SharedLSTM", "Split": f"TEST_seed_{sample_seed}", **metrics}]).to_string(index=False))
+    print(pd.DataFrame([{"Model": "STDK", "Split": f"TEST_seed_{sample_seed}", **metrics}]).to_string(index=False))
 
     payload = {
         "seed": int(sample_seed),
-        "Model": "STDK+SharedLSTM",
+        "Model": "STDK",
         "Split": "TEST",
         "results": result_sections,
         "elapsed_seconds": float(elapsed),
         "params_used": STDK_CONFIG,
-        "lstm_params_used": LSTM_CONFIG,
-        "lstm_training_summary": lstm_summary,
         "stdk_elapsed_seconds": float(stdk_elapsed),
         "sampling_info": {
             "full_sample_size": int(N_SAMPLE_TARGET),
@@ -939,7 +805,7 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
         "n_time_used": int(n_time_used),
     }
 
-    del model, lstm_model
+    del model
     gc.collect()
     _cleanup_torch_cache()
 
@@ -958,7 +824,7 @@ elapsed_mean = float(np.mean([run["payload"]["elapsed_seconds"] for run in seed_
 summary_metrics = pd.DataFrame(
     [
         {
-            "Model": "STDK+SharedLSTM",
+            "Model": "STDK",
             "Split": "TEST_MEAN",
             **{key: float(value) for key, value in mean_metrics.items()},
         }
@@ -970,7 +836,7 @@ print(summary_metrics.to_string(index=False))
 summary_metrics_std = pd.DataFrame(
     [
         {
-            "Model": "STDK+SharedLSTM",
+            "Model": "STDK",
             "Split": "TEST_STD",
             **{key: float(value) for key, value in std_metrics.items()},
         }
@@ -981,7 +847,7 @@ print(summary_metrics_std.to_string(index=False))
 print(f"Mean training elapsed={_fmt_time(elapsed_mean)}")
 
 payload = {
-    "Model": "STDK+SharedLSTM",
+    "Model": "STDK",
     "Split": "TEST_MEAN",
     "seed_range": [int(SEED_LIST[0]), int(SEED_LIST[-1])],
     "seed_list": [int(seed) for seed in SEED_LIST],
@@ -989,7 +855,6 @@ payload = {
     "std_metrics": {key: float(value) for key, value in std_metrics.items()},
     "avg_elapsed_seconds": float(elapsed_mean),
     "params_used": STDK_CONFIG,
-    "lstm_params_used": LSTM_CONFIG,
     "sampling_info": {
         "full_sample_size": int(N_SAMPLE_TARGET),
         "observed_sample_size": int(N_TRAIN_TARGET),

@@ -1,0 +1,6 @@
+[submodule "spatial-adapter"]
+	path = spatial-adapter
+	url = https://github.com/STLABTW/spatial-adapter.git
+[submodule "weather2k"]
+	path = Josh's Weather2K/Weather2K
+	url = https://huggingface.co/datasets/BUPT-PRIS-727/Weather2K

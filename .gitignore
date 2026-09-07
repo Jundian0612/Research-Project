@@ -14,3 +14,7 @@ __pycache__/
 # STDK + QConvLSTM raw training artifacts (about 20 GB locally)
 qconvlstm_simulation_results/
 STDK_QConvLSTM_reproduction_results/raw_results/
+
+# Weather2K STDK + QConvLSTM checkpoints and raw outputs
+weather2k_exp/*/STDK_QConvLSTM_Weather2K_results/
+weather2k_exp/*/STDK_QConvLSTM_Weather2K_495to5_pilot/raw_results/

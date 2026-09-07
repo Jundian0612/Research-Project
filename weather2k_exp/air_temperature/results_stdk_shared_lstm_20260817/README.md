@@ -1,5 +1,7 @@
 # Weather2K 氣溫實驗：STDK + Shared LSTM（2026-08-17 整理）
 
+> **方法來源警告：** 本資料夾中標記為 `STDK+SharedLSTM` 的時間外推與時空外推，是本專案自行建立的 Weather2K deterministic baseline，不是 Nag、Sun 與 Reich 論文中的 QLSTM 或 QConvLSTM 流程，也不能視為 paper reproduction。它使用跨站共享的單變量 LSTM、MSE loss 與 point forecast；沒有 quantile/pinball loss、QConvLSTM local spatial grids、q05/q50/q95、MPIW 或 coverage。此警告只針對 `STDK+SharedLSTM` 列，不影響同資料夾中的 SVGP 與 DLinear+FRK 結果。
+
 ## 實驗目的
 
 本資料夾保存目前以 Weather2K 氣溫資料比較三個模型的輸出：

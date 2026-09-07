@@ -1,0 +1,71 @@
+{
+  "experiment": "STDK + QConvLSTM Weather2K 495-to-5 data-adaptation pilot",
+  "seeds": [
+    41,
+    42,
+    43,
+    44,
+    45
+  ],
+  "completed_locations_per_seed": 100,
+  "predictions_per_seed": 500,
+  "total_predictions": 2500,
+  "protocol": {
+    "variable": "air_temperature",
+    "stations": 100,
+    "station_sampling_seed": 41,
+    "time_points": 500,
+    "train_times": 495,
+    "forecast_horizon": 5,
+    "lookback": 5
+  },
+  "metrics": {
+    "MSPE": {
+      "mean": 8.878931417802134,
+      "sample_sd_ddof1": 0.7486750005346982,
+      "values": [
+        8.75308575175468,
+        9.463111394715982,
+        7.650584222588966,
+        9.064367201317413,
+        9.463508518633622
+      ]
+    },
+    "RMSE": {
+      "mean": 2.9775475600021513,
+      "sample_sd_ddof1": 0.12816954458531926,
+      "values": [
+        2.9585614328174223,
+        3.0762170591029467,
+        2.7659689482329637,
+        3.010708753984253,
+        3.076281605873172
+      ]
+    },
+    "MPIW": {
+      "mean": 7.54821230430603,
+      "sample_sd_ddof1": 0.24224299462330576,
+      "values": [
+        7.717812738418579,
+        7.642479127883911,
+        7.576725933074951,
+        7.679077644348144,
+        7.124966077804565
+      ]
+    },
+    "Coverage_percent": {
+      "mean": 77.08,
+      "sample_sd_ddof1": 4.607819440906945,
+      "values": [
+        79.60000000000001,
+        76.2,
+        83.6,
+        74.0,
+        72.0
+      ]
+    }
+  },
+  "quantile_crossings": 0,
+  "total_elapsed_hours": 18.80753432518906,
+  "status": "pilot_not_comparable_to_the_Weather2K_700_150_150_benchmark"
+}

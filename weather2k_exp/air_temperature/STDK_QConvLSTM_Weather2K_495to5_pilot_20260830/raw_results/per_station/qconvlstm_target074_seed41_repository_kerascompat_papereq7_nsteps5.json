@@ -1,0 +1,355 @@
+{
+  "model": "STDK + QConvLSTM on Weather2K",
+  "source": "Weather2K data with the public-setting STDK + QConvLSTM best-effort reproduction pipeline",
+  "config": {
+    "seed": 41,
+    "train_times": 495,
+    "horizon": 5,
+    "lookback": 5,
+    "grid_size": 8,
+    "neighbourhood_radius": 0.2,
+    "target_index": 0,
+    "stdk_epochs": 350,
+    "stdk_batch_size": 512,
+    "stdk_lr": 0.001,
+    "stdk_patience": 30,
+    "stdk_activity_l2": 1e-05,
+    "stdk_regularization_profile": "github_dense4_5_kernel_bias_activity",
+    "qconv_epochs": 25,
+    "qconv_batch_size": 5,
+    "qconv_lr": 0.001,
+    "qconv_patience": 5,
+    "conv_filters": 64,
+    "qconv_profile": "github_3block",
+    "stdk_validation_fraction": 0.1,
+    "qconv_validation_fraction": 0.05,
+    "add_paper_nonstationary_mean": false,
+    "stdk_profile": "repository",
+    "validation_mode": "repository_random",
+    "normalization": "train_global",
+    "grid_boundary": "shift",
+    "forecast_grid_update": "none_paper_direct5",
+    "quantile_lambda": 4.412201881408691,
+    "interval_scale": 1.0,
+    "forecast_mode": "paper_eq7_direct5",
+    "convlstm_implementation": "keras_compatible_pytorch"
+  },
+  "parameter_provenance": {
+    "train_test_split": {
+      "source": "TRANSFERRED_SIMULATION_PROTOCOL",
+      "value": "first 495 Weather2K times observed / final 5 future"
+    },
+    "stdk_basis_profile": {
+      "source": "OFFICIAL_REPO",
+      "value": "repository"
+    },
+    "stdk_validation_fraction": {
+      "source": "OFFICIAL_REPO",
+      "value": "0.1"
+    },
+    "qconv_validation_fraction": {
+      "source": "OFFICIAL_REPO",
+      "value": "0.05"
+    },
+    "quantile_levels": {
+      "source": "PAPER",
+      "value": "0.05, 0.50, 0.95"
+    },
+    "quantile_constraint": {
+      "source": "PAPER",
+      "value": "Eq. (7)"
+    },
+    "quantile_lambda": {
+      "source": "INFERRED_FROM_PAPER",
+      "value": "4.412201881408691"
+    },
+    "interval_scale": {
+      "source": "CHRONOLOGICAL_VALIDATION_CALIBRATION",
+      "value": "1.0"
+    },
+    "qconv_profile": {
+      "source": "OFFICIAL_REPO",
+      "value": "github_3block"
+    },
+    "paper_input_convolution": {
+      "source": "PAPER",
+      "value": "valid 3x3, 64 maps"
+    },
+    "grid_size": {
+      "source": "INFERRED",
+      "value": "8"
+    },
+    "neighbourhood_radius": {
+      "source": "INFERRED",
+      "value": "0.2"
+    },
+    "grid_boundary": {
+      "source": "INFERRED",
+      "value": "shift"
+    },
+    "lookback": {
+      "source": "OFFICIAL_REPO_QLSTM",
+      "value": "5"
+    },
+    "forecast_mode": {
+      "source": "INFERRED",
+      "value": "paper_eq7_direct5"
+    },
+    "recursive_forecast": {
+      "source": "NOT_USED",
+      "value": "author QConv future-grid rule unavailable"
+    },
+    "test_tuned_lambda": {
+      "source": "NOT_USED",
+      "value": "lambda not selected on final five test times"
+    },
+    "dataset": {
+      "source": "WEATHER2K_PUBLIC_DATASET",
+      "value": "/home/jundian/Research-Project/Josh's Weather2K/Weather2K/weather2k.npy"
+    },
+    "weather_variable": {
+      "source": "USER_CONFIGURATION",
+      "value": "air_temperature"
+    },
+    "weather_subset": {
+      "source": "REPRODUCIBLE_DATA_ADAPTATION",
+      "value": "100 stations sampled without replacement; final 500 times"
+    }
+  },
+  "target_index": 74,
+  "target_coordinate": [
+    0.7871978282928467,
+    0.37392303347587585
+  ],
+  "evaluation": {
+    "role": "final_test",
+    "train_time_indices": [
+      1,
+      495
+    ],
+    "forecast_time_indices": [
+      496,
+      500
+    ],
+    "truth_source": "Weather2K observations"
+  },
+  "metrics": {
+    "MSPE": 0.6897655725479126,
+    "RMSE": 0.830521285533905,
+    "MAE": 0.7927024960517883,
+    "MPIW_90": 5.983958721160889,
+    "coverage_90": 1.0
+  },
+  "validation_metrics": {
+    "q50_MSPE_model_scale": 0.02250833623111248,
+    "q50_pinball_model_scale": 0.057870905846357346,
+    "q05_pinball_model_scale": 0.015335996635258198,
+    "q95_pinball_model_scale": 0.013056204654276371,
+    "details": {
+      "q05": {
+        "best_epoch": 12,
+        "pinball": 0.015335996635258198,
+        "MSPE": 0.10103857517242432,
+        "window_count": 24,
+        "prediction_count": 120
+      },
+      "q50": {
+        "best_epoch": 15,
+        "pinball": 0.057870905846357346,
+        "MSPE": 0.02250833623111248,
+        "window_count": 24,
+        "prediction_count": 120
+      },
+      "q95": {
+        "best_epoch": 19,
+        "pinball": 0.013056204654276371,
+        "MSPE": 0.07697280496358871,
+        "window_count": 24,
+        "prediction_count": 120
+      }
+    },
+    "note": "Internal early-stopping validation against the STDK-reconstructed training target; use evaluation.role=chronological_validation metrics for end-to-end model selection."
+  },
+  "forecasts": [
+    {
+      "target_index": 74,
+      "lead": 1,
+      "time_index": 496,
+      "truth": 29.700000762939453,
+      "q05": 27.23053741455078,
+      "q50": 30.756072998046875,
+      "q95": 34.09527587890625
+    },
+    {
+      "target_index": 74,
+      "lead": 2,
+      "time_index": 497,
+      "truth": 32.70000076293945,
+      "q05": 29.631065368652344,
+      "q50": 33.61814880371094,
+      "q95": 36.333255767822266
+    },
+    {
+      "target_index": 74,
+      "lead": 3,
+      "time_index": 498,
+      "truth": 34.0,
+      "q05": 29.830808639526367,
+      "q50": 32.99884796142578,
+      "q95": 35.23279571533203
+    },
+    {
+      "target_index": 74,
+      "lead": 4,
+      "time_index": 499,
+      "truth": 30.399999618530273,
+      "q05": 27.138872146606445,
+      "q50": 29.909645080566406,
+      "q95": 32.6300048828125
+    },
+    {
+      "target_index": 74,
+      "lead": 5,
+      "time_index": 500,
+      "truth": 28.100000381469727,
+      "q05": 25.003480911254883,
+      "q50": 27.602214813232422,
+      "q95": 30.463226318359375
+    }
+  ],
+  "assumptions": {
+    "quantiles": "paper Eq. (7): q50 +/- lambda*abs(q-0.5)*sigmoid(raw); no post-hoc sorting",
+    "interval_calibration": "q05/q95 deviations around q50 multiplied by 1.0; q50 is unchanged",
+    "quantile_grids": "separate STDK q05/q50/q95 local grids",
+    "future_grid": "none; the final five historical grids directly produce five forecasts",
+    "grid_boundary": "shift",
+    "se_definition": "unknown in public sources; multiple candidates reported in aggregate JSON"
+  },
+  "dataset": {
+    "dataset": "Weather2K",
+    "data_path": "/home/jundian/Research-Project/Josh's Weather2K/Weather2K/weather2k.npy",
+    "raw_shape": [
+      1866,
+      13,
+      13632
+    ],
+    "variable": "air_temperature",
+    "variable_feature_index": 4,
+    "station_seed": 41,
+    "station_indices": [
+      64,
+      105,
+      117,
+      149,
+      198,
+      223,
+      230,
+      241,
+      268,
+      284,
+      287,
+      290,
+      294,
+      298,
+      313,
+      314,
+      332,
+      361,
+      394,
+      415,
+      450,
+      463,
+      501,
+      539,
+      586,
+      592,
+      594,
+      600,
+      604,
+      605,
+      621,
+      633,
+      647,
+      675,
+      692,
+      698,
+      706,
+      755,
+      770,
+      783,
+      893,
+      906,
+      910,
+      1000,
+      1012,
+      1035,
+      1041,
+      1054,
+      1056,
+      1067,
+      1073,
+      1110,
+      1173,
+      1176,
+      1201,
+      1214,
+      1221,
+      1253,
+      1306,
+      1308,
+      1309,
+      1314,
+      1316,
+      1359,
+      1380,
+      1402,
+      1412,
+      1418,
+      1436,
+      1446,
+      1466,
+      1467,
+      1489,
+      1507,
+      1524,
+      1541,
+      1548,
+      1576,
+      1585,
+      1599,
+      1605,
+      1622,
+      1634,
+      1644,
+      1652,
+      1653,
+      1670,
+      1671,
+      1682,
+      1686,
+      1735,
+      1754,
+      1757,
+      1762,
+      1795,
+      1815,
+      1823,
+      1834,
+      1842,
+      1847
+    ],
+    "time_indices_zero_based": [
+      13132,
+      13631
+    ],
+    "time_points": 500,
+    "sampling_interval": "3 hours",
+    "coordinate_normalization": {
+      "scope": "all 1866 Weather2K stations",
+      "longitude_min": 75.25,
+      "longitude_max": 133.99,
+      "latitude_min": 18.65,
+      "latitude_max": 53.47
+    }
+  }
+}

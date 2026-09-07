@@ -461,8 +461,11 @@ logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
 
 SVGP_CONFIG = build_svgp_config()
 SAVE_DIR = Path(script_dir)
+RESULT_DIR = Path(
+    _env.get("WEATHER2K_OUTPUT_DIR", str(SAVE_DIR))
+).expanduser().resolve()
 suffix = f"_{RESULT_SUFFIX}" if RESULT_SUFFIX else ""
-RESULT_PATH = SAVE_DIR / f"2K_svgp_metrics{suffix}.json"
+RESULT_PATH = RESULT_DIR / f"2K_svgp_metrics{suffix}.json"
 TIME_STRIDE = int(os.environ.get("TIME_STRIDE", "1"))
 
 

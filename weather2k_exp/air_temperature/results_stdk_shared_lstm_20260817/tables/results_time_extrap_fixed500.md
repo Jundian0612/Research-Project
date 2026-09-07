@@ -1,5 +1,7 @@
 # Scenario summary: time_extrap_fixed500
 
+> **重要：** 下表的 `STDK+SharedLSTM` 是自訂 Weather2K deterministic shared-LSTM baseline，不符合論文的 QLSTM／QConvLSTM probabilistic forecasting 流程，不能標示為 paper reproduction。其 LSTM 使用 MSE point forecast，沒有 quantile loss、local spatial grids 或 prediction intervals；SVGP 與 DLinear+FRK 列不受此註記影響。
+
 | scenario | target | space_split | n_train_space | n_unobs_space | n_target_space | model | alpha_obs | lambda_unobs | row_type | seed | RMSE | MSE | MAE | R2 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | SVGP |  |  | seed | 41 | 3.320592 | 11.026330 | 2.603338 | 0.636323 |

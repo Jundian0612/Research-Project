@@ -18,14 +18,14 @@ import optuna
 
 
 ROOT = Path(__file__).resolve().parent
+RESULT_ROOT = Path(
+    os.environ.get("WEATHER2K_OUTPUT_DIR", str(ROOT))
+).expanduser().resolve()
 MODEL_SCRIPT = ROOT / "2K_DLinear_FRK_hybridloss.py"
-OUTPUT_DIR = ROOT / os.environ.get(
-    "DLINEAR_FRK_TUNING_DIR",
-    "air_temperature/dlinear_frk_tuning_current",
-)
-TRIAL_DIR = OUTPUT_DIR / "trials"
+OUTPUT_DIR = ROOT / os.environ.get("DLINEAR_FRK_TUNING_DIR", "")
+TRIAL_DIR = OUTPUT_DIR
 BEST_PARAMS_PATH = ROOT / "2K_best_dlinear_and_frk_params_500to100.json"
-STUDY_PATH = OUTPUT_DIR / "optuna_study.sqlite3"
+STUDY_PATH = OUTPUT_DIR / "dlinear_frk_optuna_study.sqlite3"
 
 N_TRIALS = int(os.environ.get("DLINEAR_FRK_TUNE_TRIALS", "30"))
 TUNE_SEEDS = os.environ.get("DLINEAR_FRK_TUNE_SEEDS", "[41, 42]")
@@ -83,8 +83,8 @@ def suggest_params(trial: optuna.Trial) -> dict:
 
 def result_paths(suffix: str) -> tuple[Path, Path]:
     return (
-        ROOT / f"dlinear_autofrk_frkloss_test_100to500_metrics_{suffix}.json",
-        ROOT / f"2K_best_dlinear_frkloss_rerun_metrics_500to100_{suffix}.json",
+        RESULT_ROOT / f"dlinear_autofrk_frkloss_test_100to500_metrics_{suffix}.json",
+        RESULT_ROOT / f"2K_best_dlinear_frkloss_rerun_metrics_500to100_{suffix}.json",
     )
 
 
@@ -121,6 +121,7 @@ def objective(trial: optuna.Trial) -> float:
             "SEED_LIST": TUNE_SEEDS,
             "RESULT_SUFFIX": label,
             "DLINEAR_FRK_PARAMS_PATH": str(trial_params_path),
+            "WEATHER2K_OUTPUT_DIR": str(RESULT_ROOT),
             "PRINT_EPOCH_LOSS": os.environ.get("PRINT_EPOCH_LOSS", "0"),
         }
     )
@@ -168,7 +169,7 @@ def write_outputs(study: optuna.Study) -> None:
         row.update(trial.params)
         rows.append(row)
 
-    summary_path = OUTPUT_DIR / "tuning_summary.csv"
+    summary_path = OUTPUT_DIR / "dlinear_frk_tuning_summary.csv"
     fieldnames = list(rows[0])
     with open(summary_path, "w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
@@ -196,7 +197,7 @@ def write_outputs(study: optuna.Study) -> None:
         "fixed_params": FIXED_PARAMS,
         "n_requested_trials": N_TRIALS,
     }
-    dump_json(best_payload, OUTPUT_DIR / "best_params.json")
+    dump_json(best_payload, OUTPUT_DIR / "dlinear_frk_tuning_best_params.json")
     dump_json(best_payload, BEST_PARAMS_PATH)
 
     readme = f"""# DLinear+FRK hyperparameter tuning
@@ -219,7 +220,7 @@ Held-out target100 test metrics are not read for model selection.
 - Objective: mean best validation 4+5 RMSE on the original temperature scale
 - Optuna trials: {N_TRIALS}
 """
-    (OUTPUT_DIR / "README.md").write_text(readme, encoding="utf-8")
+    (OUTPUT_DIR / "DLINEAR_FRK_TUNING_README.md").write_text(readme, encoding="utf-8")
 
 
 def main() -> None:

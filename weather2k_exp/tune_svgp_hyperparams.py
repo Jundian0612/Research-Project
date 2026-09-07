@@ -15,12 +15,12 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent
+RESULT_ROOT = Path(
+    os.environ.get("WEATHER2K_OUTPUT_DIR", str(ROOT))
+).expanduser().resolve()
 SVGP_SCRIPT = ROOT / "2K_SVGP_500train_100test.py"
-OUTPUT_DIR = ROOT / os.environ.get(
-    "SVGP_TUNING_DIR",
-    "air_temperature/svgp_tuning_current",
-)
-JSON_DIR = OUTPUT_DIR / "json"
+OUTPUT_DIR = ROOT / os.environ.get("SVGP_TUNING_DIR", "")
+JSON_DIR = OUTPUT_DIR
 SEEDS = os.environ.get("SVGP_TUNE_SEEDS", "[41, 42]")
 EPOCHS = os.environ.get("SVGP_TUNE_EPOCHS", "500")
 PATIENCE = os.environ.get("SVGP_TUNE_PATIENCE", "30")
@@ -56,7 +56,7 @@ def safe_label(value: str) -> str:
 
 
 def root_result_path(suffix: str) -> Path:
-    return ROOT / f"2K_svgp_metrics_{suffix}.json"
+    return RESULT_ROOT / f"2K_svgp_metrics_{suffix}.json"
 
 
 def load_json(path: Path) -> dict:
@@ -110,6 +110,7 @@ def run_config(stage: str, kernel: str, lr: str, inducing: int) -> dict:
                 "SVGP_TUNE_VARIATIONAL_JITTER", default_jitter
             ),
             "RESULT_SUFFIX": suffix,
+            "WEATHER2K_OUTPUT_DIR": str(RESULT_ROOT),
         }
     )
     print(
@@ -202,7 +203,7 @@ def summarize(stage: str, label: str, payload: dict) -> dict:
 
 def write_summary(rows: list[dict], best: dict) -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    csv_path = OUTPUT_DIR / "tuning_summary.csv"
+    csv_path = OUTPUT_DIR / "svgp_tuning_summary.csv"
     with open(csv_path, "w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
         writer.writeheader()
@@ -231,10 +232,10 @@ def write_summary(rows: list[dict], best: dict) -> None:
         "best": best,
         "all_results": rows,
     }
-    with open(OUTPUT_DIR / "best_params.json", "w", encoding="utf-8") as handle:
+    with open(OUTPUT_DIR / "svgp_tuning_best_params.json", "w", encoding="utf-8") as handle:
         json.dump(best_payload, handle, ensure_ascii=False, indent=2)
 
-    with open(OUTPUT_DIR / "README.md", "w", encoding="utf-8") as handle:
+    with open(OUTPUT_DIR / "SVGP_TUNING_README.md", "w", encoding="utf-8") as handle:
         handle.write("# SVGP hyperparameter tuning\n\n")
         handle.write(
             "Selection uses only mean best validation RMSE on seeds "

@@ -1,0 +1,99 @@
+{
+  "model": "STDK+shared-QConvLSTM",
+  "config": {
+    "seed": 41,
+    "n_sample": 16,
+    "n_train": 12,
+    "n_heldout": 4,
+    "n_last": 50,
+    "train_times": 30,
+    "val_times": 10,
+    "test_times": 10,
+    "lookback": 5,
+    "horizon": 5,
+    "grid_size": 4,
+    "radius": 0.2,
+    "stdk_epochs": 1,
+    "qconv_epochs": 1,
+    "stdk_batch": 512,
+    "qconv_batch": 8,
+    "qconv_lr": 0.001,
+    "qconv_patience": 5,
+    "conv_filters": 64,
+    "variable": "air_temperature",
+    "forecast_mode": "block5to5",
+    "validation_only": true,
+    "smoke": true
+  },
+  "split": {
+    "sampled_global": [
+      193,
+      241,
+      491,
+      582,
+      812,
+      857,
+      879,
+      925,
+      956,
+      966,
+      998,
+      1251,
+      1538,
+      1609,
+      1646,
+      1781
+    ],
+    "train_local": [
+      2,
+      3,
+      4,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      15
+    ],
+    "heldout_local": [
+      0,
+      1,
+      5,
+      14
+    ],
+    "heldout_truth_used_for_training": false,
+    "heldout_truth_used_for_selection": false
+  },
+  "selection_data": "Train700/chronological Val150 on train500 only",
+  "validation": {
+    "q50": {
+      "validation_pinball": 0.4599674940109253,
+      "validation_rmse_scaled": 1.1231798706916358,
+      "validation_mse_scaled": 1.2615330219268799,
+      "validation_mae_scaled": 0.9199349880218506,
+      "training_windows": 252,
+      "validation_windows": 24
+    },
+    "q05": {
+      "validation_pinball": 0.14906045794487,
+      "validation_rmse_scaled": 1.5490249181655467,
+      "validation_mse_scaled": 2.3994781970977783,
+      "validation_mae_scaled": 1.3191567659378052,
+      "training_windows": 252,
+      "validation_windows": 24
+    },
+    "q95": {
+      "validation_pinball": 0.29339125752449036,
+      "validation_rmse_scaled": 1.0976995276339672,
+      "validation_mse_scaled": 1.2049442529678345,
+      "validation_mae_scaled": 0.8631922602653503,
+      "training_windows": 252,
+      "validation_windows": 24
+    }
+  },
+  "checkpoint_written": false,
+  "elapsed_seconds": 7.050370216369629
+}

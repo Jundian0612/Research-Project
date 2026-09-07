@@ -447,6 +447,9 @@ PL_TRAINER_KWARGS = {
 
 SAVE_DIR = Path(script_dir)
 _env = os.environ
+RESULT_DIR = Path(
+    _env.get("WEATHER2K_OUTPUT_DIR", str(SAVE_DIR))
+).expanduser().resolve()
 RESULT_SUFFIX = _env.get("RESULT_SUFFIX", "")
 suffix = f"_{RESULT_SUFFIX}" if RESULT_SUFFIX else ""
 PARAMS_PATH = Path(
@@ -455,8 +458,8 @@ PARAMS_PATH = Path(
         str(SAVE_DIR / "2K_best_dlinear_and_frk_params_500to100.json"),
     )
 ).expanduser().resolve()
-RERUN_METRICS_PATH = SAVE_DIR / f"2K_best_dlinear_frkloss_rerun_metrics_500to100{suffix}.json"
-FRK_METRICS_PATH = SAVE_DIR / f"dlinear_autofrk_frkloss_test_100to500_metrics{suffix}.json"
+RERUN_METRICS_PATH = RESULT_DIR / f"2K_best_dlinear_frkloss_rerun_metrics_500to100{suffix}.json"
+FRK_METRICS_PATH = RESULT_DIR / f"dlinear_autofrk_frkloss_test_100to500_metrics{suffix}.json"
 
 if not PARAMS_PATH.exists():
     raise RuntimeError(

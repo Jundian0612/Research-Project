@@ -1,0 +1,28 @@
+{
+  "trial": 0,
+  "params": {
+    "QCONV_LR": 0.001,
+    "QCONV_BATCH_SIZE": 64,
+    "QCONV_EPOCHS": 25,
+    "QCONV_PATIENCE": 5,
+    "CONV_FILTERS": 64
+  },
+  "seeds": [
+    41
+  ],
+  "selection_uses_test_metrics": false,
+  "selection_uses_heldout100_truth": false,
+  "q50_validation_rmse_scaled_by_seed": [
+    0.6698651971001865
+  ],
+  "mean_q50_validation_rmse_scaled": 0.6698651971001865,
+  "seed_metrics": [
+    {
+      "seed": 41,
+      "q50_validation_rmse_scaled": 0.6698651971001865,
+      "q50_validation_pinball": 0.2650262415409088,
+      "mean_validation_pinball": 0.1360707531372706,
+      "elapsed_seconds": 14341.635460615158
+    }
+  ]
+}

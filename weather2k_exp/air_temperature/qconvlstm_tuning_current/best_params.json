@@ -1,0 +1,24 @@
+{
+  "selection_metric": "mean_q50_validation_rmse_scaled",
+  "selection_uses_test_metrics": false,
+  "selection_uses_heldout100_truth": false,
+  "tuning_seeds": [
+    41
+  ],
+  "best_trial": 3,
+  "best_value": 0.6602298086141855,
+  "formal_run_params": {
+    "QCONV_LR": 0.0003,
+    "QCONV_BATCH_SIZE": 32,
+    "QCONV_EPOCHS": 40,
+    "QCONV_PATIENCE": 10,
+    "CONV_FILTERS": 64
+  },
+  "fixed_paper_flow": {
+    "LOOKBACK": 5,
+    "HORIZON": 5,
+    "GRID_SIZE": 8,
+    "NEIGHBOURHOOD_RADIUS": 0.2,
+    "QCONV_PROFILE": "github_3block"
+  }
+}
