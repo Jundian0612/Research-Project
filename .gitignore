@@ -18,3 +18,16 @@ STDK_QConvLSTM_reproduction_results/raw_results/
 # Weather2K STDK + QConvLSTM checkpoints and raw outputs
 weather2k_exp/*/STDK_QConvLSTM_Weather2K_results/
 weather2k_exp/*/STDK_QConvLSTM_Weather2K_495to5_pilot/raw_results/
+.venv-wsl/
+
+# Machine-local environments (already tracked files require git rm --cached)
+/.conda/
+/.venv/
+/.venv-*/
+/venv/
+/.env
+/.env.*
+!.env.example
+.ipynb_checkpoints/
+.pytest_cache/
+*:Zone.Identifier

@@ -1,0 +1,7 @@
+# Install the appropriate PyTorch wheel separately first (see docs/SETUP_WEATHER2K.md).
+# Direct dependencies for current STDK / QConvLSTM and plotting; not a historical lockfile.
+numpy>=1.24
+scipy>=1.10
+scikit-learn>=1.2
+pandas>=2.0
+matplotlib>=3.7
