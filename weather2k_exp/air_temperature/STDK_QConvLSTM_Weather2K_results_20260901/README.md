@@ -43,11 +43,11 @@ five-seed mean and standard deviation estimates.
 
 ## Files
 
-- `shared_qconvlstm_block5to5_seed41.json`: formal seed-41 configuration,
+- `metrics/shared_qconvlstm_block5to5_seed41.json`: formal seed-41 configuration,
   validation diagnostics, metrics, split indices, and elapsed time.
-- `shared_qconvlstm_block5to5_seed41_time_forecasts.csv`: train500 Test150.
-- `shared_qconvlstm_block5to5_seed41_space_forecasts.csv`: held-out100 first 850.
-- `shared_qconvlstm_block5to5_seed41_forecasts.csv`: held-out100 Test150.
+- `forecasts/shared_qconvlstm_block5to5_seed41_time_forecasts.csv`: train500 Test150.
+- `forecasts/shared_qconvlstm_block5to5_seed41_space_forecasts.csv`: held-out100 first 850.
+- `forecasts/shared_qconvlstm_block5to5_seed41_forecasts.csv`: held-out100 Test150.
 - `shared_qconvlstm_direct5to150_seed41*`: archived pilot comparison only.
 
 ## Interpretation and limitations
@@ -62,3 +62,10 @@ quantile-specific QConvLSTM training, pinball loss, constrained quantiles, and
 
 Model changes must be selected using Train700/Val150 only. Test150 and
 held-out100 metrics are final evaluation data and must not be used for tuning.
+
+## 整理後目錄
+
+- `forecasts/`：逐筆預測輸出
+- `metrics/`：JSON 評估結果
+
+本次整理只調整檔案位置，沒有刪除或重新計算結果。

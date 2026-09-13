@@ -45,10 +45,10 @@ Coverage 明顯低於名目 90%，代表此歷史版本的 prediction interval �
 
 ## 檔案
 
-- `shared_qconvlstm_seed41.json`
+- `metrics/shared_qconvlstm_seed41.json`
   - 完整設定、抽樣 station indices、train/held-out split、validation pinball、
     最終指標與耗時。
-- `shared_qconvlstm_seed41_forecasts.csv`
+- `forecasts/shared_qconvlstm_seed41_forecasts.csv`
   - held-out100 × Test150 的逐點預測。
   - 欄位為 `seed, heldout_local, lead, truth, q05, q50, q95`。
 
@@ -64,3 +64,10 @@ Coverage 明顯低於名目 90%，代表此歷史版本的 prediction interval �
 目前正式結果位於相鄰的
 `STDK_QConvLSTM_Weather2K_results_20260901/`，其中 README 另有 seed 41 A/B 比較。
 兩個資料夾的結果不可直接合併成 multi-seed mean ± std。
+
+## 整理後目錄
+
+- `forecasts/`：逐筆預測輸出
+- `metrics/`：JSON 評估結果
+
+本次整理只調整檔案位置，沒有刪除或重新計算結果。

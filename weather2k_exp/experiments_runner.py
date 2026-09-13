@@ -1,11 +1,10 @@
 """
-簡易實驗 runner：執行三個指定的外推情境，呼叫 SVGP、DLinear+FRK 與 STDK 腳本。
-可選擇執行一次 STDK+SharedQConvLSTM，並將同一個 fitted model 的時間、
-空間與時空外推結果分別加入三張比較表。
+簡易實驗 runner：每個模型、每個 seed、每組超參數只訓練一次，再用同一個
+fitted model 評估時間、空間與時空三個外推情境。
 時間固定使用最後 1000 個時間點並切成 700/150/150。
 空間固定抽 600 個空間點；obs100 + unobs400 共 500 站提供訓練監督，
 其餘 100 站保留作空間/時空測試。
-會產生對應的結果檔案，檔名會包含場景後綴。
+會產生一份含三種 target 的模型 JSON，再輸出三張情境比較表。
 """
 import os
 import csv
@@ -74,12 +73,27 @@ if QCONVLSTM_FORECAST_MODE not in {"direct5to150", "block5to5"}:
     raise ValueError(
         "QCONVLSTM_FORECAST_MODE must be direct5to150 or block5to5"
     )
+QCONVLSTM_PREDICTION_MODE = os.environ.get(
+    "QCONVLSTM_PREDICTION_MODE", "direct"
+)
+if QCONVLSTM_PREDICTION_MODE not in {"direct", "residual"}:
+    raise ValueError("QCONVLSTM_PREDICTION_MODE must be direct or residual")
 QCONVLSTM_OUTPUT_DIR = Path(
     os.environ.get(
         "QCONVLSTM_OUTPUT_DIR",
         str(RESULT_ROOT),
     )
 ).expanduser().resolve()
+QCONVLSTM_PARAMS_FILE = Path(
+    os.environ.get(
+        "QCONVLSTM_PARAMS_FILE",
+        str(ROOT / "2K_best_stdk_qconvlstm_params_500to100.json"),
+    )
+).expanduser().resolve()
+if RUN_QCONVLSTM and not QCONVLSTM_PARAMS_FILE.exists():
+    raise FileNotFoundError(
+        f"Missing QConvLSTM parameter file: {QCONVLSTM_PARAMS_FILE}"
+    )
 ARCHIVE_DIR = (
     Path(os.environ["RESULT_ARCHIVE_DIR"]).expanduser().resolve()
     if os.environ.get("RESULT_ARCHIVE_DIR") else None
@@ -542,179 +556,196 @@ def _qconvlstm_rows(
 
 
 if __name__ == "__main__":
-    qconv_attempted = False
+    # All scenarios share the same Train700, Val150, and station split. Fit each
+    # model/configuration once, then read its three target metrics into the
+    # scenario-specific tables below.
+    baseline_split = (100, 400, 100)
+    canonical_env = apply_space_split(SCENARIOS[0]["env"], baseline_split)
+    canonical_env["EXPERIMENT_SCENARIO"] = "all_three"
+
+    svgp_payload = None
+    stdk_payload = None
+    dlinear_payloads = []
+
+    baseline_suffix = "all_three_train500_test100"
+    svgp_env = dict(canonical_env)
+    svgp_env["RESULT_SUFFIX"] = f"{baseline_suffix}_{svgp_suffix()}"
+    if RUN_SVGP:
+        print("\n--- SVGP: one fit per seed, three evaluations ---")
+        rc = run_script(SVGP_SCRIPT, svgp_env)
+        if rc != 0:
+            raise SystemExit(f"SVGP failed with exit code {rc}")
+        svgp_path = _svgp_result_path(svgp_env["RESULT_SUFFIX"])
+        if not svgp_path.exists():
+            raise FileNotFoundError(svgp_path)
+        _archive_json(svgp_path)
+        svgp_payload = _load_json(svgp_path)
+    elif ARCHIVE_DIR is not None:
+        svgp_path = ARCHIVE_DIR / "json" / _svgp_result_path(
+            svgp_env["RESULT_SUFFIX"]
+        ).name
+        if not svgp_path.exists():
+            raise FileNotFoundError(
+                f"RUN_SVGP=0 but unified all-three result is missing: {svgp_path}"
+            )
+        svgp_payload = _load_json(svgp_path)
+
+    stdk_env = dict(canonical_env)
+    stdk_env["RESULT_SUFFIX"] = baseline_suffix
+    if RUN_STDK:
+        print("\n--- STDK: one fit per seed, three evaluations ---")
+        rc = run_script(STDK_SCRIPT, stdk_env)
+        if rc != 0:
+            raise SystemExit(f"STDK failed with exit code {rc}")
+        stdk_path = RESULT_ROOT / f"2K_stdk_metrics_{stdk_env['RESULT_SUFFIX']}.json"
+        if not stdk_path.exists():
+            raise FileNotFoundError(stdk_path)
+        _archive_json(stdk_path)
+        stdk_payload = _load_json(stdk_path)
+    elif ARCHIVE_DIR is not None:
+        stdk_path = ARCHIVE_DIR / "json" / (
+            f"2K_stdk_metrics_{stdk_env['RESULT_SUFFIX']}.json"
+        )
+        if stdk_path.exists():
+            stdk_payload = _load_json(stdk_path)
+
     qconv_ready = False
-    for sc in SCENARIOS:
-        print("\n=== Scenario:", sc["name"], "===")
-        result_rows = []
-        summary_rows = []
-        rc = 0
-
-        # STDK and SVGP both consume the same combined train500, so run each
-        # baseline once per scenario. 100/400 is retained only as the canonical
-        # interface split; it does not change their combined 500-station input.
-        baseline_split = (100, 400, 100)
-        baseline_env = apply_space_split(sc["env"], baseline_split)
-        baseline_suffix = f"{sc['env']['RESULT_SUFFIX']}_train500_test100"
-        svgp_env = dict(baseline_env)
-        svgp_env["RESULT_SUFFIX"] = f"{baseline_suffix}_{svgp_suffix()}"
-
-        if RUN_SVGP:
-            print("\n--- SVGP baseline: train500/test100 (run once) ---")
-            rc = run_script(SVGP_SCRIPT, svgp_env)
-            if rc == 0:
-                result_path = _svgp_result_path(svgp_env["RESULT_SUFFIX"])
-                if result_path.exists():
-                    _archive_json(result_path)
-                    payload = _load_json(result_path)
-                    result_rows.extend(_svgp_seed_rows(payload, sc["name"], baseline_split))
-                    summary_row = _svgp_summary_row(payload, sc["name"], baseline_split)
-                    result_rows.append(summary_row)
-                    summary_rows.append(summary_row)
-                    _write_result_files(result_rows, sc["name"])
-        elif ARCHIVE_DIR is not None:
-            archived_svgp = ARCHIVE_DIR / "json" / _svgp_result_path(
-                svgp_env["RESULT_SUFFIX"]
-            ).name
-            if archived_svgp.exists():
-                print(f"Reusing archived SVGP result: {archived_svgp}")
-                payload = _load_json(archived_svgp)
-                result_rows.extend(_svgp_seed_rows(payload, sc["name"], baseline_split))
-                summary_row = _svgp_summary_row(payload, sc["name"], baseline_split)
-                result_rows.append(summary_row)
-                summary_rows.append(summary_row)
-                _write_result_files(result_rows, sc["name"])
-            else:
-                raise FileNotFoundError(
-                    f"RUN_SVGP=0 but archived SVGP result is missing: {archived_svgp}"
+    if RUN_QCONVLSTM:
+        qconv_args = [
+            "--seeds", *(str(seed) for seed in QCONVLSTM_SEEDS),
+            "--params-file", str(QCONVLSTM_PARAMS_FILE),
+            "--output-dir", str(QCONVLSTM_OUTPUT_DIR),
+            "--forecast-mode", QCONVLSTM_FORECAST_MODE,
+            "--prediction-mode", QCONVLSTM_PREDICTION_MODE,
+        ]
+        if os.environ.get("QCONV_STDK_EPOCHS"):
+            qconv_args.extend(["--stdk-epochs", os.environ["QCONV_STDK_EPOCHS"]])
+        if os.environ.get("QCONV_EPOCHS"):
+            qconv_args.extend(["--qconv-epochs", os.environ["QCONV_EPOCHS"]])
+        if os.environ.get("QCONV_BATCH_SIZE"):
+            qconv_args.extend(["--qconv-batch-size", os.environ["QCONV_BATCH_SIZE"]])
+        print("\n--- STDK+QConvLSTM: one fit per seed, three evaluations ---")
+        qconv_ready = run_script(QCONV_SCRIPT, canonical_env, qconv_args) == 0
+        if qconv_ready:
+            summary_path = QCONVLSTM_OUTPUT_DIR / (
+                f"shared_qconvlstm_{QCONVLSTM_FORECAST_MODE}_"
+                + (
+                    "five_seed"
+                    if QCONVLSTM_SEEDS == [41, 42, 43, 44, 45]
+                    else "seeds" + "_".join(str(seed) for seed in QCONVLSTM_SEEDS)
                 )
+                + "_summary.json"
+            )
+            _archive_json(summary_path)
+            _archive_qconvlstm_forecasts(QCONVLSTM_OUTPUT_DIR)
+        else:
+            print("STDK+QConvLSTM failed; its rows will be omitted.")
 
-        if rc != 0:
-            print(f"SVGP failed for scenario {sc['name']}; skipping remaining models.")
-            continue
-
-        if RUN_STDK:
-            stdk_env = dict(baseline_env)
-            stdk_env["RESULT_SUFFIX"] = baseline_suffix
-            print("\n--- STDK baseline: train500/test100 (run once) ---")
-            rc = run_script(STDK_SCRIPT, stdk_env)
-            if rc == 0:
-                result_path = RESULT_ROOT / f"2K_stdk_metrics_{stdk_env['RESULT_SUFFIX']}.json"
-                if result_path.exists():
-                    _archive_json(result_path)
-                    payload = _load_json(result_path)
-                    result_rows.extend(_seed_rows(payload, sc["name"], baseline_split))
-                    summary_row = _summary_row(payload, sc["name"], baseline_split)
-                    result_rows.append(summary_row)
-                    summary_rows.append(summary_row)
-                    _write_result_files(result_rows, sc["name"])
-
-        if rc != 0:
-            print(f"STDK failed for scenario {sc['name']}; skipping DLinear+FRK sweep.")
-            continue
-
-        if RUN_QCONVLSTM:
-            if not qconv_attempted:
-                qconv_attempted = True
-                qconv_args = [
-                    "--seeds",
-                    *(str(seed) for seed in QCONVLSTM_SEEDS),
-                    "--output-dir",
-                    str(QCONVLSTM_OUTPUT_DIR),
-                    "--forecast-mode",
-                    QCONVLSTM_FORECAST_MODE,
-                ]
-                if os.environ.get("QCONV_STDK_EPOCHS"):
-                    qconv_args.extend(["--stdk-epochs", os.environ["QCONV_STDK_EPOCHS"]])
-                if os.environ.get("QCONV_EPOCHS"):
-                    qconv_args.extend(["--qconv-epochs", os.environ["QCONV_EPOCHS"]])
-                if os.environ.get("QCONV_BATCH_SIZE"):
-                    qconv_args.extend(["--qconv-batch-size", os.environ["QCONV_BATCH_SIZE"]])
-                print(
-                    "\n--- STDK+SharedQConvLSTM: one fit for time, space, and "
-                    "spatiotemporal targets; "
-                    f"mode={QCONVLSTM_FORECAST_MODE} (opt-in) ---"
-                )
-                qconv_rc = run_script(QCONV_SCRIPT, baseline_env, qconv_args)
-                qconv_ready = qconv_rc == 0
-                if not qconv_ready:
-                    print(
-                        f"SharedQConvLSTM failed with code {qconv_rc}; "
-                        "continuing with DLinear+FRK."
-                    )
-            if qconv_ready:
-                qconv_rows, qconv_summary = _qconvlstm_rows(
-                    QCONVLSTM_OUTPUT_DIR, sc["name"], baseline_split
-                )
-                summary_path = QCONVLSTM_OUTPUT_DIR / (
-                    f"shared_qconvlstm_{QCONVLSTM_FORECAST_MODE}_five_seed_summary.json"
-                )
-                _archive_json(summary_path)
-                _archive_qconvlstm_forecasts(QCONVLSTM_OUTPUT_DIR)
-                result_rows.extend(qconv_rows)
-                summary_rows.append(qconv_summary)
-                _write_result_files(result_rows, sc["name"])
-
+    if RUN_DLINEAR:
         for space_split in SPACE_SPLITS:
-            sc_env = apply_space_split(sc["env"], space_split)
+            split_env = apply_space_split(canonical_env, space_split)
+            split_env["EXPERIMENT_SCENARIO"] = "all_three"
             train_n, unobs_n, target_n = space_split
             base_suffix = (
-                f"{sc['env']['RESULT_SUFFIX']}_{split_suffix(space_split)}_"
+                f"all_three_{split_suffix(space_split)}_"
                 f"train{train_n + unobs_n}_test{target_n}"
             )
-            print(f"\n=== Space split {sc_env['SPACE_SPLIT_LABEL']} ===")
-
-            if RUN_DLINEAR:
-                for alpha_value in ALPHA_LIST:
-                    for lambda_value in LAMBDA_LIST:
-                        dlinear_env = dict(sc_env)
-                        effective_alpha = FORMAL_ALPHA if alpha_value is None else str(alpha_value)
-                        effective_lambda = FORMAL_LAMBDA if lambda_value is None else str(lambda_value)
-                        if alpha_value is not None:
-                            dlinear_env["DIFF_FRK_OBS_LOSS_WEIGHT"] = effective_alpha
-                            dlinear_env["DIFF_FRK_LOSS_WEIGHT"] = effective_lambda
-                        dlinear_env["RESULT_SUFFIX"] = (
-                            f"{base_suffix}_"
-                            f"{alpha_suffix(effective_alpha)}_{lambda_suffix(effective_lambda)}"
-                        )
-                        print(
-                            f"\n--- DLinear+FRK split={sc_env['SPACE_SPLIT_LABEL']}, "
-                            f"alpha={effective_alpha}, lambda={effective_lambda} "
-                            f"({'override' if alpha_value is not None else 'tuned JSON'}) ---"
-                        )
-                        rc = run_script(DLIN_SCRIPT, dlinear_env)
-                        if rc != 0:
-                            print(
-                                f"Script {DLIN_SCRIPT.name} exited with code {rc}. "
-                                f"Aborting scenario {sc['name']} at split={sc_env['SPACE_SPLIT_LABEL']}, "
-                                f"alpha={effective_alpha}, lambda={effective_lambda}"
-                            )
-                            break
-                        result_path = RESULT_ROOT / f"dlinear_autofrk_frkloss_test_100to500_metrics_{dlinear_env['RESULT_SUFFIX']}.json"
-                        if result_path.exists():
-                            _archive_json(result_path)
-                            rerun_path = RESULT_ROOT / f"2K_best_dlinear_frkloss_rerun_metrics_500to100_{dlinear_env['RESULT_SUFFIX']}.json"
-                            _archive_json(rerun_path)
-                            payload = _load_json(result_path)
-                            result_rows.extend(_seed_rows(payload, sc["name"], space_split, effective_alpha, effective_lambda))
-                            summary_row = _summary_row(payload, sc["name"], space_split, effective_alpha, effective_lambda)
-                            result_rows.append(summary_row)
-                            summary_rows.append(summary_row)
-                            _write_result_files(result_rows, sc["name"])
+            for alpha_value in ALPHA_LIST:
+                for lambda_value in LAMBDA_LIST:
+                    dlinear_env = dict(split_env)
+                    effective_alpha = FORMAL_ALPHA if alpha_value is None else str(alpha_value)
+                    effective_lambda = FORMAL_LAMBDA if lambda_value is None else str(lambda_value)
+                    if alpha_value is not None:
+                        dlinear_env["DIFF_FRK_OBS_LOSS_WEIGHT"] = effective_alpha
+                        dlinear_env["DIFF_FRK_LOSS_WEIGHT"] = effective_lambda
+                    dlinear_env["RESULT_SUFFIX"] = (
+                        f"{base_suffix}_{alpha_suffix(effective_alpha)}_"
+                        f"{lambda_suffix(effective_lambda)}"
+                    )
+                    print(
+                        "\n--- DLinear+FRK: one fit per seed, three evaluations; "
+                        f"split={dlinear_env['SPACE_SPLIT_LABEL']}, "
+                        f"alpha={effective_alpha}, lambda={effective_lambda} ---"
+                    )
+                    rc = run_script(DLIN_SCRIPT, dlinear_env)
                     if rc != 0:
-                        break
-                else:
-                    rc = 0
-                if rc != 0:
-                    break
-        else:
-            rc = 0
+                        raise SystemExit(
+                            f"DLinear+FRK failed with exit code {rc} for "
+                            f"split={dlinear_env['SPACE_SPLIT_LABEL']}"
+                        )
+                    result_path = RESULT_ROOT / (
+                        "dlinear_autofrk_frkloss_test_100to500_metrics_"
+                        f"{dlinear_env['RESULT_SUFFIX']}.json"
+                    )
+                    if not result_path.exists():
+                        raise FileNotFoundError(result_path)
+                    _archive_json(result_path)
+                    rerun_path = RESULT_ROOT / (
+                        "2K_best_dlinear_frkloss_rerun_metrics_500to100_"
+                        f"{dlinear_env['RESULT_SUFFIX']}.json"
+                    )
+                    _archive_json(rerun_path)
+                    dlinear_payloads.append(
+                        (
+                            space_split,
+                            effective_alpha,
+                            effective_lambda,
+                            _load_json(result_path),
+                        )
+                    )
 
-        if rc != 0:
-            continue
+    for sc in SCENARIOS:
+        scenario_name = sc["name"]
+        print("\n=== Build table for scenario:", scenario_name, "===")
+        result_rows = []
+        summary_rows = []
 
-        _print_summary_table(summary_rows, sc["name"])
-        _update_archive_readme(summary_rows, sc["name"])
-        print(f"Scenario {sc['name']} completed.\n")
+        if svgp_payload is not None:
+            result_rows.extend(
+                _svgp_seed_rows(svgp_payload, scenario_name, baseline_split)
+            )
+            summary_row = _svgp_summary_row(
+                svgp_payload, scenario_name, baseline_split
+            )
+            result_rows.append(summary_row)
+            summary_rows.append(summary_row)
 
-    print(f"All scenarios invoked. Check generated outputs in {RESULT_ROOT}.")
+        if stdk_payload is not None:
+            result_rows.extend(
+                _seed_rows(stdk_payload, scenario_name, baseline_split)
+            )
+            summary_row = _summary_row(
+                stdk_payload, scenario_name, baseline_split
+            )
+            result_rows.append(summary_row)
+            summary_rows.append(summary_row)
+
+        if qconv_ready:
+            qconv_rows, qconv_summary = _qconvlstm_rows(
+                QCONVLSTM_OUTPUT_DIR, scenario_name, baseline_split
+            )
+            result_rows.extend(qconv_rows)
+            summary_rows.append(qconv_summary)
+
+        for space_split, alpha_value, lambda_value, payload in dlinear_payloads:
+            result_rows.extend(
+                _seed_rows(
+                    payload, scenario_name, space_split,
+                    alpha_value, lambda_value,
+                )
+            )
+            summary_row = _summary_row(
+                payload, scenario_name, space_split,
+                alpha_value, lambda_value,
+            )
+            result_rows.append(summary_row)
+            summary_rows.append(summary_row)
+
+        _write_result_files(result_rows, scenario_name)
+        _print_summary_table(summary_rows, scenario_name)
+        _update_archive_readme(summary_rows, scenario_name)
+
+    print(
+        f"All selected scenarios evaluated from one fitted instance per "
+        f"model/seed/configuration. Check outputs in {RESULT_ROOT}."
+    )

@@ -1124,34 +1124,20 @@ def _run_seeded_diff_dlinear_frk(sample_seed: int, best_params: dict) -> dict:
             f"{prefix}_R2": metric["R2"],
         }
 
-    if EXPERIMENT_SCENARIO == "time_extrap_fixed500":
-        frk_metrics = {
-            **prefixed("Train700", train700_metric),
-            **prefixed("Val150", val150_metric),
-            **prefixed("Target_Time150", target_time150_metric),
-        }
-        result_sections = {
-            "Train700": train700_metric,
-            "Val150": val150_metric,
-            "Target_Time150": target_time150_metric,
-        }
-    elif EXPERIMENT_SCENARIO == "space_extrap_fixed850":
-        frk_metrics = {
-            **prefixed("Train100", space_train100_metric),
-            **prefixed("Val400", space_val400_metric),
-            **prefixed("Target_Space100", space_target100_metric),
-        }
-        result_sections = {
-            "Train100": space_train100_metric,
-            "Val400": space_val400_metric,
-            "Target_Space100": space_target100_metric,
-        }
-    elif EXPERIMENT_SCENARIO == "spatiotemp_100x150":
-        frk_metrics = prefixed("Target_ST100x150", target_st_metric)
-        result_sections = {"Target_ST100x150": target_st_metric}
-    else:
-        frk_metrics = prefixed("Target", target_time150_metric)
-        result_sections = {"Target": target_time150_metric}
+    result_sections = {
+        "Train700": train700_metric,
+        "Val150": val150_metric,
+        "Target_Time150": target_time150_metric,
+        "Train100": space_train100_metric,
+        "Val400": space_val400_metric,
+        "Target_Space100": space_target100_metric,
+        "Target_ST100x150": target_st_metric,
+    }
+    frk_metrics = {
+        key: value
+        for name, section in result_sections.items()
+        for key, value in prefixed(name, section).items()
+    }
 
     elapsed = time.time() - train_start
     print(f"Training elapsed={_fmt_time(elapsed)}")
@@ -1186,7 +1172,11 @@ def _run_seeded_diff_dlinear_frk(sample_seed: int, best_params: dict) -> dict:
         },
         "loss_history": loss_history,
         "sampling_info": {
-            "experiment_scenario": EXPERIMENT_SCENARIO,
+            "experiment_scenario": "all_three",
+            "evaluation_scenarios": [
+                "time_extrap_fixed500", "space_extrap_fixed850",
+                "spatiotemp_100x150",
+            ],
             "full_sample_size": int(N_SAMPLE_TARGET),
             "tune_sample_size": int(N_STDK),
             "sample_seed": int(sample_seed),
@@ -1641,18 +1631,19 @@ dlinear_metrics_df = pd.DataFrame([run["dlinear_metrics"] for run in seed_runs])
 dlinear_mean_metrics = dlinear_metrics_df.mean(numeric_only=True).to_dict()
 dlinear_std_metrics = dlinear_metrics_df.std(numeric_only=True, ddof=0).to_dict()
 dlinear_elapsed_mean = float(np.mean([run["elapsed_seconds"] for run in seed_runs]))
+evaluated_seed_label = ", ".join(str(seed) for seed in EVAL_SEEDS)
 
 frk_metrics_df = pd.DataFrame([run["frk_metrics"] for run in seed_runs])
 frk_mean_metrics = frk_metrics_df.mean(numeric_only=True).to_dict()
 frk_std_metrics = frk_metrics_df.std(numeric_only=True, ddof=0).to_dict()
 
-print("\n===== DLinear best TEST RESULTS (seed 41~45 mean) =====")
+print(f"\n===== DLinear best TEST RESULTS (seeds {evaluated_seed_label} mean) =====")
 print(
     pd.DataFrame(
         [{"Model": "DLINEAR(best)", "Split": "TEST_MEAN", **{key: float(value) for key, value in dlinear_mean_metrics.items()}}]
     ).to_string(index=False)
 )
-print("\n===== DLinear best TEST RESULTS (seed 41~45 std) =====")
+print(f"\n===== DLinear best TEST RESULTS (seeds {evaluated_seed_label} std) =====")
 print(
     pd.DataFrame(
         [{"Model": "DLINEAR(best)", "Split": "TEST_STD", **{key: float(value) for key, value in dlinear_std_metrics.items()}}]
@@ -1660,13 +1651,19 @@ print(
 )
 print(f"Mean training elapsed={_fmt_time(dlinear_elapsed_mean)}")
 
-print("\n===== DLinear + differentiable FRK surrogate TEST RESULTS (seed 41~45 mean) =====")
+print(
+    f"\n===== DLinear + differentiable FRK surrogate TEST RESULTS "
+    f"(seeds {evaluated_seed_label} mean) ====="
+)
 print(
     pd.DataFrame(
         [{"Model": "DLINEAR + differentiable_FRK", "Split": "TEST_MEAN", **{key: float(value) for key, value in frk_mean_metrics.items()}}]
     ).to_string(index=False)
 )
-print("\n===== DLinear + differentiable FRK surrogate TEST RESULTS (seed 41~45 std) =====")
+print(
+    f"\n===== DLinear + differentiable FRK surrogate TEST RESULTS "
+    f"(seeds {evaluated_seed_label} std) ====="
+)
 print(
     pd.DataFrame(
         [{"Model": "DLINEAR + differentiable_FRK", "Split": "TEST_STD", **{key: float(value) for key, value in frk_std_metrics.items()}}]

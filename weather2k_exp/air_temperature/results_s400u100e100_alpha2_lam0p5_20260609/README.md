@@ -83,3 +83,8 @@ SPACE_SPLITS='400/100/100' ALPHA_LIST='2.0' LAMBDA_LIST='0.5' RUN_STDK=0 python 
 
 本資料夾內有備份 `params/2K_best_dlinear_params_500to100.json`。根目錄下的參數檔也會保留，不會刪除。
 
+## 整理後目錄
+
+- `metadata/`：程式與環境追溯資訊
+
+本次整理只調整檔案位置，沒有刪除或重新計算結果。

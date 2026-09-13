@@ -1,0 +1,45 @@
+{
+  "stage": "interface",
+  "normalization_source": "obs100_train700",
+  "q50_checkpoint_selection": "mse",
+  "trial": 8,
+  "params": {
+    "QCONV_LR": 0.0001,
+    "QCONV_BATCH_SIZE": 64,
+    "QCONV_EPOCHS": 40,
+    "QCONV_PATIENCE": 10,
+    "CONV_FILTERS": 64,
+    "QCONV_WEIGHT_DECAY": 0.0,
+    "GRID_SIZE": 11,
+    "NEIGHBOURHOOD_RADIUS": 0.3
+  },
+  "seeds": [
+    41,
+    42
+  ],
+  "selection_uses_test_metrics": false,
+  "selection_uses_heldout100_truth": false,
+  "tuning_quantiles": [
+    0.5
+  ],
+  "q50_validation_rmse_scaled_by_seed": [
+    0.6686734057619633,
+    0.6958670815451918
+  ],
+  "mean_q50_validation_rmse_scaled": 0.6822702436535776,
+  "std_q50_validation_rmse_scaled": 0.013596837891614255,
+  "seed_metrics": [
+    {
+      "seed": 41,
+      "q50_validation_rmse_scaled": 0.6686734057619633,
+      "q50_validation_pinball": 0.2604995667934418,
+      "elapsed_seconds": 1721.960128545761
+    },
+    {
+      "seed": 42,
+      "q50_validation_rmse_scaled": 0.6958670815451918,
+      "q50_validation_pinball": 0.27395808696746826,
+      "elapsed_seconds": 1721.6101083755493
+    }
+  ]
+}

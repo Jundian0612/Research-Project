@@ -1,0 +1,6 @@
+{
+  "weather2k_exp/2K_STDK_QConvLSTM.py": "d7e046e261ee3366b77d75bd9d7caa6e5c0e0a97435b59fbdb0f58baeea5dce6",
+  "STDK_QConvLSTM_reproduction_results/code/STDK_QConvLSTM_reproduction.py": "41c51c7b919b12ff0fe585153ab457934e1a5a7df258c91623181bbf0e165504",
+  "spatial-adapter/examples/baselines/stdk/st_interp.py": "fd39c00d891e217ad77a9c3d8fec08d378a1a7cdf9b2af4648a09a5408d7cf19",
+  "weather2k_exp/air_temperature/STDK_QConvLSTM_formal_rtx2000_20260910/locked_params.json": "d6ae7216b1a6ed92a96cc064294b3a688344ea09f7d7aca9af410965b53dcf3b"
+}

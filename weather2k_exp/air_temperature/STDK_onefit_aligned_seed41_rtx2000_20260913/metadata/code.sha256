@@ -1,0 +1,3 @@
+f444eb75f776d4700ca599b11df67abe990bdb4f00e10f3611039a1c98756543  weather2k_exp/2K_STDK_500train_100test.py
+fd39c00d891e217ad77a9c3d8fec08d378a1a7cdf9b2af4648a09a5408d7cf19  spatial-adapter/examples/baselines/stdk/st_interp.py
+aa9e8b0fc3aa4e56ad19a9c9e4b89e2ba9d7312a75097b8a2bb3c513e583c8f3  spatial-adapter/examples/baselines/stdk/trainer.py

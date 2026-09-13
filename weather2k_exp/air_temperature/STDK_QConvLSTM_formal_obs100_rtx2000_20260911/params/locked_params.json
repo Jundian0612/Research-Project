@@ -1,0 +1,38 @@
+{
+  "stdk_backend": "spatial_adapter",
+  "normalization_source": "obs100_train700",
+  "q50_checkpoint_selection": "mse",
+  "selection_metric": "mean_q50_validation_rmse_scaled",
+  "selection_uses_test_metrics": false,
+  "selection_uses_heldout100_truth": false,
+  "tuning_seeds": [
+    41,
+    42
+  ],
+  "tuning_quantiles": [
+    0.5
+  ],
+  "tuning_protocol": [
+    "stage1_interface_grid_size_and_neighbourhood_radius",
+    "stage2_capacity_filters_and_weight_decay"
+  ],
+  "best_stage": "capacity",
+  "best_trial": 0,
+  "best_value": 0.6494220559238053,
+  "best_std": 0.0024299838758137238,
+  "formal_run_params": {
+    "QCONV_LR": 0.0001,
+    "QCONV_BATCH_SIZE": 64,
+    "QCONV_EPOCHS": 40,
+    "QCONV_PATIENCE": 10,
+    "CONV_FILTERS": 32,
+    "QCONV_WEIGHT_DECAY": 0.0,
+    "GRID_SIZE": 5,
+    "NEIGHBOURHOOD_RADIUS": 0.1
+  },
+  "fixed_paper_flow": {
+    "LOOKBACK": 5,
+    "HORIZON": 5,
+    "QCONV_PROFILE": "github_3block"
+  }
+}

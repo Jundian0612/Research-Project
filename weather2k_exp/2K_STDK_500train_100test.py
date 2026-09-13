@@ -8,6 +8,7 @@ import gc
 import json
 import logging
 import os
+import sys
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -17,6 +18,12 @@ import pandas as pd
 import torch
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from torch.utils.data import DataLoader, Dataset
+
+SPATIAL_ADAPTER_ROOT = Path(__file__).resolve().parent.parent / "spatial-adapter"
+if str(SPATIAL_ADAPTER_ROOT) in sys.path:
+    sys.path.remove(str(SPATIAL_ADAPTER_ROOT))
+sys.path.insert(0, str(SPATIAL_ADAPTER_ROOT))
+from examples.baselines.stdk.utils.ema import ModelEMA
 
 try:
     from tqdm.auto import tqdm
@@ -185,11 +192,12 @@ def build_stdk_model_config():
     return {
         "p_covariates": 0,
         "regression_type": "mean",
-        "epochs": 350,
+        "epochs": int(os.environ.get("STDK_EPOCHS", "350")),
         "lr": 1.0e-3,
         "weight_decay": 1.0e-4,
         "batch_size": 512,
         "patience": 30,
+        "use_ema": True,
         "k_spatial_centers": [25, 81, 121],
         "k_temporal_centers": [10, 15, 45],
         "hidden_dims": [256, 256, 128],
@@ -213,11 +221,15 @@ def train_stdk_model(model, train_loader, val_loader, device, config):
         lr=float(config["lr"]),
         weight_decay=float(config["weight_decay"]),
     )
+    use_ema = bool(config.get("use_ema", True))
+    ema_decay = 1.0 - 1.0 / (10.0 * len(train_loader))
+    ema = ModelEMA(model, decay=ema_decay) if use_ema else None
 
     best_state = None
     best_val_loss = float("inf")
     patience = int(config.get("patience", 30))
     patience_counter = 0
+    best_epoch = 0
 
     epoch_bar = tqdm(range(int(config["epochs"])), desc="STDK epochs", unit="epoch")
 
@@ -243,12 +255,16 @@ def train_stdk_model(model, train_loader, val_loader, device, config):
             loss = criterion(y_pred, batch["y"].to(device))
             loss.backward()
             optimizer.step()
+            if ema is not None:
+                ema.update(model)
             train_loss += float(loss.item())
             train_bar.set_postfix(loss=f"{float(loss.item()):.6f}")
 
         train_loss /= max(1, len(train_loader))
 
         model.eval()
+        if ema is not None:
+            ema.apply_shadow()
         val_loss = 0.0
         val_bar = tqdm(
             val_loader,
@@ -273,9 +289,13 @@ def train_stdk_model(model, train_loader, val_loader, device, config):
         if val_loss < best_val_loss - 1e-12:
             best_val_loss = val_loss
             best_state = copy.deepcopy(model.state_dict())
+            best_epoch = epoch + 1
             patience_counter = 0
         else:
             patience_counter += 1
+
+        if ema is not None:
+            ema.restore()
 
         print(
             f"Epoch {epoch + 1:03d}/{int(config['epochs'])} "
@@ -292,7 +312,14 @@ def train_stdk_model(model, train_loader, val_loader, device, config):
     if best_state is not None:
         model.load_state_dict(best_state)
 
-    return model
+    return model, {
+        "best_epoch": int(best_epoch),
+        "best_validation_loss": float(best_val_loss),
+        "validation_loss_name": "mse",
+        "validation_aggregation": "batch_mean",
+        "use_ema": use_ema,
+        "ema_decay": float(ema_decay) if use_ema else None,
+    }
 
 
 def predict_stdk(model, X, coords, t, batch_size, device):
@@ -539,16 +566,11 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
     if len(test_time_idx) != TIME_TEST_LEN:
         test_time_idx = test_time_idx[:TIME_TEST_LEN]
 
-    if EXPERIMENT_SCENARIO == "space_extrap_fixed850":
-        eval_time_idx = np.arange(0, cut_val)
-        eval_time_label = "SPACE_FIXED850"
-    else:
-        eval_time_idx = test_time_idx
-        eval_time_label = "TIME_TEST150"
+    fixed850_time_idx = np.arange(0, cut_val)
 
     print(f"Total time steps (used): {n_time_used}")
     print(f"Train len: {len(train_time_idx)}, Val len: {len(val_time_idx)}, Test len: {len(test_time_idx)}")
-    print(f"Eval window: {eval_time_label}, Eval len: {len(eval_time_idx)}")
+    print("Evaluation: one fitted STDK for Time150, Space100, and ST100x150")
     print("STDK train block: 1+2 = Train700 x (obs100 + unobs400)")
     print("STDK validation block: 4+5 = Val150 x (obs100 + unobs400)")
 
@@ -571,16 +593,11 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
     )
     # 對齊 DLinear+FRK 的可用監督資訊：Train700 使用 obs100 +
     # unobs400 共 500 站，validation 使用相同 500 站的 Val150。
-    X_val_obs, coords_val_obs, t_val_obs, y_val_obs = build_flat_inputs(
-        train_y_matrix, coords_train_norm, val_time_idx, t_norm_all
+    # Match the pinned repository's Weather2K STDK loader: time-major rows over
+    # the complete observed station set for both training and validation.
+    X_val, coords_val, t_val, y_val = build_flat_inputs(
+        train500_y_matrix, coords_train500_norm, val_time_idx, t_norm_all
     )
-    X_val_unobs400, coords_val_unobs400, t_val_unobs400, y_val_unobs400 = build_flat_inputs(
-        unknown_primary_y_matrix, coords_unknown_primary_norm, val_time_idx, t_norm_all
-    )
-    X_val = np.concatenate([X_val_obs, X_val_unobs400], axis=0)
-    coords_val = np.concatenate([coords_val_obs, coords_val_unobs400], axis=0)
-    t_val = np.concatenate([t_val_obs, t_val_unobs400], axis=0)
-    y_val = np.concatenate([y_val_obs, y_val_unobs400], axis=0)
 
     y_train = to_std(y_train)
     y_val = to_std(y_val)
@@ -628,10 +645,10 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
 
     create_model = load_stdk_create_model(script_dir)
 
-    model = create_model(STDK_CONFIG, train_coords=coords_train).to(device)
+    model = create_model(STDK_CONFIG, train_coords=coords_train500_norm).to(device)
 
     train_start = time.time()
-    model = _silent_call(
+    model, stdk_training_summary = _silent_call(
         train_stdk_model,
         model,
         train_loader,
@@ -646,17 +663,25 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
     del train_loader, val_loader, train_dataset, val_dataset
     del X_train, coords_train, t_train, y_train
     del X_val, coords_val, t_val, y_val
-    del X_val_obs, coords_val_obs, t_val_obs, y_val_obs
-    del X_val_unobs400, coords_val_unobs400, t_val_unobs400, y_val_unobs400
     gc.collect()
     _cleanup_torch_cache()
 
-    # Pure STDK predicts directly at the requested scenario coordinates/times.
-    pred_eval_full = to_raw(predict_stdk_matrix_chunked(
+    # Reuse one fitted STDK for every evaluation scenario.
+    pred_test_full = to_raw(predict_stdk_matrix_chunked(
         model,
         full_y_matrix,
         coords_full_norm,
-        eval_time_idx,
+        test_time_idx,
+        t_norm_all,
+        batch_size,
+        device,
+        time_chunk_size=int(_env.get("STDK_PRED_TIME_CHUNK", "50")),
+    ))
+    pred_fixed850_full = to_raw(predict_stdk_matrix_chunked(
+        model,
+        full_y_matrix,
+        coords_full_norm,
+        fixed850_time_idx,
         t_norm_all,
         batch_size,
         device,
@@ -665,17 +690,8 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
     gc.collect()
     _cleanup_torch_cache()
     elapsed = time.time() - train_start
-    eval_len = int(pred_eval_full.shape[0])
-    pred_test_train = pred_eval_full[:, sample_idx_train]
-    pred_test_unknown = pred_eval_full[:, sample_idx_unknown]
-    pred_test_unknown_primary = pred_eval_full[:, sample_idx_unknown_primary]
-    pred_test_unknown_eval = pred_eval_full[:, sample_idx_unknown_eval]
-
-    test_true_train = train_y_matrix[:, eval_time_idx].T.astype(np.float32)
-    test_true_unknown = unknown_y_matrix[:, eval_time_idx].T.astype(np.float32)
-    test_true_unknown_primary = unknown_primary_y_matrix[:, eval_time_idx].T.astype(np.float32)
-    test_true_unknown_eval = unknown_eval_y_matrix[:, eval_time_idx].T.astype(np.float32)
-    test_true_full = full_y_matrix[:, eval_time_idx].T.astype(np.float32)
+    test_true_full = full_y_matrix[:, test_time_idx].T.astype(np.float32)
+    fixed850_true_full = full_y_matrix[:, fixed850_time_idx].T.astype(np.float32)
 
     def safe_metrics(y_true, y_pred):
         if y_true.size == 0 or y_pred.size == 0:
@@ -694,36 +710,34 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
             ),
         }
 
-    train_metric = safe_metrics(test_true_train, pred_test_train)
-    unknown_metric = safe_metrics(test_true_unknown, pred_test_unknown)
-    unknown_primary_metric = safe_metrics(test_true_unknown_primary, pred_test_unknown_primary)
-    unknown_eval_metric = safe_metrics(test_true_unknown_eval, pred_test_unknown_eval)
-    full_metric = safe_metrics(test_true_full, pred_eval_full)
-
-    empty_metric = {"RMSE": float("nan"), "MSE": float("nan"), "MAE": float("nan"), "R2": float("nan")}
-    train700_metric = empty_metric
-    val150_metric = empty_metric
-    target_time150_metric = full_metric
-    if EXPERIMENT_SCENARIO == "time_extrap_fixed500":
-        # 時間外推情境沒有 Unknown400/Unknown100；
-        # 這裡只看固定 500 空間點，也就是圖上的 1+2、4+5、7+8。
-        eval500_idx = np.sort(np.concatenate([sample_idx_train, sample_idx_unknown_primary]))
-        eval500_y_matrix = full_y_matrix[eval500_idx, :]
-        pred_train700 = to_raw(predict_stdk_matrix_chunked(
-            model, full_y_matrix, coords_full_norm, train_time_idx, t_norm_all,
-            batch_size, device,
-            time_chunk_size=int(_env.get("STDK_PRED_TIME_CHUNK", "50")),
-        ))[:, eval500_idx]
-        pred_val150 = to_raw(predict_stdk_matrix_chunked(
-            model, full_y_matrix, coords_full_norm, val_time_idx, t_norm_all,
-            batch_size, device,
-            time_chunk_size=int(_env.get("STDK_PRED_TIME_CHUNK", "50")),
-        ))[:, eval500_idx]
-        true_train700 = eval500_y_matrix[:, train_time_idx].T.astype(np.float32)
-        true_val150 = eval500_y_matrix[:, val_time_idx].T.astype(np.float32)
-        train700_metric = safe_metrics(true_train700, pred_train700)
-        val150_metric = safe_metrics(true_val150, pred_val150)
-        target_time150_metric = safe_metrics(test_true_full[:, eval500_idx], pred_eval_full[:, eval500_idx])
+    eval500_idx = sample_idx_train500
+    train700_metric = safe_metrics(
+        fixed850_true_full[:cut_train, eval500_idx],
+        pred_fixed850_full[:cut_train, eval500_idx],
+    )
+    val150_metric = safe_metrics(
+        fixed850_true_full[cut_train:cut_val, eval500_idx],
+        pred_fixed850_full[cut_train:cut_val, eval500_idx],
+    )
+    target_time150_metric = safe_metrics(
+        test_true_full[:, eval500_idx], pred_test_full[:, eval500_idx]
+    )
+    space_train100_metric = safe_metrics(
+        fixed850_true_full[:, sample_idx_train],
+        pred_fixed850_full[:, sample_idx_train],
+    )
+    space_val400_metric = safe_metrics(
+        fixed850_true_full[:, sample_idx_unknown_primary],
+        pred_fixed850_full[:, sample_idx_unknown_primary],
+    )
+    space_target100_metric = safe_metrics(
+        fixed850_true_full[:, sample_idx_unknown_eval],
+        pred_fixed850_full[:, sample_idx_unknown_eval],
+    )
+    target_st_metric = safe_metrics(
+        test_true_full[:, sample_idx_unknown_eval],
+        pred_test_full[:, sample_idx_unknown_eval],
+    )
 
     def prefixed(prefix, metric):
         return {
@@ -733,36 +747,20 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
             f"{prefix}_R2": metric["R2"],
         }
 
-    if EXPERIMENT_SCENARIO == "time_extrap_fixed500":
-        metrics = {
-            **prefixed("Train700", train700_metric),
-            **prefixed("Val150", val150_metric),
-            **prefixed("Target_Time150", target_time150_metric),
-        }
-        result_sections = {
-            "Train700": train700_metric,
-            "Val150": val150_metric,
-            "Target_Time150": target_time150_metric,
-        }
-    elif EXPERIMENT_SCENARIO == "space_extrap_fixed850":
-        metrics = {
-            **prefixed("Train100", train_metric),
-            **prefixed("Val400", unknown_primary_metric),
-            **prefixed("Target_Space100", unknown_eval_metric),
-        }
-        result_sections = {
-            "Train100": train_metric,
-            "Val400": unknown_primary_metric,
-            "Target_Space100": unknown_eval_metric,
-        }
-    elif EXPERIMENT_SCENARIO == "spatiotemp_100x150":
-        metrics = prefixed("Target_ST100x150", unknown_eval_metric)
-        result_sections = {
-            "Target_ST100x150": unknown_eval_metric,
-        }
-    else:
-        metrics = prefixed("Target", full_metric)
-        result_sections = {"Target": full_metric}
+    result_sections = {
+        "Train700": train700_metric,
+        "Val150": val150_metric,
+        "Target_Time150": target_time150_metric,
+        "Train100": space_train100_metric,
+        "Val400": space_val400_metric,
+        "Target_Space100": space_target100_metric,
+        "Target_ST100x150": target_st_metric,
+    }
+    metrics = {
+        key: value
+        for name, section in result_sections.items()
+        for key, value in prefixed(name, section).items()
+    }
 
     print(f"Training elapsed={_fmt_time(elapsed)}")
     print(pd.DataFrame([{"Model": "STDK", "Split": f"TEST_seed_{sample_seed}", **metrics}]).to_string(index=False))
@@ -774,6 +772,7 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
         "results": result_sections,
         "elapsed_seconds": float(elapsed),
         "params_used": STDK_CONFIG,
+        "training_summary": stdk_training_summary,
         "stdk_elapsed_seconds": float(stdk_elapsed),
         "sampling_info": {
             "full_sample_size": int(N_SAMPLE_TARGET),
@@ -784,12 +783,18 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
             "sample_seed": int(sample_seed),
             "time_stride": int(TIME_STRIDE),
             "n_last_timepoints": int(N_LAST),
-            "experiment_scenario": EXPERIMENT_SCENARIO,
+            "experiment_scenario": "all_three",
+            "evaluation_scenarios": [
+                "time_extrap_fixed500", "space_extrap_fixed850",
+                "spatiotemp_100x150",
+            ],
             "time_train_len": int(TIME_TRAIN_LEN),
             "time_val_len": int(TIME_VAL_LEN),
             "time_test_len": int(TIME_TEST_LEN),
-            "eval_time_label": eval_time_label,
-            "eval_time_len": int(eval_len),
+            "evaluation_time_lengths": {
+                "fixed850": int(len(fixed850_time_idx)),
+                "test150": int(len(test_time_idx)),
+            },
             "sample_idx_global": sample_idx_global.tolist(),
             "sample_idx_train": sample_idx_train.tolist(),
             "sample_idx_train500": sample_idx_train500.tolist(),
@@ -863,7 +868,7 @@ payload = {
         "unknown_eval_sample_size": int(N_UNKNOWN_EVAL_TARGET),
         "time_stride": int(TIME_STRIDE),
         "n_last_timepoints": int(N_LAST),
-        "experiment_scenario": EXPERIMENT_SCENARIO,
+        "experiment_scenario": "all_three",
         "time_train_len": int(TIME_TRAIN_LEN),
         "time_val_len": int(TIME_VAL_LEN),
         "time_test_len": int(TIME_TEST_LEN),

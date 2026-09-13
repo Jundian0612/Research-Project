@@ -94,11 +94,18 @@ Residual 的 point forecast 較好，但 90% coverage 只有 82.38% 至 85.95%�
 
 ## 檔案
 
-- `shared_residual_qconvlstm_block5to5_seed41.json`：完整設定、split、validation 與三情境指標。
-- `shared_residual_qconvlstm_block5to5_seed41_time_forecasts.csv`：train500 的 Test150，共 75,000 筆。
-- `shared_residual_qconvlstm_block5to5_seed41_space_forecasts.csv`：held-out100 的 Fixed850，共 85,000 筆。
-- `shared_residual_qconvlstm_block5to5_seed41_forecasts.csv`：held-out100 的 Test150，共 15,000 筆。
+- `metrics/shared_residual_qconvlstm_block5to5_seed41.json`：完整設定、split、validation 與三情境指標。
+- `forecasts/shared_residual_qconvlstm_block5to5_seed41_time_forecasts.csv`：train500 的 Test150，共 75,000 筆。
+- `forecasts/shared_residual_qconvlstm_block5to5_seed41_space_forecasts.csv`：held-out100 的 Fixed850，共 85,000 筆。
+- `forecasts/shared_residual_qconvlstm_block5to5_seed41_forecasts.csv`：held-out100 的 Test150，共 15,000 筆。
 
 ## 下一步
 
 若把 residual 視為候選正式模型，應固定目前流程與參數補跑 seeds 42 至 45，再合併本資料夾的 seed 41 計算五-seed mean ± std。不可依本次 seed 41 Test 指標繼續修改或挑選超參數。若研究報告需要正式比較 direct 與 residual，direct 版本也必須完成相同五個 seeds。
+
+## 整理後目錄
+
+- `forecasts/`：逐筆預測輸出
+- `metrics/`：JSON 評估結果
+
+本次整理只調整檔案位置，沒有刪除或重新計算結果。

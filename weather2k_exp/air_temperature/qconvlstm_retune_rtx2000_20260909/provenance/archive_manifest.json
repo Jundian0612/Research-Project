@@ -1,0 +1,297 @@
+[
+  {
+    "original_path": "QCONVLSTM_TUNING_README.md",
+    "archived_path": "provenance/QCONVLSTM_TUNING_README.md",
+    "sha256": "f2077aef5fd4171aedcb6c4bf6c83d8ba22bcddf321bfb73cec53433e7ed49d1"
+  },
+  {
+    "original_path": "qconvlstm_capacity_best_params.json",
+    "archived_path": "summary/qconvlstm_capacity_best_params.json",
+    "sha256": "7241fa528b774042bbfc34e7286ede970df55e374b0d0d643a4bea349d429e31"
+  },
+  {
+    "original_path": "qconvlstm_capacity_summary.csv",
+    "archived_path": "summary/qconvlstm_capacity_summary.csv",
+    "sha256": "5cf992fde5f6c510d45c56a2655cac5f1a7536006a82d618f8906d3b69aa465f"
+  },
+  {
+    "original_path": "qconvlstm_capacity_trial0000_params.json",
+    "archived_path": "trials/capacity/qconvlstm_capacity_trial0000_params.json",
+    "sha256": "b9f3dd235a5c78faf29cc35a61dd8f7cd274a1deb80c203ecef31bde91dd97f1"
+  },
+  {
+    "original_path": "qconvlstm_capacity_trial0000_seed41_validation.json",
+    "archived_path": "trials/capacity/qconvlstm_capacity_trial0000_seed41_validation.json",
+    "sha256": "c8321e13b1eaf38c6119b7a3c093a700f6aa85633da2f92d42d7dcf483882f38"
+  },
+  {
+    "original_path": "qconvlstm_capacity_trial0000_seed42_validation.json",
+    "archived_path": "trials/capacity/qconvlstm_capacity_trial0000_seed42_validation.json",
+    "sha256": "912bb1fc413b90801c6f174ac03ea0b9f6efb037bfa456786107f13c5ca06671"
+  },
+  {
+    "original_path": "qconvlstm_capacity_trial0000_summary.json",
+    "archived_path": "trials/capacity/qconvlstm_capacity_trial0000_summary.json",
+    "sha256": "911476625419592ca797b6f6a56f64180f11f1551d5388ce60817929de63bf73"
+  },
+  {
+    "original_path": "qconvlstm_capacity_trial0001_params.json",
+    "archived_path": "trials/capacity/qconvlstm_capacity_trial0001_params.json",
+    "sha256": "0426b830a7538695b0af3ba2eaf96c97827bc695b27ad611cc3e9a22bae7fb99"
+  },
+  {
+    "original_path": "qconvlstm_capacity_trial0001_seed41_validation.json",
+    "archived_path": "trials/capacity/qconvlstm_capacity_trial0001_seed41_validation.json",
+    "sha256": "5ad6a34212dc448485d5df1a50773e9048154aa3b167970b94171aa0760ba89b"
+  },
+  {
+    "original_path": "qconvlstm_capacity_trial0001_seed42_validation.json",
+    "archived_path": "trials/capacity/qconvlstm_capacity_trial0001_seed42_validation.json",
+    "sha256": "3fdb94fa1020f0eaa9702d62c2a4f3c3beaeaef2ddc1d655ad644d087f9706dc"
+  },
+  {
+    "original_path": "qconvlstm_capacity_trial0001_summary.json",
+    "archived_path": "trials/capacity/qconvlstm_capacity_trial0001_summary.json",
+    "sha256": "e46e5e1742360d2364e8967f9730b6555af9f8962ca936b66aaf9fc9fa8a18d5"
+  },
+  {
+    "original_path": "qconvlstm_capacity_trial0002_params.json",
+    "archived_path": "trials/capacity/qconvlstm_capacity_trial0002_params.json",
+    "sha256": "494fcc4b6779c5a8878cc5fb944a7da644efcccef46129c60d6f4776ead29a60"
+  },
+  {
+    "original_path": "qconvlstm_capacity_trial0002_seed41_validation.json",
+    "archived_path": "trials/capacity/qconvlstm_capacity_trial0002_seed41_validation.json",
+    "sha256": "6962fa13a6e22bc29778769cfbf188f6d58ad17c0fdaa05861d357cf136197f8"
+  },
+  {
+    "original_path": "qconvlstm_capacity_trial0002_seed42_validation.json",
+    "archived_path": "trials/capacity/qconvlstm_capacity_trial0002_seed42_validation.json",
+    "sha256": "bc0e3ee2001b0463bbc45100d3981baa120bceea3c8679128105fd2a4b8303d1"
+  },
+  {
+    "original_path": "qconvlstm_capacity_trial0002_summary.json",
+    "archived_path": "trials/capacity/qconvlstm_capacity_trial0002_summary.json",
+    "sha256": "7241fa528b774042bbfc34e7286ede970df55e374b0d0d643a4bea349d429e31"
+  },
+  {
+    "original_path": "qconvlstm_capacity_trial0003_params.json",
+    "archived_path": "trials/capacity/qconvlstm_capacity_trial0003_params.json",
+    "sha256": "04b6917c3ef9a8f4ec7a72c9a992cd692b9c50af24e7aabeca95e752417f45ba"
+  },
+  {
+    "original_path": "qconvlstm_capacity_trial0003_seed41_validation.json",
+    "archived_path": "trials/capacity/qconvlstm_capacity_trial0003_seed41_validation.json",
+    "sha256": "2110da5a2369f6007bea736cb81b3add1f69c66029379a0fdb55d9923c30fb9c"
+  },
+  {
+    "original_path": "qconvlstm_capacity_trial0003_seed42_validation.json",
+    "archived_path": "trials/capacity/qconvlstm_capacity_trial0003_seed42_validation.json",
+    "sha256": "dc9bb1c17503cdce842f07d57dab35f8f10e4ef83c6be4c2a04394ca19ca7e9f"
+  },
+  {
+    "original_path": "qconvlstm_capacity_trial0003_summary.json",
+    "archived_path": "trials/capacity/qconvlstm_capacity_trial0003_summary.json",
+    "sha256": "e486ac76fd893330e388a5adb788c5dc558cae7a9e32ef144693e82976679a6c"
+  },
+  {
+    "original_path": "qconvlstm_interface_best_params.json",
+    "archived_path": "summary/qconvlstm_interface_best_params.json",
+    "sha256": "b5f3c42873955d0d33fc6adae27ec4fccdcdb1edc5f2e8de8a57228fdd29216c"
+  },
+  {
+    "original_path": "qconvlstm_interface_summary.csv",
+    "archived_path": "summary/qconvlstm_interface_summary.csv",
+    "sha256": "735233797da56ef027a6c57cd304b1708b85fc43421de1c137cf9fbeb339ca30"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0000_params.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0000_params.json",
+    "sha256": "13fbd40e39ce801c2631c696e7c5815a9baa00e3a8f67ad07329ffacfd031e68"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0000_seed41_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0000_seed41_validation.json",
+    "sha256": "d3c2d2024e01911f3cb26cfed188453f532b13c6dc2d1b47112865c3e4f02008"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0000_seed42_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0000_seed42_validation.json",
+    "sha256": "f022c816560e757ec8add7cd2bea150e3949de1ae3f12d6630505caa911b5c3e"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0000_summary.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0000_summary.json",
+    "sha256": "1af5a5c607b49e9d224119f7ec68f5084bdcad132018f7cc35235e35d68f7627"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0001_params.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0001_params.json",
+    "sha256": "6c76e089581320a0e4e2efe33d3de648a1260fcfbe4c763c9819393905b8e4d0"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0001_seed41_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0001_seed41_validation.json",
+    "sha256": "95d60f20ebb96c1a11808910518ab0ce04b8e2bb141db1f0ad13ec0e087c4924"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0001_seed42_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0001_seed42_validation.json",
+    "sha256": "26b8b55efffc99a0aa7cdcd525622168ac819a883795799d68e30d9075bcfd62"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0001_summary.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0001_summary.json",
+    "sha256": "b047fd9ca5be23eb4765bbe0fc5ae908d1a45061e60c516a459f14568ecfdd23"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0002_params.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0002_params.json",
+    "sha256": "494fcc4b6779c5a8878cc5fb944a7da644efcccef46129c60d6f4776ead29a60"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0002_seed41_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0002_seed41_validation.json",
+    "sha256": "9f1664c18a887302b82938bbe4ad601ee02ff467406fcf4f3953bd20b9741afe"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0002_seed42_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0002_seed42_validation.json",
+    "sha256": "3c21627dfd6bfd86c2b6a50e49730330cdbdf0c41c6c7d145562f81964b7c14b"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0002_summary.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0002_summary.json",
+    "sha256": "b5f3c42873955d0d33fc6adae27ec4fccdcdb1edc5f2e8de8a57228fdd29216c"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0003_params.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0003_params.json",
+    "sha256": "c9d0a9fe0133c7f5930e0160f0e1c56d291d4c35c4212f1c61b436d4bbc7c1eb"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0003_seed41_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0003_seed41_validation.json",
+    "sha256": "802cfc75e4da1acb96973e6b2bc86ccdbb8b9138ac065b5a3ffca332dd9ba690"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0003_seed42_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0003_seed42_validation.json",
+    "sha256": "bda4bdb17f46690f7778029b868b7ed56ab8221a208f0b7391155b17cffbd49c"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0003_summary.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0003_summary.json",
+    "sha256": "7767e37758c831a5dc16536bf00f1655fdcf6181a63aa893fde73b82892eaf0e"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0004_params.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0004_params.json",
+    "sha256": "051f11d166e01355c8331ed6cee7349d6c0c1e0cc3fa2705e6f587dc18e82769"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0004_seed41_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0004_seed41_validation.json",
+    "sha256": "8d95c51e104633aad2fbbf1a3391d55f01f26e541da46d55bf857cae19c1b3d1"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0004_seed42_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0004_seed42_validation.json",
+    "sha256": "da29d0c88f188b801a84d552b7e054d621dde6b786c6bb7c4d1c324eabf0992f"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0004_summary.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0004_summary.json",
+    "sha256": "50a8087834c96303aee681d8f000b401a79f1bd7ae69cf8fed4ffa9a8cf9571f"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0005_params.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0005_params.json",
+    "sha256": "6c8b51338e7a28e8e53a8227351ea83bc846d71292b7b0ec9374f061bf95e0e6"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0005_seed41_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0005_seed41_validation.json",
+    "sha256": "e2950b68c02e482e2a6970ab82999812419dab52b1c635a993e20c8ffefa894a"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0005_seed42_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0005_seed42_validation.json",
+    "sha256": "3b5bdc5845fe3ebdc145c12f32606e72f3d0f996390b66f82ab96153a5277c40"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0005_summary.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0005_summary.json",
+    "sha256": "bab05a00cf56d622f361f60ec1b794828cd7cb16d32db02f7b965504f2938731"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0006_params.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0006_params.json",
+    "sha256": "6de39d07ca9bfff7b5cb8502e73008787ab2d7a5ddcfcbba530787c00f64841e"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0006_seed41_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0006_seed41_validation.json",
+    "sha256": "8cf7f454ad255dce28910e9985bd059f6407ba5206d500b4a7b46840640d457d"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0006_seed42_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0006_seed42_validation.json",
+    "sha256": "61f614fcf142e144d882eb2b024e3c2ecdf31f85ebe22b94e15a97f7e2187b2d"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0006_summary.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0006_summary.json",
+    "sha256": "37a801c851b81bc19bc219fef46a8d3f4b0d6d1ef545aca46e820ee0862ff6db"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0007_params.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0007_params.json",
+    "sha256": "215e52924b3c967bed28b65042fe9c1d58fe3c023f96139d990e2286efed8f80"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0007_seed41_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0007_seed41_validation.json",
+    "sha256": "285410390d0b04a5e9620ee9ac6550e004e2ec10a593f22a30367954aacb389d"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0007_seed42_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0007_seed42_validation.json",
+    "sha256": "be4a181b98c4f5ae49cd5b609b2e7cc0a673194454d0c337cdc464354f323d29"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0007_summary.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0007_summary.json",
+    "sha256": "b6772cb74d5f2abb915a7efab212f45680aa869bc93f2dae026bebf3e2edbe67"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0008_params.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0008_params.json",
+    "sha256": "4c21baacdb23a8b547eb37f7aee101dbc560640f01dacd24f485da04b9b9eccd"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0008_seed41_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0008_seed41_validation.json",
+    "sha256": "6ed028fd654010c07fb32be524e60333ae944ac0639041241ccd4dd34c677634"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0008_seed42_validation.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0008_seed42_validation.json",
+    "sha256": "0f500f0150bddc3958a26310d81f9d36c331ca04bc67c59cad326c4df2b65a87"
+  },
+  {
+    "original_path": "qconvlstm_interface_trial0008_summary.json",
+    "archived_path": "trials/interface/qconvlstm_interface_trial0008_summary.json",
+    "sha256": "7950f2146e039dbae0f8f9b844c70f73c022cc9ad5ce7204bd005ece5f9732b5"
+  },
+  {
+    "original_path": "qconvlstm_tuning_best_params.json",
+    "archived_path": "summary/qconvlstm_tuning_best_params.json",
+    "sha256": "d6ae7216b1a6ed92a96cc064294b3a688344ea09f7d7aca9af410965b53dcf3b"
+  },
+  {
+    "original_path": "run.log",
+    "archived_path": "logs/run.log",
+    "sha256": "ea02e950718587cf57dbe73d0c1c4fbd054ae288d6f1b78c4cf81a41bef554ba"
+  }
+]

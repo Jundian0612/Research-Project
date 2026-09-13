@@ -67,11 +67,18 @@ Weather2K time 0 前沒有合法的五張歷史 grids，因此不再使用虛構
 
 ## 檔案
 
-- `shared_qconvlstm_block5to5_seed41.json`：完整設定、split、validation 與三情境指標。
-- `shared_qconvlstm_block5to5_seed41_time_forecasts.csv`：train500 的 Test150，共 75,000 筆預測。
-- `shared_qconvlstm_block5to5_seed41_space_forecasts.csv`：held-out100 的 Fixed850，共 85,000 筆預測。
-- `shared_qconvlstm_block5to5_seed41_forecasts.csv`：held-out100 的 Test150，共 15,000 筆時空預測。
+- `metrics/shared_qconvlstm_block5to5_seed41.json`：完整設定、split、validation 與三情境指標。
+- `forecasts/shared_qconvlstm_block5to5_seed41_time_forecasts.csv`：train500 的 Test150，共 75,000 筆預測。
+- `forecasts/shared_qconvlstm_block5to5_seed41_space_forecasts.csv`：held-out100 的 Fixed850，共 85,000 筆預測。
+- `forecasts/shared_qconvlstm_block5to5_seed41_forecasts.csv`：held-out100 的 Test150，共 15,000 筆時空預測。
 
 ## 下一步
 
 若目標是完成 paper-aligned Weather2K 評估，應固定目前參數補跑 seeds 42 至 45，再與本資料夾的 seed 41 合併計算五-seed mean ± std，不可依本次 Test150 結果繼續調參。若目標是讓組合模型穩定保留純 STDK 能力，應另建 residual/skip-connection ablation，不能覆蓋本結果或稱為作者原始流程。
+
+## 整理後目錄
+
+- `forecasts/`：逐筆預測輸出
+- `metrics/`：JSON 評估結果
+
+本次整理只調整檔案位置，沒有刪除或重新計算結果。

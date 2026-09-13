@@ -44,8 +44,8 @@ CONV_FILTERS=64
 
 ## 檔案
 
-- `qconvlstm_tuning_summary.csv`：四個 trials 的比較表。
-- `qconvlstm_tuning_best_params.json`：最佳 trial 與正式參數的封存副本。
+- `summary/qconvlstm_tuning_summary.csv`：四個 trials 的比較表。
+- `summary/qconvlstm_tuning_best_params.json`：最佳 trial 與正式參數的封存副本。
 - `qconvlstm_tune_trialXXXX_params.json`：各 trial 輸入參數。
 - `qconvlstm_tune_trialXXXX_seed41_validation.json`：各 trial 完整 validation report。
 - `qconvlstm_tune_trialXXXX_summary.json`：各 trial 摘要。
@@ -55,3 +55,10 @@ CONV_FILTERS=64
 ## 解讀限制
 
 這些數值只代表 seed 41 的 Val150 選參表現，不能視為三情境正式結果，也不能與舊 STDK backend 的 QConvLSTM Test 結果直接比較。下一步應固定 trial 2，先完成新版 seed 41 的時間、空間及時空外推，再執行 seeds 41 至 45；不能依 Test150 結果繼續調參。
+
+## 整理後目錄
+
+- `summary/`：調參摘要與最佳參數
+- `trials/`：各次調參試驗
+
+本次整理只調整檔案位置，沒有刪除或重新計算結果。

@@ -1,0 +1,47 @@
+{
+  "stage": "interface",
+  "normalization_source": "obs100_train700",
+  "q50_checkpoint_selection": "mse",
+  "stdk_validation_aggregation": "batch_mean",
+  "stdk_use_ema": true,
+  "trial": 7,
+  "params": {
+    "QCONV_LR": 0.0001,
+    "QCONV_BATCH_SIZE": 64,
+    "QCONV_EPOCHS": 40,
+    "QCONV_PATIENCE": 10,
+    "CONV_FILTERS": 64,
+    "QCONV_WEIGHT_DECAY": 0.0,
+    "GRID_SIZE": 8,
+    "NEIGHBOURHOOD_RADIUS": 0.3
+  },
+  "seeds": [
+    41,
+    42
+  ],
+  "selection_uses_test_metrics": false,
+  "selection_uses_heldout100_truth": false,
+  "tuning_quantiles": [
+    0.5
+  ],
+  "q50_validation_rmse_scaled_by_seed": [
+    0.776965907295224,
+    0.6355422682732934
+  ],
+  "mean_q50_validation_rmse_scaled": 0.7062540877842587,
+  "std_q50_validation_rmse_scaled": 0.07071181951096528,
+  "seed_metrics": [
+    {
+      "seed": 41,
+      "q50_validation_rmse_scaled": 0.776965907295224,
+      "q50_validation_pinball": 0.3103332221508026,
+      "elapsed_seconds": 1063.7387278079987
+    },
+    {
+      "seed": 42,
+      "q50_validation_rmse_scaled": 0.6355422682732934,
+      "q50_validation_pinball": 0.24935027956962585,
+      "elapsed_seconds": 1810.127391576767
+    }
+  ]
+}

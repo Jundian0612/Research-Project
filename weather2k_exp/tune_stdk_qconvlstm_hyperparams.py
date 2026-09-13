@@ -20,7 +20,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 MODEL = ROOT / "2K_STDK_QConvLSTM.py"
-DEFAULT_OUTPUT = ROOT
+DEFAULT_OUTPUT = ROOT / "air_temperature/qconvlstm_obs100_tuning_20260910"
 FORMAL_PARAMS = ROOT / "2K_best_stdk_qconvlstm_params_500to100.json"
 
 # Reuse the best optimization settings from the completed first tuning round
@@ -77,9 +77,17 @@ def prefix_for(stage, trial_no, smoke):
     return f"qconvlstm_{smoke_label}{stage}_trial{trial_no:04d}"
 
 
+def stage_output_dir(output, stage):
+    """Keep raw trials separate from the final selected parameter file."""
+    number = "stage1" if stage == "interface" else "stage2"
+    return output / f"{number}_{stage}"
+
+
 def stage_best_path(output, stage, smoke):
     smoke_label = "smoke_" if smoke else ""
-    return output / f"qconvlstm_{smoke_label}{stage}_best_params.json"
+    return stage_output_dir(output, stage) / (
+        f"qconvlstm_{smoke_label}{stage}_best_params.json"
+    )
 
 
 def compatible(report, params, seed, smoke):
@@ -102,6 +110,10 @@ def compatible(report, params, seed, smoke):
         "q50_only": True,
         "smoke": smoke,
         "stdk_backend": "spatial_adapter",
+        "normalization_source": "obs100_train700",
+        "q50_checkpoint_selection": "mse",
+        "stdk_validation_aggregation": "batch_mean",
+        "stdk_use_ema": True,
     }
     return (
         all(cfg.get(key) == value for key, value in expected.items())
@@ -120,11 +132,13 @@ def summarize_seed(report):
 
 
 def run_trial(stage, trial_no, params, seeds, output, smoke):
+    stage_output = stage_output_dir(output, stage)
+    stage_output.mkdir(parents=True, exist_ok=True)
     prefix = prefix_for(stage, trial_no, smoke)
-    write_json(output / f"{prefix}_params.json", params)
+    write_json(stage_output / f"{prefix}_params.json", params)
     seed_metrics = []
     for seed in seeds:
-        report_path = output / f"{prefix}_seed{seed}_validation.json"
+        report_path = stage_output / f"{prefix}_seed{seed}_validation.json"
         if report_path.exists():
             report = read_json(report_path)
             if compatible(report, params, seed, smoke):
@@ -138,7 +152,7 @@ def run_trial(stage, trial_no, params, seeds, output, smoke):
             "--prediction-mode", "direct",
             "--validation-only", "--q50-only",
             "--seed", str(seed),
-            "--output-dir", str(output),
+            "--output-dir", str(stage_output),
             "--grid-size", str(params["GRID_SIZE"]),
             "--neighbourhood-radius", str(params["NEIGHBOURHOOD_RADIUS"]),
             "--qconv-lr", str(params["QCONV_LR"]),
@@ -160,7 +174,9 @@ def run_trial(stage, trial_no, params, seeds, output, smoke):
                 f"stage {stage} trial {trial_no} seed {seed} failed with "
                 f"exit code {completed.returncode}"
             )
-        generated = output / f"shared_qconvlstm_block5to5_seed{seed}_validation.json"
+        generated = stage_output / (
+            f"shared_qconvlstm_block5to5_seed{seed}_validation.json"
+        )
         if not generated.exists():
             raise FileNotFoundError(generated)
         generated.replace(report_path)
@@ -171,6 +187,10 @@ def run_trial(stage, trial_no, params, seeds, output, smoke):
     variance = sum((value - mean) ** 2 for value in values) / len(values)
     result = {
         "stage": stage,
+        "normalization_source": "obs100_train700",
+        "q50_checkpoint_selection": "mse",
+        "stdk_validation_aggregation": "batch_mean",
+        "stdk_use_ema": True,
         "trial": trial_no,
         "params": params,
         "seeds": seeds,
@@ -182,7 +202,7 @@ def run_trial(stage, trial_no, params, seeds, output, smoke):
         "std_q50_validation_rmse_scaled": variance**0.5,
         "seed_metrics": seed_metrics,
     }
-    write_json(output / f"{prefix}_summary.json", result)
+    write_json(stage_output / f"{prefix}_summary.json", result)
     return result
 
 
@@ -190,7 +210,9 @@ def write_stage_outputs(output, stage, results, smoke):
     if not results:
         raise ValueError(f"No {stage} tuning results")
     smoke_label = "smoke_" if smoke else ""
-    csv_path = output / f"qconvlstm_{smoke_label}{stage}_summary.csv"
+    stage_output = stage_output_dir(output, stage)
+    stage_output.mkdir(parents=True, exist_ok=True)
+    csv_path = stage_output / f"qconvlstm_{smoke_label}{stage}_summary.csv"
     rows = []
     for result in results:
         row = {
@@ -214,6 +236,10 @@ def write_stage_outputs(output, stage, results, smoke):
 def write_formal_outputs(output, best, seeds, smoke):
     payload = {
         "stdk_backend": "spatial_adapter",
+        "normalization_source": "obs100_train700",
+        "q50_checkpoint_selection": "mse",
+        "stdk_validation_aggregation": "batch_mean",
+        "stdk_use_ema": True,
         "selection_metric": "mean_q50_validation_rmse_scaled",
         "selection_uses_test_metrics": False,
         "selection_uses_heldout100_truth": False,
@@ -242,10 +268,7 @@ def write_formal_outputs(output, best, seeds, smoke):
     if not smoke:
         write_json(FORMAL_PARAMS, payload)
 
-    readme_name = (
-        "QCONVLSTM_SMOKE_TUNING_README.md"
-        if smoke else "QCONVLSTM_TUNING_README.md"
-    )
+    readme_name = "SMOKE_README.md" if smoke else "README.md"
     status = (
         "smoke-test plumbing check; not formal tuning"
         if smoke else "formal two-stage validation-only tuning"
@@ -257,6 +280,8 @@ def write_formal_outputs(output, best, seeds, smoke):
         "Every trial trains q50 only. Selection uses the mean chronological "
         "Val150 q50 RMSE on train500 stations. Test150 and held-out100 truth "
         "are not computed or read.\n\n"
+        "The front STDK follows the pinned spatial-adapter trainer: validation "
+        "MSE is averaged by batch and checkpoint selection uses EMA weights.\n\n"
         "Stage 1 searches grid size and neighbourhood radius. Stage 2 uses "
         "the best interface and searches filters and weight decay.\n\n"
         f"Best stage: {best['stage']}\n\n"
@@ -308,6 +333,15 @@ def main():
                 "run --stage interface first"
             )
         best_interface = read_json(path)
+        if (best_interface.get("normalization_source") != "obs100_train700"
+                or best_interface.get("q50_checkpoint_selection") != "mse"
+                or best_interface.get("stdk_validation_aggregation") != "batch_mean"
+                or best_interface.get("stdk_use_ema") is not True
+                or best_interface.get("seeds") != args.seeds):
+            raise SystemExit(
+                "Stage 1 protocol/seeds mismatch: rerun interface with current "
+                "normalization, batch-mean validation and EMA."
+            )
 
     capacity_results = []
     for trial_no, capacity in enumerate(

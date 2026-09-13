@@ -1,0 +1,4 @@
+repository: STLABTW/spatial-adapter
+commit: 2aea188f3b8d92f948663b6705f0a22850d6e4ee
+kaust_yaml_sha256: 151a96770e6be42bbab01791289e1addd3c9ba2072a0caa1844e5d93302e36b4
+local_worktree_clean: true

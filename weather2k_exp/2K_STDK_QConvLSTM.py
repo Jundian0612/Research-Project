@@ -23,6 +23,11 @@ SPATIAL_STDK = ROOT / "spatial-adapter/examples/baselines/stdk/st_interp.py"
 DATA = ROOT / "Josh's Weather2K/Weather2K/weather2k.npy"
 OUTPUT = HERE
 BEST_PARAMS = HERE / "2K_best_stdk_qconvlstm_params_500to100.json"
+SPATIAL_ADAPTER_ROOT = ROOT / "spatial-adapter"
+if str(SPATIAL_ADAPTER_ROOT) in sys.path:
+    sys.path.remove(str(SPATIAL_ADAPTER_ROOT))
+sys.path.insert(0, str(SPATIAL_ADAPTER_ROOT))
+from examples.baselines.stdk.utils.ema import ModelEMA
 VARIABLES = ("air_pressure", "air_temperature", "relative_humidity", "wind_speed",
              "wind_direction", "precipitation", "solar_radiation",
              "dew_point_temperature", "cloud_cover", "visibility")
@@ -51,6 +56,10 @@ class Config:
     variable: str = "air_temperature"; forecast_mode: str = "block5to5"
     prediction_mode: str = "direct"
     stdk_backend: str = "spatial_adapter"
+    normalization_source: str = "obs100_train700"
+    q50_checkpoint_selection: str = "mse"
+    stdk_validation_aggregation: str = "batch_mean"
+    stdk_use_ema: bool = True
     validation_only: bool = False; q50_only: bool = False; smoke: bool = False
 
 def model_name(cfg):
@@ -69,6 +78,7 @@ def spatial_stdk_config(cfg):
         "p_covariates": 0, "regression_type": "mean",
         "epochs": cfg.stdk_epochs, "lr": 1e-3, "weight_decay": 1e-4,
         "batch_size": cfg.stdk_batch, "patience": 30,
+        "use_ema": cfg.stdk_use_ema,
         "k_spatial_centers": [25, 81, 121],
         "k_temporal_centers": [10, 15, 45],
         "hidden_dims": [256, 256, 128], "dropout": 0.1,
@@ -108,12 +118,15 @@ def fit_spatial_stdk(base, spatial, coords, scaled_values, train_times, val_time
     torch.manual_seed(cfg.seed+seed_offset); np.random.seed(cfg.seed+seed_offset)
     model=spatial.create_model(config,train_coords=tr_coords).to(device)
     optimizer=torch.optim.AdamW(model.parameters(),lr=config["lr"],weight_decay=config["weight_decay"])
+    use_ema=bool(config.get("use_ema",True))
+    ema_decay=1.0-1.0/(10.0*len(loader))
+    ema=ModelEMA(model,decay=ema_decay) if use_ema else None
     vc=torch.from_numpy(va_coords); vt=torch.from_numpy(va_time)
     vy=torch.from_numpy(va_y[:,None])
     if median_model is not None:
         median_model.eval()
         for parameter in median_model.parameters(): parameter.requires_grad_(False)
-    best=float("inf"); state=None; wait=0
+    best=float("inf"); state=None; wait=0; best_epoch=0
     for epoch in range(1,cfg.stdk_epochs+1):
         model.train()
         for batch_coords,batch_time,batch_y in loader:
@@ -127,8 +140,10 @@ def fit_spatial_stdk(base, spatial, coords, scaled_values, train_times, val_time
                 prediction=base.constrained_quantile(raw,center,quantile,qlambda)
                 loss=base.pinball(prediction,batch_y,quantile)
             loss.backward(); optimizer.step()
+            if ema is not None: ema.update(model)
         model.eval()
-        val_total=0.0; val_count=0
+        if ema is not None: ema.apply_shadow()
+        val_total=0.0; val_batches=0
         with torch.no_grad():
             for start in range(0,len(vc),cfg.stdk_batch):
                 c=vc[start:start+cfg.stdk_batch].to(device)
@@ -137,26 +152,29 @@ def fit_spatial_stdk(base, spatial, coords, scaled_values, train_times, val_time
                 empty=c.new_empty((len(c),0)); raw=model(empty,c,t)
                 if quantile==.5:
                     prediction=raw
-                    batch_total=torch.nn.functional.mse_loss(prediction,y,reduction="sum")
+                    batch_loss=torch.nn.functional.mse_loss(prediction,y)
                 else:
                     center=median_model(empty,c,t)
                     prediction=base.constrained_quantile(raw,center,quantile,qlambda)
-                    batch_total=base.pinball(prediction,y,quantile)*y.numel()
-                val_total+=float(batch_total); val_count+=y.numel()
-        val_loss=val_total/max(1,val_count)
+                    batch_loss=base.pinball(prediction,y,quantile)
+                val_total+=float(batch_loss); val_batches+=1
+        val_loss=val_total/max(1,val_batches)
         if epoch==1 or epoch%10==0:
             label="mse" if quantile==.5 else "pinball"
             print(f"Spatial-adapter STDK q={quantile:.2f} epoch={epoch:03d} val_{label}={val_loss:.6f}")
         if val_loss < best-1e-12:
-            best=val_loss; wait=0; state={k:v.detach().cpu().clone() for k,v in model.state_dict().items()}
-        else:
-            wait+=1
-            if wait>=config["patience"]: break
+            best=val_loss; wait=0; best_epoch=epoch
+            state={k:v.detach().cpu().clone() for k,v in model.state_dict().items()}
+        else: wait+=1
+        if ema is not None: ema.restore()
+        if wait>=config["patience"]: break
     if state is not None: model.load_state_dict(state)
     if median_model is not None:
         for parameter in median_model.parameters(): parameter.requires_grad_(True)
     return model.eval(),{"quantile":quantile,"best_validation_loss":best,
-                         "validation_loss_name":"mse" if quantile==.5 else "pinball"}
+                         "best_epoch":best_epoch,"validation_loss_name":"mse" if quantile==.5 else "pinball",
+                         "validation_aggregation":"batch_mean","use_ema":use_ema,
+                         "ema_decay":ema_decay if use_ema else None}
 
 def predict_spatial_stdk(model, coords, times, cfg, device):
     coords_flat,time_flat,_=flatten_stdk_points(coords,times,None,cfg.n_last)
@@ -317,7 +335,7 @@ def fit_shared(base, ds, q, cfg, device, median=None, validation_ds=None):
     if median is not None:
         median.eval()
         for p in median.parameters(): p.requires_grad_(False)
-    selection_is_mse=cfg.prediction_mode == "residual" and q == .5
+    selection_is_mse=q == .5 and (cfg.q50_checkpoint_selection == "mse" or cfg.prediction_mode == "residual")
 
     def validation_selection_score():
         model.eval(); total=0.0; count=0; batch_losses=[]
@@ -334,7 +352,7 @@ def fit_shared(base, ds, q, cfg, device, median=None, validation_ds=None):
         return total/max(1,count) if selection_is_mse else float(np.mean(batch_losses))
 
     best=math.inf; state=None; wait=0
-    if selection_is_mse:
+    if cfg.prediction_mode == "residual" and q == .5:
         # Include the zero-residual epoch-0 baseline in model selection, so
         # validation can reject every learned correction if none is helpful.
         best=validation_selection_score()
@@ -372,7 +390,7 @@ def fit_shared(base, ds, q, cfg, device, median=None, validation_ds=None):
         "validation_mae_scaled":float(torch.mean(torch.abs(val_pred-val_truth))),
         "checkpoint_selection_loss":"mse" if selection_is_mse else "pinball",
         "best_checkpoint_selection_loss":best,
-        "epoch0_zero_residual_candidate":selection_is_mse,
+        "epoch0_zero_residual_candidate":cfg.prediction_mode == "residual" and q == .5,
         "training_windows":len(train),"validation_windows":len(val),
     }
 
@@ -443,7 +461,12 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
     train=np.setdiff1d(np.arange(cfg.n_sample),held)
     if len(train)!=cfg.n_train: raise AssertionError("not train500/heldout100")
     coords=norm_coords(all_coords[chosen]); values=all_values[chosen,-cfg.n_last:]
-    train_block=values[train,:cfg.train_times]; mean=float(train_block.mean()); std=float(train_block.std()) or 1.
+    obs=np.sort(np.random.RandomState(cfg.seed).choice(train,min(100,len(train)),replace=False))
+    train_block=values[obs,:cfg.train_times]
+    mean=float(train_block.mean()); std=float(train_block.std())
+    if std < 1e-12: std=1.
+    normalization={"source":cfg.normalization_source,"station_local":obs.tolist(),
+                   "mean":mean,"std":std,"ddof":0,"train_times":cfg.train_times}
     # Do not even materialize a normalized held-out response array.  Only the
     # train500 block is transformed before final evaluation.
     scaled_train=((values[train]-mean)/std).astype(np.float32)
@@ -503,7 +526,7 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
             )
 
     if cfg.validation_only:
-        report={"model":model_name(cfg),"config":asdict(cfg),
+        report={"model":model_name(cfg),"config":asdict(cfg),"normalization":normalization,
           "split":{"sampled_global":chosen.tolist(),"train_local":train.tolist(),
                    "heldout_local":held.tolist(),"heldout_truth_used_for_training":False,
                    "heldout_truth_used_for_selection":False},
@@ -591,8 +614,29 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
         "Target_Space100":score(pred_space,truth_space),
         "Target_ST100x150":score(pred_st,truth_st),
     }
-    report={"model":model_name(cfg),"config":asdict(cfg),
+    # Evaluate the actual fitted STDK, without refitting or changing training.
+    # Keep this after the validation-only return and QConvLSTM inference.
+    stdk_predictions={
+        "Target_Time150":predict_stdk_quantiles(
+            base,sm,coords[train],np.arange(truth_start,truth_start+cfg.test_times),cfg,device
+        )*std+mean,
+        "Target_Space100":predict_stdk_quantiles(
+            base,sm,coords[held],np.arange(space_length),cfg,device
+        )*std+mean,
+        "Target_ST100x150":predict_stdk_quantiles(
+            base,sm,coords[held],np.arange(truth_start,truth_start+cfg.test_times),cfg,device
+        )*std+mean,
+    }
+    truths={"Target_Time150":truth_time,"Target_Space100":truth_space,"Target_ST100x150":truth_st}
+    stdk_results={target:score(pred,truths[target]) for target,pred in stdk_predictions.items()}
+    report={"model":model_name(cfg),"config":asdict(cfg),"normalization":normalization,
       "metrics":results["Target_ST100x150"],"results":results,
+      "fitted_stdk_baseline":{
+          "model":"Spatial-adapter STDK (same fitted models)",
+          "refitted":False,"results":stdk_results,
+          "normalization":normalization,
+          "note":"Same fitted q05/q50/q95 STDK models used to generate QConvLSTM grids; not the historical obs100-scaled standalone run.",
+      },
       "split":{"sampled_global":chosen.tolist(),"train_local":train.tolist(),"heldout_local":held.tolist(),
                "heldout_truth_used_for_training":False,"heldout_truth_role":"final_metrics_only"},
       "evaluation_protocol":{
@@ -636,6 +680,15 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
     write_forecasts(output/f"{stem}_space_forecasts.csv",held,0,truth_space,pred_space)
     # Retain the historical filename for the spatiotemporal forecast artifact.
     write_forecasts(output/f"{stem}_forecasts.csv",held,truth_start,truth_st,pred_st)
+    write_forecasts(output/f"{stem}_stdk_time_forecasts.csv",train,truth_start,truth_time,stdk_predictions["Target_Time150"])
+    write_forecasts(output/f"{stem}_stdk_space_forecasts.csv",held,0,truth_space,stdk_predictions["Target_Space100"])
+    write_forecasts(output/f"{stem}_stdk_forecasts.csv",held,truth_start,truth_st,stdk_predictions["Target_ST100x150"])
+    with (output/f"{stem}_comparison.csv").open("w",newline="") as f:
+        writer=csv.writer(f)
+        writer.writerow(["seed","target","model",*next(iter(results.values())).keys()])
+        for target in results:
+            writer.writerow([cfg.seed,target,"fitted_stdk",*stdk_results[target].values()])
+            writer.writerow([cfg.seed,target,model_name(cfg),*results[target].values()])
     print(json.dumps(results,indent=2)); print("No checkpoint was written."); return report
 
 def parse_args():
@@ -645,12 +698,17 @@ def parse_args():
     tuned={}
     if known.params_file.exists():
         payload=json.loads(known.params_file.read_text(encoding="utf-8"))
-        if payload.get("stdk_backend")=="spatial_adapter":
+        if (payload.get("stdk_backend")=="spatial_adapter"
+            and payload.get("normalization_source")=="obs100_train700"
+            and payload.get("q50_checkpoint_selection")=="mse"
+            and payload.get("stdk_validation_aggregation")=="batch_mean"
+            and payload.get("stdk_use_ema") is True):
             tuned=payload.get("formal_run_params",payload)
         else:
             print(
                 f"Ignoring incompatible QConvLSTM params from {known.params_file}: "
-                "they were not tuned with stdk_backend=spatial_adapter."
+                "expected spatial_adapter, obs100_train700 normalization, q50 MSE, "
+                "batch-mean STDK validation and EMA."
             )
     p=argparse.ArgumentParser(description=__doc__,parents=[pre]); p.add_argument("--weather-data",type=Path,default=DATA)
     p.add_argument("--weather-variable",choices=VARIABLES,default="air_temperature"); p.add_argument("--seed",type=int,default=41)
@@ -684,7 +742,15 @@ def parse_args():
         "--q50-only",action="store_true",
         help="Train only the median STDK/QConvLSTM path; valid only with --validation-only.",
     )
-    p.add_argument("--smoke-test",action="store_true"); return p.parse_args()
+    p.add_argument("--smoke-test",action="store_true")
+    args=p.parse_args()
+    if not tuned and not (args.validation_only or args.smoke_test):
+        p.error(
+            "Formal evaluation requires compatible retuned params "
+            "(obs100_train700, q50 MSE, batch-mean STDK validation, EMA). "
+            "Run tuning first."
+        )
+    return args
 
 def main():
     args=parse_args()
@@ -730,7 +796,13 @@ def main():
         }
         summary["forecast_mode"]=args.forecast_mode
         summary["prediction_mode"]=args.prediction_mode
-        summary_name=f"{output_prefix(cfg)}_{args.forecast_mode}_five_seed_summary.json"
+        summary_seeds=[int(r["config"]["seed"]) for r in reports]
+        seed_label=(
+            "five_seed"
+            if summary_seeds == [41,42,43,44,45]
+            else "seeds" + "_".join(str(seed) for seed in summary_seeds)
+        )
+        summary_name=f"{output_prefix(cfg)}_{args.forecast_mode}_{seed_label}_summary.json"
         (args.output_dir/summary_name).write_text(json.dumps(summary,indent=2),encoding="utf-8")
         print(json.dumps(summary,indent=2))
 

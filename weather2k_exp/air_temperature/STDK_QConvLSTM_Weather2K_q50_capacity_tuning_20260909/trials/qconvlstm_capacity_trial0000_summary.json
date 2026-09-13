@@ -1,0 +1,43 @@
+{
+  "stage": "capacity",
+  "trial": 0,
+  "params": {
+    "QCONV_LR": 0.0001,
+    "QCONV_BATCH_SIZE": 64,
+    "QCONV_EPOCHS": 40,
+    "QCONV_PATIENCE": 10,
+    "CONV_FILTERS": 32,
+    "QCONV_WEIGHT_DECAY": 0.0,
+    "GRID_SIZE": 5,
+    "NEIGHBOURHOOD_RADIUS": 0.1
+  },
+  "seeds": [
+    41,
+    42
+  ],
+  "selection_uses_test_metrics": false,
+  "selection_uses_heldout100_truth": false,
+  "tuning_quantiles": [
+    0.5
+  ],
+  "q50_validation_rmse_scaled_by_seed": [
+    0.6424167743542073,
+    0.6962563612696983
+  ],
+  "mean_q50_validation_rmse_scaled": 0.6693365678119527,
+  "std_q50_validation_rmse_scaled": 0.026919793457745478,
+  "seed_metrics": [
+    {
+      "seed": 41,
+      "q50_validation_rmse_scaled": 0.6424167743542073,
+      "q50_validation_pinball": 0.2543565034866333,
+      "elapsed_seconds": 926.0044486522675
+    },
+    {
+      "seed": 42,
+      "q50_validation_rmse_scaled": 0.6962563612696983,
+      "q50_validation_pinball": 0.2768864929676056,
+      "elapsed_seconds": 839.6522815227509
+    }
+  ]
+}

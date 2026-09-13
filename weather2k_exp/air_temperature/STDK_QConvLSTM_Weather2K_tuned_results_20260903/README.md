@@ -100,8 +100,15 @@ test information into model selection.
 
 ## Files
 
-- `shared_qconvlstm_block5to5_seed41.json`: configuration, split indices,
+- `metrics/shared_qconvlstm_block5to5_seed41.json`: configuration, split indices,
   validation diagnostics, three-scenario metrics, and runtime
-- `shared_qconvlstm_block5to5_seed41_time_forecasts.csv`: train500 x Test150
-- `shared_qconvlstm_block5to5_seed41_space_forecasts.csv`: held-out100 x first850
-- `shared_qconvlstm_block5to5_seed41_forecasts.csv`: held-out100 x Test150
+- `forecasts/shared_qconvlstm_block5to5_seed41_time_forecasts.csv`: train500 x Test150
+- `forecasts/shared_qconvlstm_block5to5_seed41_space_forecasts.csv`: held-out100 x first850
+- `forecasts/shared_qconvlstm_block5to5_seed41_forecasts.csv`: held-out100 x Test150
+
+## 整理後目錄
+
+- `forecasts/`：逐筆預測輸出
+- `metrics/`：JSON 評估結果
+
+本次整理只調整檔案位置，沒有刪除或重新計算結果。

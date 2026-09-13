@@ -1,0 +1,7 @@
+scenario,target,space_split,n_train_space,n_unobs_space,n_target_space,model,alpha_obs,lambda_unobs,row_type,seed,RMSE,MSE,MAE,R2
+spatiotemp_100x150,Target_ST100x150,100/400/100,100,400,100,SVGP,,,seed,41,3.203612,10.263128,2.550407,0.642559
+spatiotemp_100x150,Target_ST100x150,100/400/100,100,400,100,SVGP,,,mean_std,mean +/- std,3.203612 +/- 0.000000,10.263128 +/- 0.000000,2.550407 +/- 0.000000,0.642559 +/- 0.000000
+spatiotemp_100x150,Target_ST100x150,100/400/100,100,400,100,STDK,,,seed,41,4.322475,18.683786,3.409251,0.349286
+spatiotemp_100x150,Target_ST100x150,100/400/100,100,400,100,STDK,,,mean_std,mean +/- std,4.322475 +/- 0.000000,18.683786 +/- 0.000000,3.409251 +/- 0.000000,0.349286 +/- 0.000000
+spatiotemp_100x150,Target_ST100x150,100/400/100,100,400,100,DLINEAR + differentiable_FRK,2.0,1.5,seed,41,3.735412,13.953302,2.920093,0.514038
+spatiotemp_100x150,Target_ST100x150,100/400/100,100,400,100,DLINEAR + differentiable_FRK,2.0,1.5,mean_std,mean +/- std,3.735412 +/- 0.000000,13.953302 +/- 0.000000,2.920093 +/- 0.000000,0.514038 +/- 0.000000
