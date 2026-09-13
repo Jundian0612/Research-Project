@@ -1,171 +1,136 @@
-# Weather2K Spatiotemporal Forecasting
+# 全球氣候長期時空結構特性與預測方法之研究
 
-本專案研究 Weather2K 測站氣溫的時間、空間與時空外推，並在一致的資料切分與評分規則下比較下列方法：
+本 repository 保存氣候資料時間序列與時空預測方法的研究程式、實驗設定及重現紀錄。研究從規則網格上的長期氣溫時間序列出發，逐步加入空間統計、未知位置推估與機率預測，建立能同時處理時間外推、空間外推及時空外推的比較流程。
 
-- Sparse Variational Gaussian Process（SVGP）
-- DLinear + differentiable FRK surrogate
-- Spatial-adapter Space-Time DeepKriging（STDK）
-- Spatial-adapter STDK + QConvLSTM
+目前的研究發展分成兩個相連階段：
 
-Repository 保存實驗程式、固定參數、重現文件與可追蹤的結果產物。原始 Weather2K 資料與 Python 環境不納入 Git 版本控制。
+1. `project/`：以月氣溫資料探索單點與多點時間序列模型，並將時間預測殘差交由 FRK 處理空間結構。
+2. `weather2k_exp/`：將前一階段的方法延伸到 Weather2K 測站資料，統一比較 DLinear+FRK、SVGP、STDK 與 STDK+QConvLSTM。
 
-## Methods
+## Research direction
 
-| Model | Role in this project |
-| --- | --- |
-| SVGP | 時空 Gaussian process baseline |
-| DLinear + FRK | DLinear 時間預測搭配 FRK 空間代理模型 |
-| Spatial-adapter STDK | 以 Spatial-adapter 實作建立的 STDK baseline |
-| STDK + QConvLSTM | 先由 Spatial-adapter STDK 產生局部網格，再以 QConvLSTM 輸出 q05、q50、q95 |
+氣候資料同時包含長期趨勢、季節性、測站間的空間關聯，以及未來時間與未知位置的不確定性。本專案依序處理這些問題：
 
-Spatial-adapter 以 Git submodule 固定在 commit `2aea188f3b8d92f948663b6705f0a22850d6e4ee`，方便追蹤 STDK 前段所依據的實作版本。
+```text
+氣候網格／測站資料
+        │
+        ├─ 時間序列結構
+        │    SARIMA · AutoARIMA · VARIMA · DLinear
+        │
+        ├─ 時間模型延伸到空間
+        │    DLinear + FRK
+        │
+        └─ 完整時空模型比較
+             SVGP · STDK · STDK + QConvLSTM
+                      │
+                      └─ q05 / q50 / q95 機率預測
+```
 
-## Benchmark protocol
+研究重點包括：
 
-四個模型採用共同的 Weather2K 評估骨架：
+- 長期氣溫序列的趨勢、季節性與自相關結構；
+- 傳統統計模型與深度時間序列模型的預測差異；
+- 如何由已觀測位置推估未知位置；
+- 時間、空間與時空外推在共同切分和評分規則下的比較；
+- 分位數預測區間的準確度、寬度與覆蓋率；
+- 不同裝置與軟體環境下的可重現性。
 
-| Item | Setting |
-| --- | --- |
-| Time split | 最後 1000 個時間點切成 Train700 / Val150 / Test150 |
-| Station split | 每個 seed 抽樣 600 站；train500 與 strict held-out100 |
-| Training roles | train500 內含 observed100 與 unobserved400 |
-| Normalization | 僅使用 observed100 × Train700 估計統計量 |
-| Seeds | 正式實驗使用 41–45 |
+## From time series to spatiotemporal models
 
-每個模型、每個 seed 只訓練一次，再以同一個 fitted model 評估三種情境：
+### Time-series foundation
 
-| Scenario | Evaluation data |
-| --- | --- |
-| Time150 | train500 測站的 Test150 |
-| Space100 | held-out100 測站的前 850 個時間點 |
-| ST100×150 | held-out100 測站的 Test150 |
+[`project/`](project/) 保存研究早期使用 NetCDF 月資料進行的分析。主要變數為近地表氣溫 `T2M`，並從美國本土範圍抽取規則網格進行建模。
 
-Val150 用於選參與 checkpoint selection；Test150 與 held-out100 的真值只用於最終評分。共同指標為 RMSE、MSE、MAE、R²；可輸出分位數的模型另外計算 90% coverage 與 MPIW。
+| Method | Research role |
+|---|---|
+| SARIMA | 描述單一位置的季節性與時間相依 |
+| AutoARIMA | 為不同位置選擇各自的時間序列階數 |
+| VARIMA | 探索多位置序列的聯合時間動態 |
+| DLinear | 以分解式線性網路建立長期時間預測 baseline |
+| DLinear + FRK | 以 DLinear 負責時間預測，再用 FRK 表示殘差的空間結構 |
 
-## Installation
+相關 notebook 包括 [`SARIMA.ipynb`](project/SARIMA.ipynb)、[`AutoARIMA.ipynb`](project/AutoARIMA.ipynb)、[`VARIMA.ipynb`](project/VARIMA.ipynb)、[`DLinear.ipynb`](project/DLinear.ipynb) 與 [`DLinear_FRK_500.ipynb`](project/DLinear_FRK_500.ipynb)。這一區保留研究演進與探索性分析，部分 notebook 的環境及資料路徑仍反映當時的執行設定。
+
+### Weather2K spatiotemporal extension
+
+[`weather2k_exp/`](weather2k_exp/) 將上述時間模型延伸到測站層級的時空問題，並納入下列比較與延伸模型：
+
+| Model | Role |
+|---|---|
+| DLinear + differentiable FRK | 延續 `project/` 的時間模型加空間殘差路線 |
+| SVGP | Gaussian process 時空比較基準 |
+| STDK | 使用 Spatial-adapter repository 中的 Space-Time DeepKriging baseline |
+| STDK + QConvLSTM | 由 STDK 產生局部網格，再以 QConvLSTM 建立分位數預測 |
+
+目前 Weather2K 比較固定使用共同的資料抽樣、Train／Validation／Test 時間切分、標準化來源、seeds 與評分規則。每個模型在每個 seed 只訓練一次，再以同一 fitted model 評估：
+
+- 已知位置的未來時間預測；
+- 未知位置的空間推估；
+- 未知位置與未來時間同時發生的時空外推。
+
+完整比較規則見 [Weather2K comparison audit](docs/WEATHER2K_COMPARISON_AUDIT_20260910.md)。STDK 與 QConvLSTM 的實作來源及改編範圍見 [STDK and QConvLSTM source audit](docs/STDK_QCONVLSTM_SOURCE_AUDIT_20260913.md)。
+
+## Repository structure
+
+| Path | Contents |
+|---|---|
+| [`project/`](project/) | 氣候網格資料的時間序列研究、DLinear+FRK 發展過程與歷史 notebook |
+| [`weather2k_exp/`](weather2k_exp/) | Weather2K 時間、空間、時空實驗程式與結果根目錄 |
+| [`docs/`](docs/) | 安裝、資料切分、模型公平比較及來源稽核文件 |
+| [`spatial-adapter/`](spatial-adapter/) | 固定版本的 Spatial-adapter Git submodule |
+| [`STDK_QConvLSTM_reproduction_results/`](STDK_QConvLSTM_reproduction_results/) | Space-Time.DeepKriging／QConvLSTM 重建程式與限制說明 |
+| [`geospatial-neural-adapter-dev/`](geospatial-neural-adapter-dev/) | 相關地理空間模型開發內容 |
+| [`Josh's Weather2K/`](<Josh's Weather2K/>) | Weather2K dataset submodule 與資料位置 |
+
+## Getting started
+
+Clone repository 並初始化 submodules：
 
 ```bash
 git clone https://github.com/Jundian0612/Research-Project.git
 cd Research-Project
-git submodule update --init --recursive spatial-adapter
+git submodule update --init --recursive
+```
 
+Weather2K 實驗建議使用獨立 Python environment：
+
+```bash
 python3 -m venv .venv-wsl
 source .venv-wsl/bin/activate
 python -m pip install --upgrade pip
-```
-
-請先依照作業系統與 CUDA 版本，從 [PyTorch 官方安裝頁](https://pytorch.org/get-started/locally/) 安裝 PyTorch，再安裝本專案套件：
-
-```bash
 python -m pip install -r weather2k_exp/requirements-core.txt
 python -m pip install -r weather2k_exp/requirements-baselines.txt
 ```
 
-確認 GPU：
+PyTorch 應依作業系統、GPU 與 CUDA 版本使用官方指令安裝。新裝置設定、Weather2K 資料位置、tmux 與裝置間同步方式見 [Weather2K setup guide](docs/SETUP_WEATHER2K.md)。
 
-```bash
-python -c "import torch; print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU')"
-```
-
-完整的新裝置安裝、資料同步及 tmux 操作方式見 [Weather2K setup guide](docs/SETUP_WEATHER2K.md)。
-
-## Data
-
-實驗程式預設讀取：
-
-```text
-Josh's Weather2K/Weather2K/weather2k.npy
-```
-
-若要從 Weather2K submodule 取得資料：
-
-```bash
-git submodule update --init "Josh's Weather2K/Weather2K"
-git -C "Josh's Weather2K/Weather2K" lfs pull
-```
-
-確認檔案不是 Git LFS pointer，並記錄資料雜湊：
-
-```bash
-python -c "import numpy as np; p=\"Josh's Weather2K/Weather2K/weather2k.npy\"; x=np.load(p, mmap_mode='r'); print(x.shape, x.dtype)"
-sha256sum "Josh's Weather2K/Weather2K/weather2k.npy"
-```
-
-## Quick start
-
-先以 smoke test 檢查 STDK + QConvLSTM 流程：
-
-```bash
-python -u weather2k_exp/tune_stdk_qconvlstm_hyperparams.py \
-  --stage all \
-  --smoke-test \
-  --seeds 41 \
-  --max-interface-trials 1 \
-  --max-capacity-trials 1 \
-  --output-dir /tmp/weather2k-smoke
-```
-
-執行 seed 41 的 SVGP、DLinear + FRK 與純 STDK；每個模型訓練一次並評估三種情境：
-
-```bash
-OUT=weather2k_exp/air_temperature/baselines_onefit_seed41
-mkdir -p "$OUT"
-
-SEED_LIST='[41]' \
-RUN_STDK=1 \
-RUN_SVGP=1 \
-RUN_DLINEAR=1 \
-RUN_QCONVLSTM=0 \
-WEATHER2K_OUTPUT_DIR="$OUT" \
-PYTHONUNBUFFERED=1 \
-python -u weather2k_exp/experiments_runner.py \
-  2>&1 | tee "$OUT/run.log"
-```
-
-執行 seed 41 的 STDK + QConvLSTM：
-
-```bash
-OUT=weather2k_exp/air_temperature/stdk_qconvlstm_seed41
-mkdir -p "$OUT"
-
-PYTHONUNBUFFERED=1 python -u weather2k_exp/2K_STDK_QConvLSTM.py \
-  --params-file weather2k_exp/2K_best_stdk_qconvlstm_params_500to100.json \
-  --seed 41 \
-  --forecast-mode block5to5 \
-  --prediction-mode direct \
-  --output-dir "$OUT" \
-  2>&1 | tee "$OUT/run.log"
-```
-
-正式實驗耗時較長，建議在 tmux 中執行。輸出資料夾會保存 log、參數、環境資訊、指標與預測檔案，之後再整理成封存結果。
-
-## Project structure
-
-| Path | Contents |
-| --- | --- |
-| [`weather2k_exp/`](weather2k_exp/) | Weather2K 的模型、調參與實驗 runner |
-| [`spatial-adapter/`](spatial-adapter/) | 固定版本的 Spatial-adapter submodule |
-| [`STDK_QConvLSTM_reproduction_results/`](STDK_QConvLSTM_reproduction_results/) | STDK–QConvLSTM 重現程式與報告 |
-| [`docs/`](docs/) | 安裝、比較規則、實作對齊與 repository 文件 |
-| [`project/`](project/) | 先前研究程式與實驗內容 |
-| [`Josh's Weather2K/`](<Josh's Weather2K/>) | Weather2K dataset submodule 與資料位置 |
+`project/` 中的 notebook 涉及 Xarray、NetCDF、Darts、Statsmodels、PyTorch、Optuna、Cartopy 與空間分析套件。它們是研究歷程的一部分，執行前應依 notebook 的 import 與資料路徑建立對應環境。
 
 ## Reproducibility
 
-正式實驗應保存以下資訊：
+正式實驗保存下列資訊：
 
-1. 使用的 seed、資料切分與固定超參數。
-2. Python、PyTorch、CUDA 與主要套件版本。
-3. GPU 型號與程式、參數、資料的 SHA-256。
-4. 完整 terminal log、逐 seed 指標及預測輸出。
-5. 明確區分 validation 選參結果與最終 test 結果。
+1. 資料來源、時間範圍、空間位置及 train／validation／test 切分；
+2. 標準化統計量的估計範圍；
+3. 模型設定、選參指標與 seeds；
+4. Python、套件、CUDA 與 GPU 環境；
+5. 程式、資料與參數檔的 SHA-256；
+6. validation 選參結果與 final test 結果的明確區分。
 
-比較規則與目前已確認的限制見 [Weather2K comparison audit](docs/WEATHER2K_COMPARISON_AUDIT_20260910.md)；STDK 與上游 Spatial-adapter 的對齊情況見 [STDK alignment notes](docs/STDK_SPATIAL_ADAPTER_ALIGNMENT_20260913.md)。
+原始大型資料、虛擬環境與模型 checkpoint 不放入 Git。可保留的指標、表格、參數、來源雜湊及必要逐筆預測，依各實驗資料夾的 README 分類保存。
+
+## Documentation
+
+- [Weather2K environment and data setup](docs/SETUP_WEATHER2K.md)
+- [Weather2K comparison audit](docs/WEATHER2K_COMPARISON_AUDIT_20260910.md)
+- [Weather2K observed100 alignment](docs/WEATHER2K_OBS100_ALIGNMENT_20260910.md)
+- [STDK alignment with Spatial-adapter](docs/STDK_SPATIAL_ADAPTER_ALIGNMENT_20260913.md)
+- [STDK and QConvLSTM source audit](docs/STDK_QCONVLSTM_SOURCE_AUDIT_20260913.md)
+- [Repository hygiene](docs/REPOSITORY_HYGIENE.md)
 
 ## References
 
-- [Spatial-adapter](https://github.com/STLABTW/spatial-adapter)
-- [Spatial-adapter experiment examples](https://github.com/STLABTW/spatial-adapter/tree/main/examples/experiments)
-- [Space-Time DeepKriging paper](https://arxiv.org/abs/2306.11472)
-- [Space-Time.DeepKriging repository](https://github.com/pratiknag/Space-Time.DeepKriging)
 - [Weather2K dataset](https://huggingface.co/datasets/BUPT-PRIS-727/Weather2K)
+- [Spatial-adapter](https://github.com/STLABTW/spatial-adapter)
+- [Space-Time.DeepKriging](https://github.com/pratiknag/Space-Time.DeepKriging)
+- [Space-Time.DeepKriging paper](https://arxiv.org/abs/2306.11472)
