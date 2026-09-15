@@ -3,9 +3,10 @@
 
 Stage 1 selects the STDK-to-QConvLSTM interface (grid radius and size).
 Stage 2 selects QConvLSTM capacity/regularization (filters and weight decay)
-using the best stage-1 interface. Every trial trains only q50 and selection
-uses the mean chronological-Val150 RMSE over seeds 41 and 42. Test150 and
-held-out100 responses are never computed or read.
+using the best stage-1 interface. Every trial independently fits q50 at each
+held-out target location from its fitted-STDK series, then selects by mean
+chronological-Val150 fitted-STDK RMSE over seeds 41 and 42. Test150 and
+held-out100 responses are not used.
 """
 from __future__ import annotations
 
@@ -20,7 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 MODEL = ROOT / "2K_STDK_QConvLSTM.py"
-DEFAULT_OUTPUT = ROOT / "air_temperature/qconvlstm_obs100_tuning_20260910"
+DEFAULT_OUTPUT = ROOT / "air_temperature/qconvlstm_location_specific_tuning_20260915"
 FORMAL_PARAMS = ROOT / "2K_best_stdk_qconvlstm_params_500to100.json"
 
 # Reuse the best optimization settings from the completed first tuning round
@@ -96,6 +97,7 @@ def compatible(report, params, seed, smoke):
         "seed": seed,
         "forecast_mode": "block5to5",
         "prediction_mode": "direct",
+        "scenario": "spatiotemp_100x150",
         "lookback": 5,
         "horizon": 5,
         "grid_size": params["GRID_SIZE"],
@@ -111,7 +113,10 @@ def compatible(report, params, seed, smoke):
         "smoke": smoke,
         "stdk_backend": "spatial_adapter",
         "normalization_source": "obs100_train700",
-        "q50_checkpoint_selection": "mse",
+        "stdk_q50_loss": "pinball",
+        "qconv_training_target": "quantile_specific_fitted_stdk",
+        "qconv_model_scope": "location_specific",
+        "q50_checkpoint_selection": "pinball",
         "stdk_validation_aggregation": "batch_mean",
         "stdk_use_ema": True,
     }
@@ -150,6 +155,7 @@ def run_trial(stage, trial_no, params, seeds, output, smoke):
             sys.executable, str(MODEL),
             "--forecast-mode", "block5to5",
             "--prediction-mode", "direct",
+            "--scenario", "spatiotemp_100x150",
             "--validation-only", "--q50-only",
             "--seed", str(seed),
             "--output-dir", str(stage_output),
@@ -175,7 +181,7 @@ def run_trial(stage, trial_no, params, seeds, output, smoke):
                 f"exit code {completed.returncode}"
             )
         generated = stage_output / (
-            f"shared_qconvlstm_block5to5_seed{seed}_validation.json"
+            f"location_specific_qconvlstm_block5to5_spatiotemp_100x150_seed{seed}_validation.json"
         )
         if not generated.exists():
             raise FileNotFoundError(generated)
@@ -188,7 +194,10 @@ def run_trial(stage, trial_no, params, seeds, output, smoke):
     result = {
         "stage": stage,
         "normalization_source": "obs100_train700",
-        "q50_checkpoint_selection": "mse",
+        "stdk_q50_loss": "pinball",
+        "qconv_training_target": "quantile_specific_fitted_stdk",
+        "qconv_model_scope": "location_specific",
+        "q50_checkpoint_selection": "pinball",
         "stdk_validation_aggregation": "batch_mean",
         "stdk_use_ema": True,
         "trial": trial_no,
@@ -237,7 +246,10 @@ def write_formal_outputs(output, best, seeds, smoke):
     payload = {
         "stdk_backend": "spatial_adapter",
         "normalization_source": "obs100_train700",
-        "q50_checkpoint_selection": "mse",
+        "stdk_q50_loss": "pinball",
+        "qconv_training_target": "quantile_specific_fitted_stdk",
+        "qconv_model_scope": "location_specific",
+        "q50_checkpoint_selection": "pinball",
         "stdk_validation_aggregation": "batch_mean",
         "stdk_use_ema": True,
         "selection_metric": "mean_q50_validation_rmse_scaled",
@@ -278,10 +290,12 @@ def write_formal_outputs(output, best, seeds, smoke):
         f"Status: {status}\n\n"
         f"Seeds: {seeds}\n\n"
         "Every trial trains q50 only. Selection uses the mean chronological "
-        "Val150 q50 RMSE on train500 stations. Test150 and held-out100 truth "
+        "Val150 q50 RMSE across independently fitted held-out target-location models. "
+        "Test150 and held-out100 truth "
         "are not computed or read.\n\n"
-        "The front STDK follows the pinned spatial-adapter trainer: validation "
-        "MSE is averaged by batch and checkpoint selection uses EMA weights.\n\n"
+        "The front STDK follows the pinned spatial-adapter architecture with "
+        "q50 pinball loss; validation pinball is averaged by batch and "
+        "checkpoint selection uses EMA weights.\n\n"
         "Stage 1 searches grid size and neighbourhood radius. Stage 2 uses "
         "the best interface and searches filters and weight decay.\n\n"
         f"Best stage: {best['stage']}\n\n"
@@ -334,13 +348,17 @@ def main():
             )
         best_interface = read_json(path)
         if (best_interface.get("normalization_source") != "obs100_train700"
-                or best_interface.get("q50_checkpoint_selection") != "mse"
+                or best_interface.get("q50_checkpoint_selection") != "pinball"
+                or best_interface.get("stdk_q50_loss") != "pinball"
+                or best_interface.get("qconv_training_target") != "quantile_specific_fitted_stdk"
+                or best_interface.get("qconv_model_scope") != "location_specific"
                 or best_interface.get("stdk_validation_aggregation") != "batch_mean"
                 or best_interface.get("stdk_use_ema") is not True
                 or best_interface.get("seeds") != args.seeds):
             raise SystemExit(
                 "Stage 1 protocol/seeds mismatch: rerun interface with current "
-                "normalization, batch-mean validation and EMA."
+                "normalization, pinball/fitted-STDK flow, batch-mean validation "
+                "and EMA."
             )
 
     capacity_results = []

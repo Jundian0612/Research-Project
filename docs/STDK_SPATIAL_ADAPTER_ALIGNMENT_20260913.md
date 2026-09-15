@@ -50,7 +50,8 @@ paper experiment:
 - obs100 / unobserved400 roles inside train500;
 - target scaling from obs100 x Train700 only;
 - coordinates and time mapped to `[0,1]` for the STDK basis domain;
-- one fitted model per seed evaluated on Time150, Space100 and ST100x150;
+- one independently fitted model per seed and scenario for Time150, Space100
+  and ST100x150;
 - seeds 41--45 and common station indices across all four compared models;
 - held-out100 responses excluded from training and model selection.
 

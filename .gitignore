@@ -15,9 +15,19 @@ __pycache__/
 qconvlstm_simulation_results/
 STDK_QConvLSTM_reproduction_results/raw_results/
 
+# Per-location checkpoints are resumable local artifacts. Keep only the
+# explanatory README; curated forecasts and summaries remain trackable.
+STDK_QConvLSTM_reproduction_results/stdk_vs_qconvlstm/checkpoints/*
+!STDK_QConvLSTM_reproduction_results/stdk_vs_qconvlstm/checkpoints/README.md
+STDK_QConvLSTM_reproduction_results/table2_stdk_qlstm_qconvlstm/checkpoints/*
+!STDK_QConvLSTM_reproduction_results/table2_stdk_qlstm_qconvlstm/checkpoints/README.md
+
 # Weather2K STDK + QConvLSTM checkpoints and raw outputs
 weather2k_exp/*/STDK_QConvLSTM_Weather2K_results/
 weather2k_exp/*/STDK_QConvLSTM_Weather2K_495to5_pilot/raw_results/
+
+# Interrupted, protocol-incompatible seed-41 run kept locally for diagnosis.
+weather2k_exp/air_temperature/STDK_QConvLSTM_separate_seed41_rtx2000_20260915/
 .venv-wsl/
 
 # Machine-local environments (already tracked files require git rm --cached)

@@ -1124,7 +1124,7 @@ def _run_seeded_diff_dlinear_frk(sample_seed: int, best_params: dict) -> dict:
             f"{prefix}_R2": metric["R2"],
         }
 
-    result_sections = {
+    all_result_sections = {
         "Train700": train700_metric,
         "Val150": val150_metric,
         "Target_Time150": target_time150_metric,
@@ -1133,6 +1133,15 @@ def _run_seeded_diff_dlinear_frk(sample_seed: int, best_params: dict) -> dict:
         "Target_Space100": space_target100_metric,
         "Target_ST100x150": target_st_metric,
     }
+    section_names_by_scenario = {
+        "time_extrap_fixed500": ("Train700", "Val150", "Target_Time150"),
+        "space_extrap_fixed850": ("Train100", "Val400", "Target_Space100"),
+        "spatiotemp_100x150": ("Target_ST100x150",),
+    }
+    selected_names = section_names_by_scenario.get(
+        EXPERIMENT_SCENARIO, tuple(all_result_sections)
+    )
+    result_sections = {name: all_result_sections[name] for name in selected_names}
     frk_metrics = {
         key: value
         for name, section in result_sections.items()
@@ -1172,11 +1181,8 @@ def _run_seeded_diff_dlinear_frk(sample_seed: int, best_params: dict) -> dict:
         },
         "loss_history": loss_history,
         "sampling_info": {
-            "experiment_scenario": "all_three",
-            "evaluation_scenarios": [
-                "time_extrap_fixed500", "space_extrap_fixed850",
-                "spatiotemp_100x150",
-            ],
+            "experiment_scenario": EXPERIMENT_SCENARIO,
+            "evaluation_scenarios": [EXPERIMENT_SCENARIO],
             "full_sample_size": int(N_SAMPLE_TARGET),
             "tune_sample_size": int(N_STDK),
             "sample_seed": int(sample_seed),

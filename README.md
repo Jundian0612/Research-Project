@@ -62,7 +62,7 @@
 | STDK | 使用 Spatial-adapter repository 中的 Space-Time DeepKriging baseline |
 | STDK + QConvLSTM | 由 STDK 產生局部網格，再以 QConvLSTM 建立分位數預測 |
 
-目前 Weather2K 比較固定使用共同的資料抽樣、Train／Validation／Test 時間切分、標準化來源、seeds 與評分規則。每個模型在每個 seed 只訓練一次，再以同一 fitted model 評估：
+目前 Weather2K 比較固定使用共同的資料抽樣、Train／Validation／Test 時間切分、標準化來源、seeds 與評分規則。每個模型在每個 seed 針對三種情境分別訓練，再評估：
 
 - 已知位置的未來時間預測；
 - 未知位置的空間推估；

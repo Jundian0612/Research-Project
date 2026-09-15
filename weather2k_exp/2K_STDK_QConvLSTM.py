@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Weather2K Spatial-adapter STDK + shared 5-to-5 QConvLSTM.
+"""Weather2K Spatial-adapter STDK + location-specific 5-to-5 QConvLSTM.
 
 Each seed samples 600 stations, trains only on train500, and evaluates on a
 strict held-out100 whose observations never enter either training stage.
-The STDK stage matches the standalone Weather2K Spatial-adapter STDK baseline;
-the released three-block QConvLSTM consumes its local quantile grids. No model
-checkpoint is written.
+The front model keeps the Weather2K Spatial-adapter architecture, while the
+probabilistic flow follows the author-data reconstruction: fit q50/q05/q95
+STDK with pinball loss, form quantile-specific local grids and target series,
+then fit a separate released three-block QConvLSTM at every target location,
+as formulated for s_0 in the paper, with paper Eq. (7). The Weather2K split is
+an explicit dataset adaptation. No model checkpoint is written.
 """
 from __future__ import annotations
 
@@ -55,22 +58,35 @@ class Config:
     qconv_patience: int = 5; conv_filters: int = 64
     variable: str = "air_temperature"; forecast_mode: str = "block5to5"
     prediction_mode: str = "direct"
+    scenario: str = "all_three"
     stdk_backend: str = "spatial_adapter"
     normalization_source: str = "obs100_train700"
-    q50_checkpoint_selection: str = "mse"
+    stdk_q50_loss: str = "pinball"
+    qconv_training_target: str = "quantile_specific_fitted_stdk"
+    qconv_model_scope: str = "location_specific"
+    q50_checkpoint_selection: str = "pinball"
     stdk_validation_aggregation: str = "batch_mean"
     stdk_use_ema: bool = True
     validation_only: bool = False; q50_only: bool = False; smoke: bool = False
 
 def model_name(cfg):
     return (
-        "Spatial-adapter STDK+shared-residual-QConvLSTM"
+        "Spatial-adapter STDK+location-specific-residual-QConvLSTM"
         if cfg.prediction_mode == "residual" else
-        "STDK+shared-QConvLSTM"
+        "STDK+location-specific-QConvLSTM"
     )
 
 def output_prefix(cfg):
-    return "shared_residual_qconvlstm" if cfg.prediction_mode == "residual" else "shared_qconvlstm"
+    return (
+        "location_specific_residual_qconvlstm"
+        if cfg.prediction_mode == "residual" else
+        "location_specific_qconvlstm"
+    )
+
+def output_stem(cfg):
+    stem=f"{output_prefix(cfg)}_{cfg.forecast_mode}"
+    if cfg.scenario != "all_three": stem+=f"_{cfg.scenario}"
+    return f"{stem}_seed{cfg.seed}"
 
 def spatial_stdk_config(cfg):
     """The exact STDK configuration used by 2K_STDK_500train_100test.py."""
@@ -101,7 +117,7 @@ def flatten_stdk_points(coords, times, targets, total_times):
 
 def fit_spatial_stdk(base, spatial, coords, scaled_values, train_times, val_times,
                      quantile, cfg, device, qlambda, median_model=None):
-    """Fit the Spatial-adapter STDK; q50 exactly follows the pure-STDK MSE setup."""
+    """Fit quantile STDK using the reconstruction's pinball-loss workflow."""
     config=spatial_stdk_config(cfg)
     tr_coords,tr_time,tr_y=flatten_stdk_points(
         coords,train_times,scaled_values,cfg.n_last
@@ -134,7 +150,7 @@ def fit_spatial_stdk(base, spatial, coords, scaled_values, train_times, val_time
             empty=batch_coords.new_empty((len(batch_coords),0)); optimizer.zero_grad(set_to_none=True)
             raw=model(empty,batch_coords,batch_time)
             if quantile==.5:
-                prediction=raw; loss=torch.nn.functional.mse_loss(prediction,batch_y)
+                prediction=raw; loss=base.pinball(prediction,batch_y,quantile)
             else:
                 with torch.no_grad(): center=median_model(empty,batch_coords,batch_time)
                 prediction=base.constrained_quantile(raw,center,quantile,qlambda)
@@ -152,7 +168,7 @@ def fit_spatial_stdk(base, spatial, coords, scaled_values, train_times, val_time
                 empty=c.new_empty((len(c),0)); raw=model(empty,c,t)
                 if quantile==.5:
                     prediction=raw
-                    batch_loss=torch.nn.functional.mse_loss(prediction,y)
+                    batch_loss=base.pinball(prediction,y,quantile)
                 else:
                     center=median_model(empty,c,t)
                     prediction=base.constrained_quantile(raw,center,quantile,qlambda)
@@ -160,8 +176,7 @@ def fit_spatial_stdk(base, spatial, coords, scaled_values, train_times, val_time
                 val_total+=float(batch_loss); val_batches+=1
         val_loss=val_total/max(1,val_batches)
         if epoch==1 or epoch%10==0:
-            label="mse" if quantile==.5 else "pinball"
-            print(f"Spatial-adapter STDK q={quantile:.2f} epoch={epoch:03d} val_{label}={val_loss:.6f}")
+            print(f"Spatial-adapter STDK q={quantile:.2f} epoch={epoch:03d} val_pinball={val_loss:.6f}")
         if val_loss < best-1e-12:
             best=val_loss; wait=0; best_epoch=epoch
             state={k:v.detach().cpu().clone() for k,v in model.state_dict().items()}
@@ -172,7 +187,7 @@ def fit_spatial_stdk(base, spatial, coords, scaled_values, train_times, val_time
     if median_model is not None:
         for parameter in median_model.parameters(): parameter.requires_grad_(True)
     return model.eval(),{"quantile":quantile,"best_validation_loss":best,
-                         "best_epoch":best_epoch,"validation_loss_name":"mse" if quantile==.5 else "pinball",
+                         "best_epoch":best_epoch,"validation_loss_name":"pinball",
                          "validation_aggregation":"batch_mean","use_ema":use_ema,
                          "ema_decay":ema_decay if use_ema else None}
 
@@ -187,7 +202,7 @@ def predict_spatial_stdk(model, coords, times, cfg, device):
     return np.concatenate(predictions).reshape(len(times),len(coords)).astype(np.float32)
 
 class SharedWindows(Dataset):
-    """Windows from train stations only; held-out arrays cannot be supplied."""
+    """Window dataset; formal QConvLSTM fits pass exactly one target station."""
     def __init__(self, frames, median, targets, lookback, horizon, qlambda):
         assert frames.shape == median.shape and frames.shape[:2] == targets.shape
         self.x = torch.from_numpy(frames[:, :, None]); self.mx = torch.from_numpy(median[:, :, None])
@@ -294,6 +309,20 @@ def predict_stdk_quantiles(base, models, centers, times, cfg, device):
         quantiles.append(prediction.T.astype(np.float32))
     return np.stack(quantiles,axis=-1)
 
+
+def predict_stdk_target_series(base, models, centers, times, cfg, device, quantiles):
+    """Return the fitted STDK series used as quantile-specific Q targets."""
+    median=predict_spatial_stdk(models[.5],centers,times,cfg,device).T
+    output={.5:median.astype(np.float32)}
+    for q in quantiles:
+        if q==.5:
+            continue
+        raw=predict_spatial_stdk(models[q],centers,times,cfg,device).T
+        deviation=models["lambda"]*abs(q-.5)/(1.+np.exp(-raw))
+        prediction=median-deviation if q<.5 else median+deviation
+        output[q]=prediction.astype(np.float32)
+    return output
+
 def add_direct_stdk_baseline(prediction, stdk_models, centers, times, cfg, device):
     """Convert residual quantiles to final quantiles on standardized scale."""
     if cfg.prediction_mode != "residual":
@@ -307,7 +336,7 @@ def add_direct_stdk_baseline(prediction, stdk_models, centers, times, cfg, devic
         )
     return prediction+baseline[...,None]
 
-def fit_shared(base, ds, q, cfg, device, median=None, validation_ds=None):
+def fit_location(base, ds, q, cfg, device, median=None, validation_ds=None):
     if validation_ds is None:
         # Backward-compatible fallback for callers without an external Val block.
         nval_per_station=max(1,int(.05*ds.nw)); train_idx=[]; val_idx=[]
@@ -335,7 +364,7 @@ def fit_shared(base, ds, q, cfg, device, median=None, validation_ds=None):
     if median is not None:
         median.eval()
         for p in median.parameters(): p.requires_grad_(False)
-    selection_is_mse=q == .5 and (cfg.q50_checkpoint_selection == "mse" or cfg.prediction_mode == "residual")
+    selection_is_mse=cfg.prediction_mode == "residual" and q == .5
 
     def validation_selection_score():
         model.eval(); total=0.0; count=0; batch_losses=[]
@@ -357,7 +386,7 @@ def fit_shared(base, ds, q, cfg, device, median=None, validation_ds=None):
         # validation can reject every learned correction if none is helpful.
         best=validation_selection_score()
         state={k:v.detach().cpu().clone() for k,v in model.state_dict().items()}
-        print(f"shared residual QConv q={q:.2f} epoch=000 val_mse={best:.6f}")
+        print(f"location residual QConv q={q:.2f} epoch=000 val_mse={best:.6f}")
     for epoch in range(1,cfg.qconv_epochs+1):
         model.train()
         for x,y,mx in tl:
@@ -366,7 +395,7 @@ def fit_shared(base, ds, q, cfg, device, median=None, validation_ds=None):
             loss=base.pinball(pred,y,q); loss.backward(); opt.step()
         score=validation_selection_score()
         selection_label="mse" if selection_is_mse else "pinball"
-        print(f"shared QConv q={q:.2f} epoch={epoch:03d} val_{selection_label}={score:.6f}")
+        print(f"location QConv q={q:.2f} epoch={epoch:03d} val_{selection_label}={score:.6f}")
         if score < best-1e-6:
             best=score; wait=0; state={k:v.detach().cpu().clone() for k,v in model.state_dict().items()}
         else:
@@ -453,6 +482,30 @@ def score(pred, truth):
             "MPIW_90":float(np.mean(pred[...,2]-pred[...,0])),
             "coverage_90":float(np.mean((truth>=pred[...,0])&(truth<=pred[...,2])))}
 
+
+def aggregate_location_validation(location_records, active_quantiles):
+    """Aggregate independently fitted location models without pooling weights."""
+    summary={}
+    for q in active_quantiles:
+        key=f"q{int(q*100):02d}"
+        reports=[record["validation"][key] for record in location_records]
+        weights=np.asarray([report["validation_windows"] for report in reports],dtype=float)
+        weights=weights/weights.sum()
+        mse=float(np.sum(weights*np.asarray([report["validation_mse_scaled"] for report in reports])))
+        summary[key]={
+            "validation_pinball":float(np.sum(weights*np.asarray([report["validation_pinball"] for report in reports]))),
+            "validation_rmse_scaled":math.sqrt(mse),
+            "validation_mse_scaled":mse,
+            "validation_mae_scaled":float(np.sum(weights*np.asarray([report["validation_mae_scaled"] for report in reports]))),
+            "checkpoint_selection_loss":reports[0]["checkpoint_selection_loss"],
+            "mean_best_checkpoint_selection_loss":float(np.mean([report["best_checkpoint_selection_loss"] for report in reports])),
+            "location_count":len(reports),
+            "validation_windows":int(sum(report["validation_windows"] for report in reports)),
+            "model_scope":"location_specific",
+        }
+    return summary
+
+
 def run_seed(base, spatial, all_coords, all_values, cfg, output):
     began=time.time(); seed_all(cfg.seed)
     # Exact legacy RandomState sampling used by the existing Weather2K models.
@@ -487,150 +540,181 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
                 base,spatial,coords[train],scaled_train,train_times,val_times,q,cfg,device,qlambda,med
             )
             stdk_validation[f"q{int(q*100):02d}"]=tail_validation
-    train_frames=frames_for(base,sm,coords[train],np.arange(cfg.train_times),cfg,device)
-    qconv_train_targets=scaled_train[:,:cfg.train_times]
+    target_by_scenario={
+        "time_extrap_fixed500":("Target_Time150",train),
+        "space_extrap_fixed850":("Target_Space100",held),
+        "spatiotemp_100x150":("Target_ST100x150",held),
+    }
+    target_name,target_station_local=target_by_scenario[cfg.scenario]
+    target_centers=coords[target_station_local]
+    print(
+        f"QConvLSTM scope=location_specific scenario={cfg.scenario} "
+        f"target_locations={len(target_centers)}"
+    )
+
+    # Paper-style location-specific forecasting: each target s_0 receives its
+    # own fitted-STDK series, local grids and independently optimized Q models.
+    train_frames=frames_for(base,sm,target_centers,train_times,cfg,device)
+    qconv_train_targets=predict_stdk_target_series(
+        base,sm,target_centers,train_times,cfg,device,active_quantiles
+    )
     if cfg.prediction_mode == "residual":
         train_stdk_baseline=predict_spatial_stdk(
-            med,coords[train],train_times,cfg,device
+            med,target_centers,train_times,cfg,device
         ).T
-        qconv_train_targets=qconv_train_targets-train_stdk_baseline
-    datasets={q:SharedWindows(train_frames[q],train_frames[.5],qconv_train_targets,cfg.lookback,cfg.horizon,qlambda) for q in active_quantiles}
-    val_targets=scaled_train[:,cfg.train_times:cfg.train_times+cfg.val_times]
-    qconv_val_targets=val_targets
+        qconv_train_targets={
+            q:target-train_stdk_baseline for q,target in qconv_train_targets.items()
+        }
+    qconv_val_targets=predict_stdk_target_series(
+        base,sm,target_centers,val_times,cfg,device,active_quantiles
+    )
     if cfg.prediction_mode == "residual":
         val_stdk_baseline=predict_spatial_stdk(
-            med,coords[train],val_times,cfg,device
+            med,target_centers,val_times,cfg,device
         ).T
-        qconv_val_targets=qconv_val_targets-val_stdk_baseline
+        qconv_val_targets={
+            q:target-val_stdk_baseline for q,target in qconv_val_targets.items()
+        }
     if cfg.forecast_mode == "block5to5":
-        val_frames,_=block_history_windows(
-            base,sm,coords[train],cfg.train_times,cfg.val_times,cfg,device
+        val_frames,val_starts=block_history_windows(
+            base,sm,target_centers,cfg.train_times,cfg.val_times,cfg,device
         )
-        val_y=block_targets(qconv_val_targets,cfg.horizon)
-        validation_sets={q:SharedValidation(
-            val_frames[q],val_frames[.5],val_y,qlambda
-        ) for q in active_quantiles}
+        val_targets={q:block_targets(qconv_val_targets[q],cfg.horizon) for q in active_quantiles}
+        val_windows_per_location=len(val_starts)
     else:
-        validation_sets={q:SharedValidation(
-            train_frames[q][:,-cfg.lookback:],train_frames[.5][:,-cfg.lookback:],
-            qconv_val_targets,qlambda
+        val_frames={q:train_frames[q][:,-cfg.lookback:] for q in active_quantiles}
+        val_targets=qconv_val_targets
+        val_windows_per_location=1
+
+    truth_start=cfg.train_times+cfg.val_times
+    space_length=truth_start
+    location_validation=[]; prediction_parts=[]
+    for position,station_local in enumerate(target_station_local):
+        # Independent initialization and optimization for every target s_0.
+        seed_all(cfg.seed*100000+int(station_local))
+        location_slice=slice(position,position+1)
+        datasets={q:SharedWindows(
+            train_frames[q][location_slice],train_frames[.5][location_slice],
+            qconv_train_targets[q][location_slice],cfg.lookback,cfg.horizon,qlambda
         ) for q in active_quantiles}
-    qm={}; validation={}
-    qm[.5],validation[.5]=fit_shared(
-        base,datasets[.5],.5,cfg,device,validation_ds=validation_sets[.5]
-    )
-    for q in (.05,.95):
-        if q in active_quantiles:
-            qm[q],validation[q]=fit_shared(
-                base,datasets[q],q,cfg,device,qm[.5],validation_sets[q]
-            )
+        val_slice=slice(
+            position*val_windows_per_location,
+            (position+1)*val_windows_per_location,
+        )
+        validation_sets={q:SharedValidation(
+            val_frames[q][val_slice],val_frames[.5][val_slice],
+            val_targets[q][val_slice],qlambda
+        ) for q in active_quantiles}
+        qm={}; validation={}
+        qm[.5],validation[.5]=fit_location(
+            base,datasets[.5],.5,cfg,device,validation_ds=validation_sets[.5]
+        )
+        for q in (.05,.95):
+            if q in active_quantiles:
+                qm[q],validation[q]=fit_location(
+                    base,datasets[q],q,cfg,device,qm[.5],validation_sets[q]
+                )
+        location_validation.append({
+            "station_local":int(station_local),
+            "validation":{f"q{int(q*100):02d}":validation[q] for q in validation},
+        })
+        print(
+            f"location-specific QConvLSTM {position+1}/{len(target_centers)} "
+            f"station_local={int(station_local)}"
+        )
+
+        if not cfg.validation_only:
+            center=target_centers[position:position+1]
+            if cfg.scenario in {"time_extrap_fixed500","spatiotemp_100x150"}:
+                if cfg.forecast_mode == "block5to5":
+                    prediction=predict_blocks_cached(
+                        base,qm,sm,center,truth_start,cfg.test_times,cfg,device,qlambda
+                    )
+                else:
+                    history=np.arange(truth_start-cfg.lookback,truth_start)
+                    prediction=infer(
+                        base,qm,frames_for(base,sm,center,history,cfg,device),cfg,device,qlambda
+                    )
+                prediction=add_direct_stdk_baseline(
+                    prediction,sm,center,
+                    np.arange(truth_start,truth_start+cfg.test_times),cfg,device
+                )
+            else:
+                warmup=min(cfg.lookback,space_length)
+                direct=predict_stdk_quantiles(
+                    base,sm,center,np.arange(warmup),cfg,device
+                )
+                remaining=space_length-warmup
+                if remaining:
+                    if cfg.forecast_mode == "block5to5":
+                        forecast=predict_blocks_cached(
+                            base,qm,sm,center,warmup,remaining,cfg,device,qlambda
+                        )
+                    else:
+                        forecast=predict_blocks(
+                            base,qm,sm,center,warmup,remaining,cfg,device,qlambda
+                        )
+                    forecast=add_direct_stdk_baseline(
+                        forecast,sm,center,np.arange(warmup,space_length),cfg,device
+                    )
+                    prediction=np.concatenate((direct,forecast),axis=1)
+                else:
+                    prediction=direct
+            prediction_parts.append(prediction[0])
+        del qm
+
+    validation=aggregate_location_validation(location_validation,active_quantiles)
 
     if cfg.validation_only:
         report={"model":model_name(cfg),"config":asdict(cfg),"normalization":normalization,
           "split":{"sampled_global":chosen.tolist(),"train_local":train.tolist(),
                    "heldout_local":held.tolist(),"heldout_truth_used_for_training":False,
                    "heldout_truth_used_for_selection":False},
-          "selection_data":"Train700/chronological Val150 on train500 only",
+          "selection_data":f"Per-location fitted-STDK Train700/chronological Val150 series on {len(target_centers)} target locations",
+          "qconv_training_target":"quantile-specific fitted STDK series",
+          "qconv_model_scope":"one independently fitted q05/q50/q95 QConvLSTM per target location",
           "prediction_definition":(
               "direct STDK q50 baseline + learned QConvLSTM residual quantiles"
               if cfg.prediction_mode == "residual" else
               "QConvLSTM direct target quantiles"
           ),
           "stdk_backend":"spatial_adapter","stdk_validation":stdk_validation,
-          "validation":{f"q{int(q*100):02d}":validation[q] for q in validation},
+          "validation":validation,"location_validation":location_validation,
           "tuning_quantiles":[float(q) for q in active_quantiles],
           "checkpoint_written":False,"elapsed_seconds":time.time()-began}
         output.mkdir(parents=True,exist_ok=True)
-        stem=f"{output_prefix(cfg)}_{cfg.forecast_mode}_seed{cfg.seed}_validation"
+        stem=f"{output_stem(cfg)}_validation"
         (output/f"{stem}.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
         print(json.dumps(report["validation"],indent=2))
         print("Validation-only run: Test150 and held-out100 metrics were not computed.")
         return report
 
-    # All three scenarios use the same fitted model. STDK grids depend only on
-    # coordinates/time, so held-out100 responses remain inaccessible until scoring.
-    truth_start=cfg.train_times+cfg.val_times
-    future_hist=np.arange(truth_start-cfg.lookback,truth_start)
-    if cfg.forecast_mode == "block5to5":
-        pred_time_scaled=predict_blocks_cached(
-            base,qm,sm,coords[train],truth_start,cfg.test_times,
-            cfg,device,qlambda
-        )
+    prediction=np.stack(prediction_parts)*std+mean
+    if cfg.scenario == "time_extrap_fixed500":
+        truth=values[train,truth_start:truth_start+cfg.test_times]
+        stdk_prediction=predict_stdk_quantiles(
+            base,sm,target_centers,np.arange(truth_start,truth_start+cfg.test_times),cfg,device
+        )*std+mean
+        output_suffix="time_forecasts.csv"; target_start=truth_start
+        stdk_suffix="stdk_time_forecasts.csv"
+    elif cfg.scenario == "space_extrap_fixed850":
+        truth=values[held,:space_length]
+        stdk_prediction=predict_stdk_quantiles(
+            base,sm,target_centers,np.arange(space_length),cfg,device
+        )*std+mean
+        output_suffix="space_forecasts.csv"; target_start=0
+        stdk_suffix="stdk_space_forecasts.csv"
     else:
-        time_frames=frames_for(base,sm,coords[train],future_hist,cfg,device)
-        pred_time_scaled=infer(base,qm,time_frames,cfg,device,qlambda)
-    pred_time_scaled=add_direct_stdk_baseline(
-        pred_time_scaled,sm,coords[train],
-        np.arange(truth_start,truth_start+cfg.test_times),cfg,device
-    )
-    pred_time=pred_time_scaled*std+mean
-    truth_time=values[train,truth_start:truth_start+cfg.test_times]
-
-    if cfg.forecast_mode == "block5to5":
-        pred_st_scaled=predict_blocks_cached(
-            base,qm,sm,coords[held],truth_start,cfg.test_times,
-            cfg,device,qlambda
-        )
-    else:
-        held_frames=frames_for(base,sm,coords[held],future_hist,cfg,device)
-        pred_st_scaled=infer(base,qm,held_frames,cfg,device,qlambda)
-    pred_st_scaled=add_direct_stdk_baseline(
-        pred_st_scaled,sm,coords[held],
-        np.arange(truth_start,truth_start+cfg.test_times),cfg,device
-    )
-    pred_st=pred_st_scaled*std+mean
-    truth_st=values[held,truth_start:truth_start+cfg.test_times]
-
-    space_length=cfg.train_times+cfg.val_times
-    # There is no valid five-frame history before Weather2K time zero.
-    # Preserve all fixed850 targets by using direct STDK for only 0..4,
-    # then apply QConvLSTM from time 5.  block5to5 is the formal mode.
-    warmup=min(cfg.lookback,space_length)
-    pred_space_warmup=predict_stdk_quantiles(
-        base,sm,coords[held],np.arange(warmup),cfg,device
-    )
-    remaining=space_length-warmup
-    if remaining:
-        if cfg.forecast_mode == "block5to5":
-            pred_space_qconv=predict_blocks_cached(
-                base,qm,sm,coords[held],warmup,remaining,cfg,device,qlambda
-            )
-        else:
-            pred_space_qconv=predict_blocks(
-                base,qm,sm,coords[held],warmup,remaining,cfg,device,qlambda
-            )
-        pred_space_qconv=add_direct_stdk_baseline(
-            pred_space_qconv,sm,coords[held],
-            np.arange(warmup,space_length),cfg,device
-        )
-        pred_space=np.concatenate((pred_space_warmup,pred_space_qconv),axis=1)
-    else:
-        pred_space=pred_space_warmup
-    pred_space=pred_space*std+mean
-    truth_space=values[held,:space_length]
-
-    results={
-        "Target_Time150":score(pred_time,truth_time),
-        "Target_Space100":score(pred_space,truth_space),
-        "Target_ST100x150":score(pred_st,truth_st),
-    }
-    # Evaluate the actual fitted STDK, without refitting or changing training.
-    # Keep this after the validation-only return and QConvLSTM inference.
-    stdk_predictions={
-        "Target_Time150":predict_stdk_quantiles(
-            base,sm,coords[train],np.arange(truth_start,truth_start+cfg.test_times),cfg,device
-        )*std+mean,
-        "Target_Space100":predict_stdk_quantiles(
-            base,sm,coords[held],np.arange(space_length),cfg,device
-        )*std+mean,
-        "Target_ST100x150":predict_stdk_quantiles(
-            base,sm,coords[held],np.arange(truth_start,truth_start+cfg.test_times),cfg,device
-        )*std+mean,
-    }
-    truths={"Target_Time150":truth_time,"Target_Space100":truth_space,"Target_ST100x150":truth_st}
-    stdk_results={target:score(pred,truths[target]) for target,pred in stdk_predictions.items()}
+        truth=values[held,truth_start:truth_start+cfg.test_times]
+        stdk_prediction=predict_stdk_quantiles(
+            base,sm,target_centers,np.arange(truth_start,truth_start+cfg.test_times),cfg,device
+        )*std+mean
+        output_suffix="forecasts.csv"; target_start=truth_start
+        stdk_suffix="stdk_forecasts.csv"
+    results={target_name:score(prediction,truth)}
+    stdk_results={target_name:score(stdk_prediction,truth)}
     report={"model":model_name(cfg),"config":asdict(cfg),"normalization":normalization,
-      "metrics":results["Target_ST100x150"],"results":results,
+      "metrics":results[target_name],"results":results,
       "fitted_stdk_baseline":{
           "model":"Spatial-adapter STDK (same fitted models)",
           "refitted":False,"results":stdk_results,
@@ -639,14 +723,20 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
       },
       "split":{"sampled_global":chosen.tolist(),"train_local":train.tolist(),"heldout_local":held.tolist(),
                "heldout_truth_used_for_training":False,"heldout_truth_role":"final_metrics_only"},
-      "evaluation_protocol":{
-          "train":"Train700 x train500",
-          "validation":"Val150 x train500, checkpoint selection only",
+          "evaluation_protocol":{
+          "training_scope":"independent QConvLSTM fit for every target location in this scenario",
+          "scenario":cfg.scenario,
+          "train":f"one quantile-specific fitted STDK Train700 series per target location ({len(target_centers)} independent fits)",
+          "validation":"the same target location's fitted STDK Val150 series, checkpoint selection only",
           "Target_Time150":"Test150 x train500",
           "Target_Space100":"Fixed850 x held-out100",
           "Target_ST100x150":"Test150 x held-out100",
           "forecast_mode":cfg.forecast_mode,
           "prediction_mode":cfg.prediction_mode,
+          "qconv_training_target":"quantile-specific fitted STDK series",
+          "qconv_model_scope":"location_specific",
+          "qconv_models_per_location":len(active_quantiles),
+          "qconv_total_models":len(target_centers)*len(active_quantiles),
           "prediction_definition":(
               "direct Spatial-adapter STDK q50 at each target time plus learned QConvLSTM residual quantiles"
               if cfg.prediction_mode == "residual" else
@@ -662,10 +752,10 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
           "heldout_truth_used_for_training":False,
       },
       "stdk_backend":"spatial_adapter","stdk_validation":stdk_validation,
-      "validation":{f"q{int(q*100):02d}":validation[q] for q in validation},
+      "validation":validation,"location_validation":location_validation,
       "checkpoint_written":False,"elapsed_seconds":time.time()-began}
     output.mkdir(parents=True,exist_ok=True)
-    stem=f"{output_prefix(cfg)}_{cfg.forecast_mode}_seed{cfg.seed}"
+    stem=output_stem(cfg)
     (output/f"{stem}.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
 
     def write_forecasts(path, station_indices, target_start, truth, prediction):
@@ -676,13 +766,12 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
                 for lead in range(truth.shape[1]):
                     w.writerow([cfg.seed,int(station_idx),target_start+lead,float(truth[s,lead]),*map(float,prediction[s,lead])])
 
-    write_forecasts(output/f"{stem}_time_forecasts.csv",train,truth_start,truth_time,pred_time)
-    write_forecasts(output/f"{stem}_space_forecasts.csv",held,0,truth_space,pred_space)
-    # Retain the historical filename for the spatiotemporal forecast artifact.
-    write_forecasts(output/f"{stem}_forecasts.csv",held,truth_start,truth_st,pred_st)
-    write_forecasts(output/f"{stem}_stdk_time_forecasts.csv",train,truth_start,truth_time,stdk_predictions["Target_Time150"])
-    write_forecasts(output/f"{stem}_stdk_space_forecasts.csv",held,0,truth_space,stdk_predictions["Target_Space100"])
-    write_forecasts(output/f"{stem}_stdk_forecasts.csv",held,truth_start,truth_st,stdk_predictions["Target_ST100x150"])
+    write_forecasts(
+        output/f"{stem}_{output_suffix}",target_station_local,target_start,truth,prediction
+    )
+    write_forecasts(
+        output/f"{stem}_{stdk_suffix}",target_station_local,target_start,truth,stdk_prediction
+    )
     with (output/f"{stem}_comparison.csv").open("w",newline="") as f:
         writer=csv.writer(f)
         writer.writerow(["seed","target","model",*next(iter(results.values())).keys()])
@@ -700,19 +789,30 @@ def parse_args():
         payload=json.loads(known.params_file.read_text(encoding="utf-8"))
         if (payload.get("stdk_backend")=="spatial_adapter"
             and payload.get("normalization_source")=="obs100_train700"
-            and payload.get("q50_checkpoint_selection")=="mse"
+            and payload.get("stdk_q50_loss")=="pinball"
+            and payload.get("qconv_training_target")=="quantile_specific_fitted_stdk"
+            and payload.get("qconv_model_scope")=="location_specific"
+            and payload.get("q50_checkpoint_selection")=="pinball"
             and payload.get("stdk_validation_aggregation")=="batch_mean"
             and payload.get("stdk_use_ema") is True):
             tuned=payload.get("formal_run_params",payload)
         else:
             print(
                 f"Ignoring incompatible QConvLSTM params from {known.params_file}: "
-                "expected spatial_adapter, obs100_train700 normalization, q50 MSE, "
+                "expected spatial_adapter, obs100_train700 normalization, "
+                "pinball q50, quantile-specific fitted-STDK targets, "
+                "location-specific QConvLSTM models, "
                 "batch-mean STDK validation and EMA."
             )
     p=argparse.ArgumentParser(description=__doc__,parents=[pre]); p.add_argument("--weather-data",type=Path,default=DATA)
     p.add_argument("--weather-variable",choices=VARIABLES,default="air_temperature"); p.add_argument("--seed",type=int,default=41)
     p.add_argument("--seeds",type=int,nargs="+"); p.add_argument("--output-dir",type=Path,default=OUTPUT)
+    p.add_argument(
+        "--scenario",
+        choices=("time_extrap_fixed500","space_extrap_fixed850","spatiotemp_100x150","all_three"),
+        default="all_three",
+        help="Select the target locations for independent per-location QConvLSTM fits.",
+    )
     p.add_argument(
         "--forecast-mode", choices=("block5to5", "direct5to150"),
         default="block5to5",
@@ -747,7 +847,8 @@ def parse_args():
     if not tuned and not (args.validation_only or args.smoke_test):
         p.error(
             "Formal evaluation requires compatible retuned params "
-            "(obs100_train700, q50 MSE, batch-mean STDK validation, EMA). "
+            "(obs100_train700, q50 pinball, fitted-STDK targets, "
+            "location-specific QConvLSTM, batch-mean STDK validation, EMA). "
             "Run tuning first."
         )
     return args
@@ -756,6 +857,11 @@ def main():
     args=parse_args()
     if args.q50_only and not args.validation_only:
         raise SystemExit("--q50-only is a tuning shortcut and requires --validation-only")
+    if args.scenario == "all_three":
+        raise SystemExit(
+            "Location-specific QConvLSTM requires one explicit --scenario to "
+            "identify the target locations."
+        )
     if args.grid_size < 1:
         raise SystemExit("--grid-size must be positive")
     if args.neighbourhood_radius <= 0:
@@ -768,7 +874,7 @@ def main():
     for seed in args.seeds or [args.seed]:
         horizon=150 if args.forecast_mode == "direct5to150" else 5
         cfg=Config(seed=seed,variable=args.weather_variable,forecast_mode=args.forecast_mode,
-                   prediction_mode=args.prediction_mode,horizon=horizon,stdk_epochs=args.stdk_epochs,
+                   prediction_mode=args.prediction_mode,scenario=args.scenario,horizon=horizon,stdk_epochs=args.stdk_epochs,
                    qconv_epochs=args.qconv_epochs,qconv_batch=args.qconv_batch_size,
                    qconv_lr=args.qconv_lr,qconv_weight_decay=args.qconv_weight_decay,
                    qconv_patience=args.qconv_patience,conv_filters=args.conv_filters,
@@ -802,7 +908,8 @@ def main():
             if summary_seeds == [41,42,43,44,45]
             else "seeds" + "_".join(str(seed) for seed in summary_seeds)
         )
-        summary_name=f"{output_prefix(cfg)}_{args.forecast_mode}_{seed_label}_summary.json"
+        scenario_label="" if args.scenario == "all_three" else f"_{args.scenario}"
+        summary_name=f"{output_prefix(cfg)}_{args.forecast_mode}{scenario_label}_{seed_label}_summary.json"
         (args.output_dir/summary_name).write_text(json.dumps(summary,indent=2),encoding="utf-8")
         print(json.dumps(summary,indent=2))
 

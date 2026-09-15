@@ -3,7 +3,7 @@
 > 2026-09-13 STDK 與 pinned spatial-adapter 的最新逐項對齊狀態，見
 > [STDK 對齊紀錄](STDK_SPATIAL_ADAPTER_ALIGNMENT_20260913.md)。
 
-後續更新：STDK+Q 新執行已對齊 obs100 標準化及 q50 MSE checkpoint 選擇，詳見
+後續更新：2026-09-15 起 STDK+Q 新執行改用 q50 pinball checkpoint，並以 quantile-specific fitted STDK series 作為 QConvLSTM 訓練標籤；舊 q50 MSE／測站真值標籤結果保留為歷史版本。詳見
 [對齊紀錄](WEATHER2K_OBS100_ALIGNMENT_20260910.md)。下文保留修改前的稽核發現與歷史結果限制。
 
 日期：2026-09-10。範圍：本機已同步的 `weather2k_exp/air_temperature` JSON、README、目前四模型及 tuner 原始碼。
@@ -17,7 +17,7 @@
 |---|---|---|
 | `results_three_models_svgp_tuned_train500_test100_20260803` | SVGP、純 STDK、DLinear+FRK，三情境均有 41–45 | 有三個 baseline 的歷史完整結果；DLinear 是舊 alpha=1/lambda=1 參數 |
 | `results_stdk_shared_lstm_20260817` | SVGP 三情境；DLinear+FRK alpha=2/lambda=1.5 與 STDK+SharedLSTM 有時間、時空五-seed | SharedLSTM 不是純 STDK 或 QConvLSTM；DLinear 此資料夾缺空間情境 |
-| `STDK_QConvLSTM_Weather2K_495to5_pilot_20260830` | QConvLSTM 五-seed、q05/q50/q95，但僅 100 站、最後 500 時點、495→5 | 不可；測站、時間、評分目標都不同，也不是目前 Spatial-adapter shared 版本 |
+| `STDK_QConvLSTM_Weather2K_495to5_pilot_20260830` | QConvLSTM 五-seed、q05/q50/q95，但僅 100 站、最後 500 時點、495→5 | 不可；測站、時間、評分目標都不同，也不是目前 Spatial-adapter location-specific 版本 |
 | `four_models_seed41_20260831` | 四模型三情境，只有 seed 41 | 不可當五-seed；QConvLSTM 還是早期 direct5to150 |
 | `STDK_QConvLSTM_Weather2K_spatial_adapter_block5to5_seed41_20260905` | 目前這類 Spatial-adapter + direct QConvLSTM 的三情境 seed 41 | 沒有此版本 seeds 42–45 正式結果 |
 | `STDK_Residual_QConvLSTM_Weather2K_block5to5_seed41_20260906` | Residual 三情境 seed 41 | 獨立 ablation，不可混入 direct 結果 |

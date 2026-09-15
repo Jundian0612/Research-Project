@@ -570,7 +570,7 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
 
     print(f"Total time steps (used): {n_time_used}")
     print(f"Train len: {len(train_time_idx)}, Val len: {len(val_time_idx)}, Test len: {len(test_time_idx)}")
-    print("Evaluation: one fitted STDK for Time150, Space100, and ST100x150")
+    print(f"Evaluation scenario for this fitted STDK: {EXPERIMENT_SCENARIO}")
     print("STDK train block: 1+2 = Train700 x (obs100 + unobs400)")
     print("STDK validation block: 4+5 = Val150 x (obs100 + unobs400)")
 
@@ -666,7 +666,7 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
     gc.collect()
     _cleanup_torch_cache()
 
-    # Reuse one fitted STDK for every evaluation scenario.
+    # Compute the common prediction blocks; only the selected scenario is reported.
     pred_test_full = to_raw(predict_stdk_matrix_chunked(
         model,
         full_y_matrix,
@@ -747,7 +747,7 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
             f"{prefix}_R2": metric["R2"],
         }
 
-    result_sections = {
+    all_result_sections = {
         "Train700": train700_metric,
         "Val150": val150_metric,
         "Target_Time150": target_time150_metric,
@@ -756,6 +756,15 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
         "Target_Space100": space_target100_metric,
         "Target_ST100x150": target_st_metric,
     }
+    section_names_by_scenario = {
+        "time_extrap_fixed500": ("Train700", "Val150", "Target_Time150"),
+        "space_extrap_fixed850": ("Train100", "Val400", "Target_Space100"),
+        "spatiotemp_100x150": ("Target_ST100x150",),
+    }
+    selected_names = section_names_by_scenario.get(
+        EXPERIMENT_SCENARIO, tuple(all_result_sections)
+    )
+    result_sections = {name: all_result_sections[name] for name in selected_names}
     metrics = {
         key: value
         for name, section in result_sections.items()
@@ -783,11 +792,8 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
             "sample_seed": int(sample_seed),
             "time_stride": int(TIME_STRIDE),
             "n_last_timepoints": int(N_LAST),
-            "experiment_scenario": "all_three",
-            "evaluation_scenarios": [
-                "time_extrap_fixed500", "space_extrap_fixed850",
-                "spatiotemp_100x150",
-            ],
+            "experiment_scenario": EXPERIMENT_SCENARIO,
+            "evaluation_scenarios": [EXPERIMENT_SCENARIO],
             "time_train_len": int(TIME_TRAIN_LEN),
             "time_val_len": int(TIME_VAL_LEN),
             "time_test_len": int(TIME_TEST_LEN),
@@ -868,7 +874,7 @@ payload = {
         "unknown_eval_sample_size": int(N_UNKNOWN_EVAL_TARGET),
         "time_stride": int(TIME_STRIDE),
         "n_last_timepoints": int(N_LAST),
-        "experiment_scenario": "all_three",
+        "experiment_scenario": EXPERIMENT_SCENARIO,
         "time_train_len": int(TIME_TRAIN_LEN),
         "time_val_len": int(TIME_VAL_LEN),
         "time_test_len": int(TIME_TEST_LEN),

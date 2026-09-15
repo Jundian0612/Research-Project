@@ -6,7 +6,7 @@
 
 目前的 STDK+QConvLSTM 確實以同一個 STDK baseline 當前段，再接入由 Nag et al. 論文與公開 notebook 重建的 QConvLSTM。不過作者沒有公開 Table 2 的完整橋接程式與必要檔案，因此 Weather2K 版本包含明確的研究改編。較準確的名稱是：
 
-> Spatial-adapter-repository STDK + paper/notebook-inspired shared direct QConvLSTM, adapted and partially tuned for Weather2K.
+> Spatial-adapter-repository STDK + paper/notebook-inspired location-specific direct QConvLSTM, adapted for Weather2K.
 
 不宜稱為「完整 Spatial Adapter + QConvLSTM」或「作者 QConvLSTM 的精確重現」。
 
@@ -44,7 +44,7 @@
 - train500 內保留 obs100 / unobs400 的角色；
 - 以 obs100 × Train700 計算目標平均與標準差；
 - 座標與時間映射到 `[0,1]`；
-- 每個模型、每個 seed 訓練一次，再評估 Time150、Space100、ST100×150；
+- 每個模型、每個 seed、每個情境分別訓練，再分別評估 Time150、Space100、ST100×150；
 - seeds 41–45 與共同 station split；
 - held-out100 真值不參與訓練、validation 或選參。
 
@@ -54,7 +54,7 @@ Spatial-adapter repository 的 production Weather2K config 使用 `space_ratio_k
 
 | 部分 | 目前 Weather2K 實作 | 來源 |
 |---|---|---|
-| Q 的前段 | 同一 `spatial-adapter` STDK q50；另訓練 q05/q95 STDK | q50 來自 Spatial-adapter STDK；tails 是本研究為機率預測加上的延伸 |
+| Q 的前段 | `spatial-adapter` 架構的 q50/q05/q95 STDK，三者以 pinball loss 訓練 | 架構來自 Spatial-adapter；quantile 訓練與 tails 是依重現流程加入的延伸，與獨立 MSE STDK baseline 並非同一訓練目標 |
 | Q 輸入概念 | 目標位置周圍的 STDK q05/q50/q95 局部網格序列 | 論文 QConvLSTM 方法 |
 | Q 網路主要結構 | 5×5、3×3、1×1 三個 ConvLSTM blocks，64 filters，前兩層 BatchNorm，flatten 後輸出 5 步 | 公開 `CONV_LSTM.ipynb` 的重建；論文文字只明確指定 3×3 convolution 與 64 maps |
 | recurrent 初始化與 activation | Keras-compatible PyTorch 重建 | 公開 notebook 行為的重建 |
@@ -62,22 +62,24 @@ Spatial-adapter repository 的 production Weather2K config 使用 `space_ratio_k
 | direct 輸出 | QConvLSTM 直接產生 q05/q50/q95 | 論文型式；目前 formal default 是 `prediction_mode=direct` |
 | residual 模式 | 程式保留可選的 STDK + learned residual 與 validation fallback | 本研究的實驗性延伸，不是論文原流程，也不是目前 formal default |
 | lookback / horizon | 5 → 5 | 論文 simulation 最後 5 點預測與公開 forecasting 程式所採的 5-frame 設定；固定而未在最終 grid search 中搜尋 |
-| grid size / radius | 11×11 / 0.1 | Weather2K validation 調參結果；不是作者固定值 |
+| grid size / radius | 等待新版流程重新調參 | 舊版真值標籤／MSE checkpoint 曾選到 11×11 / 0.1，但不能直接冠為新版最佳值 |
 | 邊界網格 | shift 回 `[0,1]` | 公開材料未說明；reproduction assumption |
-| Q 訓練標籤 | train500 的 Weather2K 真值 | Weather2K 改編。論文風險函數以 STDK interpolated series 近似未知站真值 |
-| Q 模型共享方式 | 500 個訓練站共享一個 QConvLSTM | Weather2K 計算與泛化改編。論文說明 forecast every site separately |
+| Q 訓練標籤 | q05/q50/q95 各自對應的 fitted STDK series | 2026-09-15 起對齊重現流程；論文以 STDK interpolated series 近似未知站真值 |
+| Q 模型範圍 | 每個目標位置各自訓練 q05/q50/q95 QConvLSTM | 對齊論文以目標位置 `s_0` 定義 QLSTM／QConvLSTM loss 與 forecast 的方式 |
 | Test150 產生方式 | 將 5→5 模型分 block 套用到 150 步 | Weather2K 改編。論文公開實驗只直接評估最後 5 步 |
-| 三情境 | 同一 fitted STDK/Q 模型評估三種 mask/位置/時間 | 本研究公平比較設計 |
+| 三情境 | 每個 seed、每個情境獨立 fit 一套 STDK/Q，再只評估該情境 | 本研究四模型統一比較設計 |
 
 ### Q 訓練目標的關鍵差異
 
 論文先定義 STDK 於未知位置形成的插值序列 `X^NN`，再說未知位置沒有真實的 `Z` 可供訓練，所以用 `X^NN` 近似風險函數中的真值。QConvLSTM 同理使用局部 STDK 插值網格 `X^NN_CONV`。
 
-目前程式則以 STDK local grids 作為輸入，但 `qconv_train_targets` 與 `val_targets` 是 train500 的 Weather2K 真值。這是合理且可清楚說明的 supervised adaptation，卻不是論文該段方法的逐字實作。它會讓 Q 學習從 STDK 網格修正到實際觀測，而非只模仿 STDK 插值序列。
+2026-09-15 起，程式以 quantile-specific STDK local grids 作為輸入，並以相同 fitted STDK 的 q05/q50/q95 series 作為對應訓練與 validation 標籤。之後再更新為每個目標位置各自訓練三個 quantile QConvLSTM。Weather2K 真值只在最後情境評分時使用。
 
 ## Weather2K 調參實際範圍
 
-最終相容調參資料夾：`weather2k_exp/air_temperature/qconvlstm_obs100_ema_tuning_20260912/`
+舊版調參資料夾：`weather2k_exp/air_temperature/qconvlstm_obs100_ema_tuning_20260912/`
+
+該結果使用測站真值作 Q label，且 q50 checkpoint 依 MSE 選擇；2026-09-15 的 fitted-STDK／pinball 流程不會載入它作為相容正式參數。下列數字只保留為歷史調參紀錄，必須以新版 tuner 重新搜尋後才能產生新版正式參數。
 
 選參資料與規則：
 
@@ -92,9 +94,9 @@ Spatial-adapter repository 的 production Weather2K config 使用 `space_ratio_k
 
 固定參數為 lr 1e-4、batch 64、最多 40 epochs、patience 10、lookback 5、horizon 5、`github_3block`。其中 lr/batch/epochs/patience 源自 2026-09-04 的早期 Weather2K seed41 四組試驗；在 2026-09-12 最終 obs100 + EMA protocol 中是固定值，沒有重新搜尋。lookback/horizon/profile 依研究流程固定，也沒有搜尋。
 
-因此「已依 Weather2K 調參」是正確的，但應限定為：
+因此這只能描述舊流程：
 
-> 已用 Weather2K Val150、seeds 41–42 調整 QConvLSTM 的 grid/radius、filters/weight decay，並沿用早期 Weather2K 試驗選出的 learning rate 等參數；不是所有 STDK 與 QConvLSTM 參數的完整重新搜尋。
+> 舊版曾用 Weather2K Val150、seeds 41–42 調整 QConvLSTM 的 grid/radius、filters/weight decay；新版 fitted-STDK／pinball 流程尚未完成正式調參。
 
 q05/q95 也沒有各自選參；formal experiment 沿用由 q50 validation 選出的設定。
 
@@ -107,7 +109,7 @@ q05/q95 也沒有各自選參；formal experiment 沿用由 q50 validation 選�
 - 純 STDK：`weather2k_exp/2K_STDK_500train_100test.py`
 - STDK+QConvLSTM：`weather2k_exp/2K_STDK_QConvLSTM.py`
 - QConvLSTM 重建元件：`STDK_QConvLSTM_reproduction_results/code/STDK_QConvLSTM_reproduction.py`
-- 最終參數：`weather2k_exp/2K_best_stdk_qconvlstm_params_500to100.json`
-- 最終調參紀錄：`weather2k_exp/air_temperature/qconvlstm_obs100_ema_tuning_20260912/`
+- 舊版參數（新版會拒絕）：`weather2k_exp/2K_best_stdk_qconvlstm_params_500to100.json`
+- 舊版調參紀錄：`weather2k_exp/air_temperature/qconvlstm_obs100_ema_tuning_20260912/`
 - STDK 對齊稽核：`docs/STDK_SPATIAL_ADAPTER_ALIGNMENT_20260913.md`
 - QConvLSTM 重建限制：`STDK_QConvLSTM_reproduction_results/docs/QCONVLSTM_REPRODUCTION.md`
