@@ -1,0 +1,71 @@
+{
+  "seed": 43,
+  "quick_diagnostic": false,
+  "completed_locations": 100,
+  "evaluation": {
+    "times": [
+      496,
+      500
+    ],
+    "predictions": 500
+  },
+  "sources": {
+    "STDK": "/home/user/Research-Project/STDK_QConvLSTM_reproduction_results/stdk_vs_qconvlstm/refit_stdk_quantiles_seed43_repository_kerascompat_papereq7_nsteps5.pt",
+    "QConvLSTM": "/home/user/Research-Project/STDK_QConvLSTM_reproduction_results/per_seed/table2_aggregate_seed43_repository_kerascompat_papereq7_nsteps5.json",
+    "QLSTM": "paper quantile-specific X^NN series and Eq. (7), with architecture/training from the author 50K notebook"
+  },
+  "author_setting_mapping": {
+    "data_and_split": "paper Section 4.2: released 100x500 simulation; train times 1--495, forecast 496--500",
+    "STDK": "released 50kSimulation-space-time_DeepKriging notebook; deterministic compatible refit",
+    "QLSTM": "released 50K notebook architecture/training plus paper Eq. (7) median-centred q05/q95; rolling recursive five-step forecast",
+    "QConvLSTM": "released CONV_LSTM notebook architecture combined with paper quantile objective; previously completed paired forecasts",
+    "implementation_runtime": "PyTorch Keras-compatible reconstruction because TensorFlow/Keras is not installed"
+  },
+  "models": {
+    "STDK": {
+      "MSPE": 0.6906073093414307,
+      "RMSE": 0.8310278654098511,
+      "MAE": 0.6711435317993164,
+      "MPIW": 1.0902512073516846,
+      "Coverage_percent": 51.0
+    },
+    "STDK_plus_QLSTM": {
+      "MSPE": 0.362244188785553,
+      "RMSE": 0.6018672585487366,
+      "MAE": 0.48236560821533203,
+      "MPIW": 1.6963584423065186,
+      "Coverage_percent": 85.0
+    },
+    "STDK_plus_QConvLSTM": {
+      "MSPE": 0.3481314182281494,
+      "RMSE": 0.5900266170501709,
+      "MAE": 0.46464666724205017,
+      "MPIW": 1.7380613088607788,
+      "Coverage_percent": 83.8
+    }
+  },
+  "paper_table2": {
+    "STDK": null,
+    "STDK_plus_QLSTM": {
+      "MSPE": 0.392,
+      "MPIW": 1.558,
+      "Coverage_percent": 89.94
+    },
+    "STDK_plus_QConvLSTM": {
+      "MSPE": 0.267,
+      "MPIW": 1.462,
+      "Coverage_percent": 90.39
+    }
+  },
+  "comparisons": {
+    "QLSTM_minus_STDK_MSPE": -0.3283631205558777,
+    "QConvLSTM_minus_QLSTM_MSPE": -0.014112770557403564,
+    "QConvLSTM_minus_STDK_MSPE": -0.34247589111328125
+  },
+  "assumptions": {
+    "missing_bridge": "50k_lstm_data.csv is unavailable; q05/q50/q95 inputs are reconstructed from their corresponding fitted STDK quantile series following paper X^NN_tau",
+    "qlstm_locations": "paper says 100; released notebook loop says 50; this comparison uses all 100",
+    "random_seed": "not reported by authors; study seeds 41--45 are used",
+    "recursion_conflict": "repo code retains the oldest four lags; paper Algorithm 1 implies a rolling window, which is used here"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "seeds": [
+    41,
+    42,
+    43,
+    44,
+    45
+  ],
+  "quick_diagnostic": false,
+  "models": {
+    "STDK": {
+      "MSPE": {
+        "mean": 0.4817796230316162,
+        "std_sample_ddof1": 0.12250606109888112
+      },
+      "RMSE": {
+        "mean": 0.6900346040725708,
+        "std_sample_ddof1": 0.08390379436910278
+      },
+      "MAE": {
+        "mean": 0.5428543150424957,
+        "std_sample_ddof1": 0.07517829478766304
+      },
+      "MPIW": {
+        "mean": 1.1724370002746582,
+        "std_sample_ddof1": 0.0706113074554867
+      },
+      "Coverage_percent": {
+        "mean": 64.36,
+        "std_sample_ddof1": 7.586039810072182
+      }
+    },
+    "STDK_plus_QConvLSTM": {
+      "MSPE": {
+        "mean": 0.32924494743347166,
+        "std_sample_ddof1": 0.025843784483990447
+      },
+      "RMSE": {
+        "mean": 0.5734470844268799,
+        "std_sample_ddof1": 0.02245522531089066
+      },
+      "MAE": {
+        "mean": 0.4539773762226105,
+        "std_sample_ddof1": 0.018279283295380297
+      },
+      "MPIW": {
+        "mean": 1.7345382213592528,
+        "std_sample_ddof1": 0.03936908659049434
+      },
+      "Coverage_percent": {
+        "mean": 86.0,
+        "std_sample_ddof1": 1.8220867158288583
+      }
+    }
+  },
+  "mean_MSPE_Q_minus_STDK": -0.15253467559814454,
+  "q_improves_mean_point_forecast": true
+}

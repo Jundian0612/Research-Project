@@ -1,0 +1,37 @@
+{
+  "seed": 43,
+  "comparison_scope": "same seed/config/data; STDK is a deterministic refit because the original raw checkpoint was not curated",
+  "quick_diagnostic": false,
+  "source_qconv_aggregate": "/home/user/Research-Project/STDK_QConvLSTM_reproduction_results/per_seed/table2_aggregate_seed43_repository_kerascompat_papereq7_nsteps5.json",
+  "refit_stdk_checkpoint": "STDK_QConvLSTM_reproduction_results/stdk_vs_qconvlstm/refit_stdk_quantiles_seed43_repository_kerascompat_papereq7_nsteps5.pt",
+  "evaluation": {
+    "locations": 100,
+    "times": [
+      496,
+      500
+    ],
+    "predictions": 500
+  },
+  "STDK": {
+    "MSPE": 0.6906073093414307,
+    "RMSE": 0.8310278654098511,
+    "MAE": 0.6711435914039612,
+    "MPIW": 1.0902512073516846,
+    "Coverage_percent": 51.0
+  },
+  "STDK_plus_QConvLSTM": {
+    "MSPE": 0.3481314182281494,
+    "RMSE": 0.5900266170501709,
+    "MAE": 0.46464666724205017,
+    "MPIW": 1.7380613088607788,
+    "Coverage_percent": 83.8
+  },
+  "Q_minus_STDK": {
+    "MSPE": -0.34247589111328125,
+    "RMSE": -0.24100124835968018,
+    "MAE": -0.206496924161911,
+    "MPIW": 0.6478101015090942,
+    "Coverage_percent": 32.8
+  },
+  "q_improves_point_forecast": true
+}

@@ -2,6 +2,37 @@
 
 Main program: `STDK_QConvLSTM_reproduction_results/code/STDK_QConvLSTM_reproduction.py`
 
+## Current three-model provenance audit
+
+The comparison in `code/compare_stdk_qlstm_qconvlstm.py` is a hybrid,
+source-traceable reconstruction. It is not a line-for-line execution of the
+authors' Table 2 pipeline.
+
+| Component | Current implementation | Provenance |
+|---|---|---|
+| Simulation | Released `LOC_...` and `Z1_...` stationary files, with the paper's nonstationary mean added | Official repository files + paper Section 3.2 |
+| Split | Times 1--495 train; 496--500 test; all 100 locations | Paper Section 3.2/Table 2 |
+| STDK bases | Spatial 5/9/11; temporal 70/250/410 with 0.2/0.09/0.009 scales | Released 50K notebook; differs from the paper's separate 5/9/12 and 10/15/45 description |
+| STDK network/training | 8x100 + 4x50 + scalar output; Adam 0.001; batch 512; 350 epochs; 10% random validation; patience 30 | Released 50K notebook, reimplemented compatibly in PyTorch |
+| STDK quantiles | q50 first; q05/q95 constrained around q50 | Paper Eq. (7); exact lambda is not released |
+| QLSTM architecture/training | Per-location LSTM(50, ReLU), Dense(1), Adam 0.001, batch 128, 5% validation, 120 epochs | Released 50K notebook, reimplemented compatibly in PyTorch |
+| QLSTM quantile bridge | q05/q50/q95 consume their corresponding fitted STDK quantile series; q05/q95 use paper Eq. (7) | Paper's quantile-specific `X^NN_tau` and Eq. (7); missing `50k_lstm_data.csv` prevents verification |
+| QLSTM forecast | Rolling recursive five-step forecast, feeding each predicted quantile into its corresponding history | Paper Algorithm 1 extended to five steps; the released notebook instead contains a non-rolling indexing expression |
+| QConvLSTM input concept | Quantile-specific local STDK grids around each target | Paper Section 2.3 |
+| QConvLSTM blocks | Three 64-filter blocks with 5x5, 3x3 and 1x1 kernels and BatchNorm after the first two | Released `CONV_LSTM.ipynb`; paper explicitly states only a 3x3 convolution with 64 maps |
+| QConvLSTM grid | 8x8 over target +/-0.2, shifted at boundaries | 8x8 and +/-0.2 reconstructed from the notebook example; boundary shift is project-defined |
+| QConvLSTM temporal/output rule | Five input grids directly output five future values | Project reconstruction; repository example uses 20 frames and Dense(30), while the Table 2 bridge is absent |
+| QConvLSTM objective | q50 first, q05/q95 through paper Eq. (7), pinball loss | Paper-driven reconstruction; released ConvLSTM notebook uses MAE |
+| QConvLSTM optimization | Adam 0.001, batch 5, up to 25 epochs, 5% random validation, patience 5 | Repository settings; current code does not reproduce its `ReduceLROnPlateau` callback |
+| Seeds and aggregation | Seeds 41--45; mean and sample SD across seeds; 500 predictions pooled per seed | Project protocol; author seed and Table 2 SE aggregation are not released |
+
+The exact Table 2 values cannot be independently regenerated without
+`synthetic_50000.csv`, `training_data.csv`, `model_real.h5`,
+`50k_lstm_data.csv`, the exact lambda, the authors' random seed, and the full
+simulation-specific STDK-to-QLSTM/QConvLSTM bridge. The current STDK baseline
+is a deterministic refit because the historical STDK checkpoint used while
+the curated QConvLSTM forecasts were generated is unavailable.
+
 The formal reproduction uses the author's 1--495/496--500 split directly.
 Chronological 491--495 validation is an optional diagnostic only and is not
 part of the published author workflow.
@@ -32,11 +63,10 @@ Completed target JSON files are reused automatically, so the same command can
 resume an interrupted all-location run. Add `--overwrite` only when all target
 models should be retrained.
 
-The default output directory for this setting is
-`STDK_QConvLSTM_reproduction_results/raw_results/06_stdkval10_qconvval05_current`.
-Earlier experiments are archived by method under
-`STDK_QConvLSTM_reproduction_results/raw_results/00`--`05`
-and are not overwritten by the command above.
+The selected seed-level QConvLSTM forecasts are curated under
+`STDK_QConvLSTM_reproduction_results/per_seed/`, with their five-seed table in
+`summary/`. Paired and three-model comparisons use their own `checkpoints/`,
+`per_seed/`, `summary/`, `logs/` and `metadata/` subdirectories.
 
 ## Implemented author settings
 

@@ -35,13 +35,13 @@ STDK_QConvLSTM_reproduction_results/
 ├── STDK_QConvLSTM_results_report.tex    # LaTeX comparison/provenance report
 ├── code/
 │   ├── STDK_QConvLSTM_reproduction.py  # main experiment
+│   ├── compare_stdk_qlstm_qconvlstm.py # three-model Table 2 comparison
 │   ├── run_qconvlstm_multiseed.py      # five-seed runner/summary
 │   ├── run_qconv_profile_validation.py # archived profile diagnostic
 │   └── calibrate_qconvlstm_interval.py # archived calibration utility
 ├── docs/
 │   └── QCONVLSTM_REPRODUCTION.md       # detailed provenance notes
 ├── data/                               # released 100 x 500 simulation files
-├── raw_results/                        # all checkpoints and historical runs
 ├── summary/
 │   ├── table2_multiseed_...json   # machine-readable five-seed summary
 │   ├── table2_multiseed_...csv    # one row per seed
@@ -49,27 +49,27 @@ STDK_QConvLSTM_reproduction_results/
 ├── per_seed/
 │   ├── table2_aggregate_seed*.json  # configuration and metrics per seed
 │   └── table2_forecasts_seed*.csv   # 500 forecasts per seed
-└── logs/
-    ├── final/                        # logs for the selected final profile
-    │   └── STDK_QConvLSTM_*.log
-    └── archive/                      # logs from earlier ablations/profiles
-        └── qconvlstm_*.log
+├── stdk_vs_qconvlstm/               # paired refit-STDK versus QConvLSTM
+│   ├── checkpoints/
+│   ├── per_seed/
+│   ├── summary/
+│   ├── logs/
+│   └── metadata/
+└── table2_stdk_qlstm_qconvlstm/     # three-model comparison
+    ├── checkpoints/qlstm_locations/
+    │   ├── current/                  # selected quantile-specific checkpoints
+    │   └── archive/                  # superseded QLSTM variants
+    ├── per_seed/
+    ├── summary/
+    ├── logs/
+    └── metadata/
 ```
 
-The archived logs document earlier experiments such as activity-regularizer
-ablations, the pre-Keras-compatible implementation, and the paper-3x3 pilot.
-They are retained for provenance but are not part of the selected five-seed
-result reported above.
-
-Large checkpoints and location-level artifacts are stored under:
-
-```text
-raw_results/06_stdkval10_qconvval05_current/
-```
-
-The selected raw directory contains the five STDK checkpoints and 500
-location-level QConvLSTM model files. `raw_results/` also retains all earlier
-profiles and ablations for provenance.
+The selected QConvLSTM forecasts and aggregate configurations remain in
+`per_seed/`; the main selected five-seed table remains in `summary/`. The two
+comparison directories keep checkpoints, per-seed outputs, summaries, logs
+and reproducibility metadata separate so reruns can resume without mixing
+artifacts with final tables.
 
 ## Experiment configuration
 
@@ -125,6 +125,51 @@ Run and summarize all five seeds:
 
 Compatible completed location files are reused automatically. Do not add
 `--overwrite` unless every compatible model should be retrained.
+
+## Comparing STDK before and after QConvLSTM
+
+The curated results retain the completed QConvLSTM forecasts but not the raw
+STDK checkpoints. The following command deterministically refits the exact
+seed-specific STDK stage, evaluates q05/q50/q95 on times 496--500, and pairs
+those 500 predictions with the saved QConvLSTM predictions:
+
+```bash
+.venv-wsl/bin/python -u \
+  STDK_QConvLSTM_reproduction_results/code/compare_refit_stdk_vs_qconvlstm.py \
+  --seeds 41 42 43 44 45
+```
+
+Outputs are written to `stdk_vs_qconvlstm/`. Because the original raw
+checkpoint is unavailable, reports call this a deterministic STDK refit rather
+than claiming that the exact historical in-memory model was restored.
+
+## Three-model Table 2 comparison
+
+The three-model comparison adds the paper's scalar QLSTM control to the paired
+STDK and QConvLSTM results:
+
+```bash
+.venv-wsl/bin/python -u \
+  STDK_QConvLSTM_reproduction_results/code/compare_stdk_qlstm_qconvlstm.py \
+  --seeds 41 42 43 44 45
+```
+
+For every seed it evaluates the same 100 locations at times 496--500 and
+writes both metrics and 1,500 prediction rows (three models x 500 targets).
+QLSTM combines the released 50K notebook settings with the paper's quantile
+definition: a five-step lookback, `LSTM(50, activation="relu")`, Adam 0.001,
+batch size 128, 5% validation split and 120 epochs. The q50 model is fitted
+first; q05 and q95 use their corresponding STDK quantile series and the
+median-centred non-crossing output in paper Eq. (7). Forecasting recursively
+rolls each quantile history forward.
+
+The public repository does not contain `50k_lstm_data.csv`. Its role is
+reconstructed using fitted STDK q05/q50/q95 series at each location, following
+the paper's quantile-specific `X^NN` definition but not verifiable byte for
+byte. The paper says 100 locations while the released QLSTM notebook loops
+over 50 columns; this comparison follows the paper and evaluates all 100.
+TensorFlow/Keras is unavailable in the project environment, so the same QLSTM
+cell equations and Keras initializer conventions are implemented in PyTorch.
 
 ## Reproduction scope
 
