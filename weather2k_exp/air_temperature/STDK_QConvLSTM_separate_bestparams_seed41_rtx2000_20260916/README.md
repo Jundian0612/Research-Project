@@ -61,3 +61,5 @@ the mean effect across seeds; seed 42-45 runs would be needed for that claim.
 
 The run has finished and its files have been moved into this archive structure.
 The runner should use a fresh output directory for any future run.
+The code/protocol comparison and error diagnostics are in
+`docs/WEATHER2K_STDK_QCONVLSTM_SEED41_DIAGNOSTIC_20260916.md`.

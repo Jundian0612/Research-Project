@@ -1,5 +1,10 @@
 # STDK 與 STDK+QConvLSTM 來源稽核（2026-09-13）
 
+> 2026-09-16 更新：本文件中的「新版尚未完成調參」及舊最佳參數是
+> 9 月 13 日當時的狀態。逐目標位置調參已完成，seed 41 的正式三情境
+> 檢查與目前參數差異見
+> [WEATHER2K_STDK_QCONVLSTM_SEED41_DIAGNOSTIC_20260916.md](WEATHER2K_STDK_QCONVLSTM_SEED41_DIAGNOSTIC_20260916.md)。
+
 ## 結論
 
 目前的純 STDK **直接使用** `spatial-adapter` 固定版本中的 STDK 模型，並讓本地訓練迴圈對齊該版本的 optimizer、EMA、validation aggregation、early stopping 與 checkpoint 規則。因此它是「以 Spatial-adapter repository 的 STDK baseline 為基礎，套用本研究 Weather2K 切分」；它不是該 repository 完整的兩階段 Spatial Adapter，因為沒有執行 residual Spatial Adapter stage。
