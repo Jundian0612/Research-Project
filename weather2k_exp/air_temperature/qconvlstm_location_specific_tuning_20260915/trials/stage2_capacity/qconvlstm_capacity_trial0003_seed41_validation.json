@@ -1,0 +1,2995 @@
+{
+  "model": "STDK+location-specific-QConvLSTM",
+  "config": {
+    "seed": 41,
+    "n_sample": 600,
+    "n_train": 500,
+    "n_heldout": 100,
+    "n_last": 1000,
+    "train_times": 700,
+    "val_times": 150,
+    "test_times": 150,
+    "lookback": 5,
+    "horizon": 5,
+    "grid_size": 11,
+    "radius": 0.3,
+    "stdk_epochs": 350,
+    "qconv_epochs": 40,
+    "stdk_batch": 512,
+    "qconv_batch": 64,
+    "qconv_lr": 0.0001,
+    "qconv_weight_decay": 1e-05,
+    "qconv_patience": 10,
+    "conv_filters": 64,
+    "variable": "air_temperature",
+    "forecast_mode": "block5to5",
+    "prediction_mode": "direct",
+    "scenario": "spatiotemp_100x150",
+    "stdk_backend": "spatial_adapter",
+    "normalization_source": "obs100_train700",
+    "stdk_q50_loss": "pinball",
+    "qconv_training_target": "quantile_specific_fitted_stdk",
+    "qconv_model_scope": "location_specific",
+    "q50_checkpoint_selection": "pinball",
+    "stdk_validation_aggregation": "batch_mean",
+    "stdk_use_ema": true,
+    "validation_only": true,
+    "q50_only": true,
+    "smoke": false
+  },
+  "normalization": {
+    "source": "obs100_train700",
+    "station_local": [
+      0,
+      4,
+      17,
+      18,
+      20,
+      25,
+      32,
+      34,
+      43,
+      50,
+      58,
+      65,
+      74,
+      75,
+      80,
+      91,
+      121,
+      145,
+      149,
+      152,
+      153,
+      164,
+      171,
+      172,
+      187,
+      203,
+      204,
+      205,
+      208,
+      214,
+      219,
+      227,
+      236,
+      237,
+      242,
+      252,
+      256,
+      269,
+      270,
+      274,
+      278,
+      293,
+      298,
+      305,
+      309,
+      311,
+      319,
+      320,
+      325,
+      328,
+      334,
+      339,
+      340,
+      360,
+      362,
+      373,
+      386,
+      390,
+      394,
+      398,
+      402,
+      406,
+      413,
+      416,
+      418,
+      428,
+      431,
+      434,
+      435,
+      443,
+      451,
+      455,
+      457,
+      462,
+      464,
+      479,
+      482,
+      483,
+      486,
+      489,
+      496,
+      501,
+      503,
+      511,
+      512,
+      518,
+      519,
+      522,
+      525,
+      545,
+      550,
+      551,
+      557,
+      569,
+      572,
+      573,
+      579,
+      580,
+      585,
+      586
+    ],
+    "mean": 23.091388702392578,
+    "std": 6.660942077636719,
+    "ddof": 0,
+    "train_times": 700
+  },
+  "split": {
+    "sampled_global": [
+      1,
+      8,
+      9,
+      10,
+      11,
+      15,
+      16,
+      21,
+      22,
+      24,
+      25,
+      26,
+      29,
+      31,
+      35,
+      37,
+      39,
+      42,
+      44,
+      45,
+      47,
+      48,
+      50,
+      52,
+      56,
+      57,
+      60,
+      61,
+      64,
+      70,
+      79,
+      81,
+      85,
+      90,
+      99,
+      105,
+      109,
+      112,
+      120,
+      127,
+      141,
+      144,
+      146,
+      149,
+      152,
+      154,
+      158,
+      166,
+      172,
+      185,
+      186,
+      187,
+      188,
+      190,
+      193,
+      199,
+      201,
+      206,
+      208,
+      214,
+      215,
+      222,
+      223,
+      225,
+      241,
+      242,
+      252,
+      259,
+      261,
+      265,
+      266,
+      267,
+      271,
+      276,
+      280,
+      283,
+      284,
+      285,
+      286,
+      290,
+      293,
+      294,
+      295,
+      296,
+      297,
+      299,
+      300,
+      308,
+      313,
+      314,
+      315,
+      319,
+      332,
+      333,
+      334,
+      335,
+      340,
+      343,
+      345,
+      348,
+      350,
+      351,
+      354,
+      357,
+      364,
+      365,
+      369,
+      370,
+      376,
+      377,
+      378,
+      387,
+      388,
+      391,
+      396,
+      404,
+      408,
+      409,
+      414,
+      415,
+      416,
+      420,
+      424,
+      425,
+      427,
+      432,
+      435,
+      442,
+      445,
+      446,
+      448,
+      451,
+      452,
+      457,
+      468,
+      472,
+      474,
+      482,
+      483,
+      489,
+      491,
+      492,
+      493,
+      495,
+      497,
+      499,
+      505,
+      507,
+      508,
+      514,
+      522,
+      524,
+      525,
+      528,
+      532,
+      534,
+      535,
+      537,
+      539,
+      540,
+      541,
+      547,
+      549,
+      552,
+      553,
+      555,
+      556,
+      557,
+      559,
+      566,
+      573,
+      575,
+      578,
+      581,
+      582,
+      586,
+      591,
+      598,
+      599,
+      600,
+      602,
+      604,
+      605,
+      608,
+      609,
+      610,
+      612,
+      616,
+      619,
+      622,
+      626,
+      628,
+      631,
+      632,
+      635,
+      636,
+      639,
+      642,
+      643,
+      647,
+      649,
+      650,
+      652,
+      655,
+      659,
+      662,
+      664,
+      665,
+      669,
+      679,
+      683,
+      685,
+      694,
+      708,
+      711,
+      712,
+      713,
+      717,
+      718,
+      719,
+      720,
+      723,
+      726,
+      728,
+      730,
+      731,
+      732,
+      733,
+      737,
+      741,
+      747,
+      748,
+      749,
+      751,
+      755,
+      764,
+      770,
+      777,
+      778,
+      780,
+      783,
+      785,
+      786,
+      788,
+      789,
+      793,
+      798,
+      801,
+      806,
+      808,
+      810,
+      811,
+      812,
+      816,
+      820,
+      824,
+      837,
+      840,
+      842,
+      846,
+      857,
+      858,
+      863,
+      868,
+      869,
+      870,
+      878,
+      879,
+      881,
+      889,
+      892,
+      896,
+      897,
+      900,
+      901,
+      902,
+      905,
+      906,
+      907,
+      909,
+      912,
+      916,
+      921,
+      923,
+      925,
+      930,
+      933,
+      938,
+      942,
+      945,
+      950,
+      953,
+      954,
+      956,
+      959,
+      962,
+      964,
+      966,
+      972,
+      975,
+      978,
+      979,
+      984,
+      985,
+      991,
+      998,
+      999,
+      1000,
+      1002,
+      1006,
+      1007,
+      1012,
+      1015,
+      1020,
+      1023,
+      1027,
+      1028,
+      1043,
+      1044,
+      1047,
+      1054,
+      1055,
+      1058,
+      1059,
+      1062,
+      1064,
+      1065,
+      1074,
+      1076,
+      1077,
+      1079,
+      1082,
+      1083,
+      1085,
+      1091,
+      1093,
+      1095,
+      1100,
+      1107,
+      1112,
+      1119,
+      1121,
+      1125,
+      1127,
+      1134,
+      1139,
+      1140,
+      1141,
+      1142,
+      1146,
+      1147,
+      1152,
+      1159,
+      1173,
+      1178,
+      1180,
+      1184,
+      1185,
+      1188,
+      1191,
+      1192,
+      1195,
+      1197,
+      1199,
+      1201,
+      1203,
+      1205,
+      1210,
+      1213,
+      1217,
+      1218,
+      1220,
+      1221,
+      1224,
+      1229,
+      1232,
+      1240,
+      1241,
+      1243,
+      1244,
+      1245,
+      1247,
+      1249,
+      1251,
+      1256,
+      1271,
+      1273,
+      1275,
+      1276,
+      1278,
+      1279,
+      1281,
+      1284,
+      1288,
+      1290,
+      1294,
+      1299,
+      1304,
+      1305,
+      1307,
+      1308,
+      1312,
+      1324,
+      1326,
+      1327,
+      1328,
+      1333,
+      1337,
+      1338,
+      1342,
+      1345,
+      1347,
+      1348,
+      1350,
+      1356,
+      1359,
+      1361,
+      1364,
+      1367,
+      1369,
+      1370,
+      1371,
+      1376,
+      1382,
+      1384,
+      1385,
+      1386,
+      1388,
+      1390,
+      1391,
+      1395,
+      1397,
+      1407,
+      1408,
+      1409,
+      1413,
+      1414,
+      1418,
+      1423,
+      1424,
+      1426,
+      1427,
+      1428,
+      1429,
+      1431,
+      1432,
+      1434,
+      1435,
+      1437,
+      1438,
+      1445,
+      1450,
+      1458,
+      1459,
+      1460,
+      1464,
+      1468,
+      1470,
+      1471,
+      1472,
+      1474,
+      1475,
+      1478,
+      1479,
+      1481,
+      1483,
+      1486,
+      1488,
+      1497,
+      1502,
+      1504,
+      1506,
+      1507,
+      1508,
+      1509,
+      1512,
+      1513,
+      1517,
+      1518,
+      1522,
+      1524,
+      1527,
+      1529,
+      1530,
+      1531,
+      1534,
+      1536,
+      1538,
+      1540,
+      1546,
+      1552,
+      1556,
+      1563,
+      1565,
+      1566,
+      1571,
+      1573,
+      1577,
+      1579,
+      1587,
+      1589,
+      1590,
+      1593,
+      1596,
+      1599,
+      1602,
+      1604,
+      1609,
+      1610,
+      1612,
+      1613,
+      1614,
+      1615,
+      1620,
+      1621,
+      1622,
+      1627,
+      1628,
+      1631,
+      1632,
+      1633,
+      1636,
+      1638,
+      1640,
+      1641,
+      1644,
+      1646,
+      1648,
+      1651,
+      1656,
+      1662,
+      1668,
+      1669,
+      1672,
+      1675,
+      1676,
+      1679,
+      1681,
+      1689,
+      1695,
+      1696,
+      1700,
+      1704,
+      1705,
+      1706,
+      1707,
+      1708,
+      1709,
+      1713,
+      1714,
+      1721,
+      1723,
+      1724,
+      1727,
+      1736,
+      1737,
+      1740,
+      1753,
+      1759,
+      1760,
+      1764,
+      1766,
+      1767,
+      1771,
+      1773,
+      1777,
+      1778,
+      1779,
+      1781,
+      1782,
+      1784,
+      1785,
+      1786,
+      1787,
+      1791,
+      1793,
+      1795,
+      1799,
+      1800,
+      1801,
+      1802,
+      1803,
+      1813,
+      1815,
+      1822,
+      1827,
+      1832,
+      1835,
+      1836,
+      1840,
+      1842,
+      1843,
+      1844,
+      1846,
+      1853,
+      1855,
+      1858,
+      1860,
+      1861,
+      1865
+    ],
+    "train_local": [
+      0,
+      1,
+      3,
+      4,
+      5,
+      7,
+      8,
+      9,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      25,
+      26,
+      27,
+      28,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      56,
+      57,
+      58,
+      59,
+      61,
+      62,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      71,
+      74,
+      75,
+      79,
+      80,
+      84,
+      85,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      102,
+      103,
+      105,
+      106,
+      107,
+      108,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      133,
+      134,
+      136,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162,
+      164,
+      166,
+      167,
+      168,
+      169,
+      170,
+      171,
+      172,
+      173,
+      174,
+      175,
+      177,
+      178,
+      179,
+      180,
+      183,
+      185,
+      186,
+      187,
+      188,
+      189,
+      190,
+      191,
+      193,
+      194,
+      196,
+      197,
+      198,
+      199,
+      200,
+      201,
+      202,
+      203,
+      204,
+      205,
+      206,
+      207,
+      208,
+      211,
+      213,
+      214,
+      215,
+      216,
+      217,
+      219,
+      220,
+      221,
+      222,
+      223,
+      224,
+      225,
+      226,
+      227,
+      229,
+      230,
+      231,
+      232,
+      233,
+      236,
+      237,
+      239,
+      240,
+      241,
+      242,
+      243,
+      244,
+      246,
+      247,
+      249,
+      250,
+      251,
+      252,
+      253,
+      254,
+      255,
+      256,
+      258,
+      260,
+      261,
+      262,
+      263,
+      264,
+      265,
+      266,
+      267,
+      268,
+      269,
+      270,
+      271,
+      272,
+      273,
+      274,
+      276,
+      277,
+      278,
+      279,
+      281,
+      282,
+      283,
+      285,
+      287,
+      288,
+      289,
+      290,
+      291,
+      292,
+      293,
+      294,
+      295,
+      296,
+      297,
+      298,
+      299,
+      301,
+      302,
+      303,
+      305,
+      306,
+      307,
+      308,
+      309,
+      310,
+      311,
+      313,
+      314,
+      315,
+      317,
+      318,
+      319,
+      320,
+      321,
+      322,
+      323,
+      324,
+      325,
+      326,
+      327,
+      328,
+      330,
+      331,
+      332,
+      333,
+      334,
+      335,
+      336,
+      337,
+      338,
+      339,
+      340,
+      341,
+      342,
+      343,
+      344,
+      345,
+      346,
+      347,
+      348,
+      350,
+      351,
+      352,
+      353,
+      354,
+      355,
+      357,
+      358,
+      359,
+      360,
+      362,
+      363,
+      365,
+      366,
+      367,
+      371,
+      372,
+      373,
+      375,
+      376,
+      377,
+      378,
+      379,
+      380,
+      381,
+      382,
+      383,
+      384,
+      385,
+      386,
+      387,
+      388,
+      389,
+      390,
+      391,
+      392,
+      393,
+      394,
+      395,
+      396,
+      397,
+      398,
+      399,
+      400,
+      401,
+      402,
+      403,
+      404,
+      405,
+      406,
+      407,
+      408,
+      409,
+      410,
+      411,
+      413,
+      414,
+      415,
+      416,
+      417,
+      418,
+      420,
+      421,
+      422,
+      424,
+      425,
+      427,
+      428,
+      430,
+      431,
+      433,
+      434,
+      435,
+      436,
+      438,
+      439,
+      440,
+      442,
+      443,
+      444,
+      445,
+      446,
+      447,
+      448,
+      449,
+      450,
+      451,
+      452,
+      454,
+      455,
+      456,
+      457,
+      458,
+      459,
+      460,
+      461,
+      462,
+      463,
+      464,
+      465,
+      466,
+      467,
+      468,
+      470,
+      471,
+      472,
+      474,
+      475,
+      476,
+      477,
+      478,
+      479,
+      480,
+      481,
+      482,
+      483,
+      484,
+      485,
+      486,
+      487,
+      488,
+      489,
+      491,
+      492,
+      493,
+      494,
+      495,
+      496,
+      497,
+      498,
+      499,
+      500,
+      501,
+      502,
+      503,
+      504,
+      505,
+      507,
+      508,
+      509,
+      510,
+      511,
+      512,
+      513,
+      514,
+      516,
+      517,
+      518,
+      519,
+      520,
+      521,
+      522,
+      523,
+      524,
+      525,
+      526,
+      527,
+      528,
+      529,
+      530,
+      531,
+      532,
+      533,
+      534,
+      538,
+      540,
+      541,
+      542,
+      543,
+      544,
+      545,
+      547,
+      549,
+      550,
+      551,
+      552,
+      553,
+      554,
+      557,
+      558,
+      560,
+      562,
+      563,
+      564,
+      566,
+      567,
+      568,
+      569,
+      571,
+      572,
+      573,
+      574,
+      575,
+      576,
+      577,
+      578,
+      579,
+      580,
+      581,
+      582,
+      583,
+      584,
+      585,
+      586,
+      590,
+      592,
+      593,
+      594,
+      597,
+      599
+    ],
+    "heldout_local": [
+      2,
+      6,
+      10,
+      11,
+      24,
+      29,
+      30,
+      39,
+      55,
+      60,
+      63,
+      70,
+      72,
+      73,
+      76,
+      77,
+      78,
+      81,
+      82,
+      83,
+      86,
+      101,
+      104,
+      109,
+      110,
+      118,
+      132,
+      135,
+      137,
+      155,
+      163,
+      165,
+      176,
+      181,
+      182,
+      184,
+      192,
+      195,
+      209,
+      210,
+      212,
+      218,
+      228,
+      234,
+      235,
+      238,
+      245,
+      248,
+      257,
+      259,
+      275,
+      280,
+      284,
+      286,
+      300,
+      304,
+      312,
+      316,
+      329,
+      349,
+      356,
+      361,
+      364,
+      368,
+      369,
+      370,
+      374,
+      412,
+      419,
+      423,
+      426,
+      429,
+      432,
+      437,
+      441,
+      453,
+      469,
+      473,
+      490,
+      506,
+      515,
+      535,
+      536,
+      537,
+      539,
+      546,
+      548,
+      555,
+      556,
+      559,
+      561,
+      565,
+      570,
+      587,
+      588,
+      589,
+      591,
+      595,
+      596,
+      598
+    ],
+    "heldout_truth_used_for_training": false,
+    "heldout_truth_used_for_selection": false
+  },
+  "selection_data": "Per-location fitted-STDK Train700/chronological Val150 series on 100 target locations",
+  "qconv_training_target": "quantile-specific fitted STDK series",
+  "qconv_model_scope": "one independently fitted q05/q50/q95 QConvLSTM per target location",
+  "prediction_definition": "QConvLSTM direct target quantiles",
+  "stdk_backend": "spatial_adapter",
+  "stdk_validation": {
+    "q50": {
+      "quantile": 0.5,
+      "best_validation_loss": 0.2667464470478142,
+      "best_epoch": 4,
+      "validation_loss_name": "pinball",
+      "validation_aggregation": "batch_mean",
+      "use_ema": true,
+      "ema_decay": 0.9998538011695907
+    }
+  },
+  "validation": {
+    "q50": {
+      "validation_pinball": 0.14127222992479807,
+      "validation_rmse_scaled": 0.33357627918382776,
+      "validation_mse_scaled": 0.11127313403412702,
+      "validation_mae_scaled": 0.28254445984959614,
+      "checkpoint_selection_loss": "pinball",
+      "mean_best_checkpoint_selection_loss": 0.14127223260700703,
+      "location_count": 100,
+      "validation_windows": 3000,
+      "model_scope": "location_specific"
+    }
+  },
+  "location_validation": [
+    {
+      "station_local": 2,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.07439188659191132,
+          "validation_rmse_scaled": 0.17062673496230601,
+          "validation_mse_scaled": 0.02911348268389702,
+          "validation_mae_scaled": 0.14878377318382263,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.07439187914133072,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 6,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.07695816457271576,
+          "validation_rmse_scaled": 0.1804332702406544,
+          "validation_mse_scaled": 0.032556165009737015,
+          "validation_mae_scaled": 0.15391632914543152,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.07695817202329636,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 10,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.0896436870098114,
+          "validation_rmse_scaled": 0.20814820150264554,
+          "validation_mse_scaled": 0.043325673788785934,
+          "validation_mae_scaled": 0.1792873740196228,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.0896436870098114,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 11,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.09178133308887482,
+          "validation_rmse_scaled": 0.22711457207516758,
+          "validation_mse_scaled": 0.05158102884888649,
+          "validation_mae_scaled": 0.18356266617774963,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.09178134053945541,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 24,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.11181642860174179,
+          "validation_rmse_scaled": 0.2627023603777273,
+          "validation_mse_scaled": 0.06901253014802933,
+          "validation_mae_scaled": 0.22363285720348358,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.11181643605232239,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 29,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.09655658900737762,
+          "validation_rmse_scaled": 0.23163930593439894,
+          "validation_mse_scaled": 0.053656768053770065,
+          "validation_mae_scaled": 0.19311317801475525,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.09655658900737762,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 30,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.09793280810117722,
+          "validation_rmse_scaled": 0.2375341726488906,
+          "validation_mse_scaled": 0.056422483175992966,
+          "validation_mae_scaled": 0.19586561620235443,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.09793280810117722,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 39,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.1035115048289299,
+          "validation_rmse_scaled": 0.2327071770907108,
+          "validation_mse_scaled": 0.054152630269527435,
+          "validation_mae_scaled": 0.2070230096578598,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.1035115048289299,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 55,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.08913504332304001,
+          "validation_rmse_scaled": 0.20211868251430315,
+          "validation_mse_scaled": 0.04085196182131767,
+          "validation_mae_scaled": 0.17827008664608002,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.08913503587245941,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 60,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.07902294397354126,
+          "validation_rmse_scaled": 0.18234522350667137,
+          "validation_mse_scaled": 0.03324978053569794,
+          "validation_mae_scaled": 0.15804588794708252,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.07902294397354126,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 63,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.12376932799816132,
+          "validation_rmse_scaled": 0.2901976951124411,
+          "validation_mse_scaled": 0.0842147022485733,
+          "validation_mae_scaled": 0.24753865599632263,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.12376932799816132,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 70,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.07501569390296936,
+          "validation_rmse_scaled": 0.17920525771939214,
+          "validation_mse_scaled": 0.03211452439427376,
+          "validation_mae_scaled": 0.15003138780593872,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.07501570135354996,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 72,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.07230319827795029,
+          "validation_rmse_scaled": 0.17561325416621584,
+          "validation_mse_scaled": 0.030840015038847923,
+          "validation_mae_scaled": 0.14460639655590057,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.07230321317911148,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 73,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.060723986476659775,
+          "validation_rmse_scaled": 0.1517977834960012,
+          "validation_mse_scaled": 0.02304256707429886,
+          "validation_mae_scaled": 0.12144797295331955,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.060723986476659775,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 76,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.11022670567035675,
+          "validation_rmse_scaled": 0.2590965028266209,
+          "validation_mse_scaled": 0.06713099777698517,
+          "validation_mae_scaled": 0.2204534113407135,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.11022671312093735,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 77,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.13654685020446777,
+          "validation_rmse_scaled": 0.30801668414375644,
+          "validation_mse_scaled": 0.09487427771091461,
+          "validation_mae_scaled": 0.27309370040893555,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.13654686510562897,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 78,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.0822300985455513,
+          "validation_rmse_scaled": 0.19370446092963883,
+          "validation_mse_scaled": 0.03752141818404198,
+          "validation_mae_scaled": 0.1644601970911026,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.0822300910949707,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 81,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.13051457703113556,
+          "validation_rmse_scaled": 0.29750096683585514,
+          "validation_mse_scaled": 0.08850682526826859,
+          "validation_mae_scaled": 0.2610291540622711,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.13051457703113556,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 82,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.10357163846492767,
+          "validation_rmse_scaled": 0.2367561342286578,
+          "validation_mse_scaled": 0.056053467094898224,
+          "validation_mae_scaled": 0.20714327692985535,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.10357163846492767,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 83,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.09818927943706512,
+          "validation_rmse_scaled": 0.22484103156773308,
+          "validation_mse_scaled": 0.05055348947644234,
+          "validation_mae_scaled": 0.19637855887413025,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.09818927943706512,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 86,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.08178431540727615,
+          "validation_rmse_scaled": 0.18916944521349205,
+          "validation_mse_scaled": 0.03578507900238037,
+          "validation_mae_scaled": 0.1635686308145523,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.08178430795669556,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 101,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.0755467340350151,
+          "validation_rmse_scaled": 0.18251027328173222,
+          "validation_mse_scaled": 0.033309999853372574,
+          "validation_mae_scaled": 0.1510934680700302,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.0755467340350151,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 104,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.09096366167068481,
+          "validation_rmse_scaled": 0.2041656174600332,
+          "validation_mse_scaled": 0.04168359935283661,
+          "validation_mae_scaled": 0.18192732334136963,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.09096366167068481,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 109,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.09253796190023422,
+          "validation_rmse_scaled": 0.22051606648542232,
+          "validation_mse_scaled": 0.0486273355782032,
+          "validation_mae_scaled": 0.18507592380046844,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.09253796190023422,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 110,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.10284502804279327,
+          "validation_rmse_scaled": 0.24149688574755476,
+          "validation_mse_scaled": 0.05832074582576752,
+          "validation_mae_scaled": 0.20569005608558655,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.10284502804279327,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 118,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.0805288702249527,
+          "validation_rmse_scaled": 0.19298235424442506,
+          "validation_mse_scaled": 0.037242189049720764,
+          "validation_mae_scaled": 0.1610577404499054,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.0805288627743721,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 132,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.12048735469579697,
+          "validation_rmse_scaled": 0.2843475108431967,
+          "validation_mse_scaled": 0.08085350692272186,
+          "validation_mae_scaled": 0.24097470939159393,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.12048735469579697,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 135,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.12951985001564026,
+          "validation_rmse_scaled": 0.3077890914884832,
+          "validation_mse_scaled": 0.09473412483930588,
+          "validation_mae_scaled": 0.2590397000312805,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.12951986491680145,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 137,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.13547120988368988,
+          "validation_rmse_scaled": 0.322521732174734,
+          "validation_mse_scaled": 0.10402026772499084,
+          "validation_mae_scaled": 0.27094241976737976,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.1354711949825287,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 155,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.15736977756023407,
+          "validation_rmse_scaled": 0.36816918245595454,
+          "validation_mse_scaled": 0.13554854691028595,
+          "validation_mae_scaled": 0.31473955512046814,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.15736977756023407,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 163,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.19703608751296997,
+          "validation_rmse_scaled": 0.42181650391980396,
+          "validation_mse_scaled": 0.17792916297912598,
+          "validation_mae_scaled": 0.39407217502593994,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.19703608751296997,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 165,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.16859358549118042,
+          "validation_rmse_scaled": 0.36532187816111183,
+          "validation_mse_scaled": 0.13346007466316223,
+          "validation_mae_scaled": 0.33718717098236084,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.16859358549118042,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 176,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.20920024812221527,
+          "validation_rmse_scaled": 0.4529722219270285,
+          "validation_mse_scaled": 0.20518383383750916,
+          "validation_mae_scaled": 0.41840049624443054,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.20920026302337646,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 181,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.2372121661901474,
+          "validation_rmse_scaled": 0.4913464732723929,
+          "validation_mse_scaled": 0.24142135679721832,
+          "validation_mae_scaled": 0.4744243323802948,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.2372121810913086,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 182,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.2642614245414734,
+          "validation_rmse_scaled": 0.5417612219468102,
+          "validation_mse_scaled": 0.2935052216053009,
+          "validation_mae_scaled": 0.5285228490829468,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.264261394739151,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 184,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.23401448130607605,
+          "validation_rmse_scaled": 0.48663193432060947,
+          "validation_mse_scaled": 0.23681063950061798,
+          "validation_mae_scaled": 0.4680289626121521,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.23401449620723724,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 192,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.1351298838853836,
+          "validation_rmse_scaled": 0.3053556476781884,
+          "validation_mse_scaled": 0.09324207156896591,
+          "validation_mae_scaled": 0.2702597677707672,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.135129913687706,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 195,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.22724266350269318,
+          "validation_rmse_scaled": 0.4708997228819282,
+          "validation_mse_scaled": 0.2217465490102768,
+          "validation_mae_scaled": 0.45448532700538635,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.22724266350269318,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 209,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.2449294477701187,
+          "validation_rmse_scaled": 0.5038025327888387,
+          "validation_mse_scaled": 0.25381699204444885,
+          "validation_mae_scaled": 0.4898588955402374,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.2449294626712799,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 210,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.2236621081829071,
+          "validation_rmse_scaled": 0.46785141328820573,
+          "validation_mse_scaled": 0.21888494491577148,
+          "validation_mae_scaled": 0.4473242163658142,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.2236621081829071,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 212,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.13544155657291412,
+          "validation_rmse_scaled": 0.30459955364477626,
+          "validation_mse_scaled": 0.09278088808059692,
+          "validation_mae_scaled": 0.27088311314582825,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.13544157147407532,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 218,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.2638200521469116,
+          "validation_rmse_scaled": 0.5421426924953502,
+          "validation_mse_scaled": 0.2939186990261078,
+          "validation_mae_scaled": 0.5276401042938232,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.2638200521469116,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 228,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.21048611402511597,
+          "validation_rmse_scaled": 0.45082690108617707,
+          "validation_mse_scaled": 0.2032448947429657,
+          "validation_mae_scaled": 0.42097222805023193,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.21048611402511597,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 234,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.21077083051204681,
+          "validation_rmse_scaled": 0.4448466625057983,
+          "validation_mse_scaled": 0.1978885531425476,
+          "validation_mae_scaled": 0.42154166102409363,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.21077083051204681,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 235,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.20550337433815002,
+          "validation_rmse_scaled": 0.4410365083681418,
+          "validation_mse_scaled": 0.194513201713562,
+          "validation_mae_scaled": 0.41100674867630005,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.20550337433815002,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 238,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.23498527705669403,
+          "validation_rmse_scaled": 0.4797893931618925,
+          "validation_mse_scaled": 0.23019786179065704,
+          "validation_mae_scaled": 0.46997055411338806,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.23498527705669403,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 245,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.10101318359375,
+          "validation_rmse_scaled": 0.2375909232844833,
+          "validation_mse_scaled": 0.05644944682717323,
+          "validation_mae_scaled": 0.2020263671875,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.10101318359375,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 248,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.1633165329694748,
+          "validation_rmse_scaled": 0.3286921730964189,
+          "validation_mse_scaled": 0.10803854465484619,
+          "validation_mae_scaled": 0.3266330659389496,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.163316547870636,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 257,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.10023609548807144,
+          "validation_rmse_scaled": 0.25135526769633787,
+          "validation_mse_scaled": 0.06317947059869766,
+          "validation_mae_scaled": 0.20047219097614288,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.10023611038923264,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 259,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.08802767097949982,
+          "validation_rmse_scaled": 0.21635144672480927,
+          "validation_mse_scaled": 0.046807948499917984,
+          "validation_mae_scaled": 0.17605534195899963,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.08802767843008041,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 275,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.08500166237354279,
+          "validation_rmse_scaled": 0.19038652762354494,
+          "validation_mse_scaled": 0.03624702990055084,
+          "validation_mae_scaled": 0.17000332474708557,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.08500167727470398,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 280,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.09298539161682129,
+          "validation_rmse_scaled": 0.22992444824064615,
+          "validation_mse_scaled": 0.052865251898765564,
+          "validation_mae_scaled": 0.18597078323364258,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.09298538416624069,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 284,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.06932082772254944,
+          "validation_rmse_scaled": 0.15448549668475978,
+          "validation_mse_scaled": 0.023865768685936928,
+          "validation_mae_scaled": 0.13864165544509888,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.06932082772254944,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 286,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.031938113272190094,
+          "validation_rmse_scaled": 0.07573470573990562,
+          "validation_mse_scaled": 0.005735745653510094,
+          "validation_mae_scaled": 0.06387622654438019,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.031938113272190094,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 300,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.053808655589818954,
+          "validation_rmse_scaled": 0.1194218770952635,
+          "validation_mse_scaled": 0.014261584728956223,
+          "validation_mae_scaled": 0.10761731117963791,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.05380865931510925,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 304,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.041045308113098145,
+          "validation_rmse_scaled": 0.09069517189466474,
+          "validation_mse_scaled": 0.008225614205002785,
+          "validation_mae_scaled": 0.08209061622619629,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.04104531183838844,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 312,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.07115716487169266,
+          "validation_rmse_scaled": 0.16718078024898492,
+          "validation_mse_scaled": 0.027949413284659386,
+          "validation_mae_scaled": 0.14231432974338531,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.07115716487169266,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 316,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.08403504639863968,
+          "validation_rmse_scaled": 0.1966150812222743,
+          "validation_mse_scaled": 0.03865749016404152,
+          "validation_mae_scaled": 0.16807009279727936,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.08403504639863968,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 329,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.11369995027780533,
+          "validation_rmse_scaled": 0.2741184610934168,
+          "validation_mse_scaled": 0.07514093071222305,
+          "validation_mae_scaled": 0.22739990055561066,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.11369995027780533,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 349,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.12222790718078613,
+          "validation_rmse_scaled": 0.28579830366989994,
+          "validation_mse_scaled": 0.08168067038059235,
+          "validation_mae_scaled": 0.24445581436157227,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.12222788482904434,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 356,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.09377413243055344,
+          "validation_rmse_scaled": 0.23010533176821937,
+          "validation_mse_scaled": 0.05294846370816231,
+          "validation_mae_scaled": 0.18754826486110687,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.09377413243055344,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 361,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.15261642634868622,
+          "validation_rmse_scaled": 0.3573182377884188,
+          "validation_mse_scaled": 0.127676323056221,
+          "validation_mae_scaled": 0.30523285269737244,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.15261642634868622,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 364,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.15768977999687195,
+          "validation_rmse_scaled": 0.3655854847739427,
+          "validation_mse_scaled": 0.13365274667739868,
+          "validation_mae_scaled": 0.3153795599937439,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.15768979489803314,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 368,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.1134827584028244,
+          "validation_rmse_scaled": 0.2588342447245392,
+          "validation_mse_scaled": 0.06699516624212265,
+          "validation_mae_scaled": 0.2269655168056488,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.1134827733039856,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 369,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.15703125298023224,
+          "validation_rmse_scaled": 0.3401271581059089,
+          "validation_mse_scaled": 0.11568648368120193,
+          "validation_mae_scaled": 0.3140625059604645,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.15703125298023224,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 370,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.15290850400924683,
+          "validation_rmse_scaled": 0.3264421610892928,
+          "validation_mse_scaled": 0.1065644845366478,
+          "validation_mae_scaled": 0.30581700801849365,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.15290850400924683,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 374,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.10773009061813354,
+          "validation_rmse_scaled": 0.25547614772246535,
+          "validation_mse_scaled": 0.06526806205511093,
+          "validation_mae_scaled": 0.2154601812362671,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.10773009061813354,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 412,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.20315346121788025,
+          "validation_rmse_scaled": 0.4472860140088687,
+          "validation_mse_scaled": 0.2000647783279419,
+          "validation_mae_scaled": 0.4063069224357605,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.20315344631671906,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 419,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.09685003757476807,
+          "validation_rmse_scaled": 0.22545952165398925,
+          "validation_mse_scaled": 0.05083199590444565,
+          "validation_mae_scaled": 0.19370007514953613,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.09685004502534866,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 423,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.1241748183965683,
+          "validation_rmse_scaled": 0.30493839644315746,
+          "validation_mse_scaled": 0.09298742562532425,
+          "validation_mae_scaled": 0.2483496367931366,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.12417483329772949,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 426,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.2229527235031128,
+          "validation_rmse_scaled": 0.4915476985092538,
+          "validation_mse_scaled": 0.24161913990974426,
+          "validation_mae_scaled": 0.4459054470062256,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.222952738404274,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 429,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.2247728705406189,
+          "validation_rmse_scaled": 0.48439851826823893,
+          "validation_mse_scaled": 0.2346419245004654,
+          "validation_mae_scaled": 0.4495457410812378,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.2247728854417801,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 432,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.14369264245033264,
+          "validation_rmse_scaled": 0.32914398553827273,
+          "validation_mse_scaled": 0.10833576321601868,
+          "validation_mae_scaled": 0.2873852849006653,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.14369262754917145,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 437,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.19372522830963135,
+          "validation_rmse_scaled": 0.4206497271838086,
+          "validation_mse_scaled": 0.17694619297981262,
+          "validation_mae_scaled": 0.3874504566192627,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.19372524321079254,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 441,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.20126302540302277,
+          "validation_rmse_scaled": 0.4340227942710452,
+          "validation_mse_scaled": 0.188375785946846,
+          "validation_mae_scaled": 0.40252605080604553,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.20126299560070038,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 453,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.20079781115055084,
+          "validation_rmse_scaled": 0.44614244385698804,
+          "validation_mse_scaled": 0.19904308021068573,
+          "validation_mae_scaled": 0.4015956223011017,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.20079779624938965,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 469,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.15846744179725647,
+          "validation_rmse_scaled": 0.3724696301874655,
+          "validation_mse_scaled": 0.1387336254119873,
+          "validation_mae_scaled": 0.31693488359451294,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.15846745669841766,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 473,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.14374710619449615,
+          "validation_rmse_scaled": 0.338173940434322,
+          "validation_mse_scaled": 0.11436161398887634,
+          "validation_mae_scaled": 0.2874942123889923,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.14374710619449615,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 490,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.10346878319978714,
+          "validation_rmse_scaled": 0.2663710159762825,
+          "validation_mse_scaled": 0.07095351815223694,
+          "validation_mae_scaled": 0.20693756639957428,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.10346876829862595,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 506,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.0960010215640068,
+          "validation_rmse_scaled": 0.23752162577650782,
+          "validation_mse_scaled": 0.05641652271151543,
+          "validation_mae_scaled": 0.1920020431280136,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.09600101411342621,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 515,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.14838187396526337,
+          "validation_rmse_scaled": 0.3412151618088995,
+          "validation_mse_scaled": 0.11642778664827347,
+          "validation_mae_scaled": 0.29676374793052673,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.14838188886642456,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 535,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.20707789063453674,
+          "validation_rmse_scaled": 0.4414973882250146,
+          "validation_mse_scaled": 0.19491994380950928,
+          "validation_mae_scaled": 0.4141557812690735,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.20707789063453674,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 536,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.18558819591999054,
+          "validation_rmse_scaled": 0.4065467960746551,
+          "validation_mse_scaled": 0.1652802973985672,
+          "validation_mae_scaled": 0.3711763918399811,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.18558821082115173,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 537,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.15197663009166718,
+          "validation_rmse_scaled": 0.3443589019474429,
+          "validation_mse_scaled": 0.11858305335044861,
+          "validation_mae_scaled": 0.30395326018333435,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.15197663009166718,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 539,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.19209448993206024,
+          "validation_rmse_scaled": 0.4129052635059252,
+          "validation_mse_scaled": 0.17049075663089752,
+          "validation_mae_scaled": 0.3841889798641205,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.19209450483322144,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 546,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.1279265284538269,
+          "validation_rmse_scaled": 0.29425135550839004,
+          "validation_mse_scaled": 0.08658386021852493,
+          "validation_mae_scaled": 0.2558530569076538,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.1279265135526657,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 548,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.09483230859041214,
+          "validation_rmse_scaled": 0.2182762431319361,
+          "validation_mse_scaled": 0.047644518315792084,
+          "validation_mae_scaled": 0.18966461718082428,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.09483230859041214,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 555,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.2247963696718216,
+          "validation_rmse_scaled": 0.47337354662430087,
+          "validation_mse_scaled": 0.22408251464366913,
+          "validation_mae_scaled": 0.4495927393436432,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.2247963547706604,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 556,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.18240919709205627,
+          "validation_rmse_scaled": 0.3951915653990368,
+          "validation_mse_scaled": 0.1561763733625412,
+          "validation_mae_scaled": 0.36481839418411255,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.18240922689437866,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 559,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.08511471003293991,
+          "validation_rmse_scaled": 0.19221498944072754,
+          "validation_mse_scaled": 0.036946602165699005,
+          "validation_mae_scaled": 0.17022942006587982,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.08511471003293991,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 561,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.1256447285413742,
+          "validation_rmse_scaled": 0.2952386657814898,
+          "validation_mse_scaled": 0.08716586977243423,
+          "validation_mae_scaled": 0.2512894570827484,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.1256447434425354,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 565,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.20991234481334686,
+          "validation_rmse_scaled": 0.44634792348738267,
+          "validation_mse_scaled": 0.1992264688014984,
+          "validation_mae_scaled": 0.4198246896266937,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.20991232991218567,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 570,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.23308627307415009,
+          "validation_rmse_scaled": 0.49290193446509767,
+          "validation_mse_scaled": 0.24295231699943542,
+          "validation_mae_scaled": 0.46617254614830017,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.23308630287647247,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 587,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.22234351933002472,
+          "validation_rmse_scaled": 0.46344873125353486,
+          "validation_mse_scaled": 0.21478472650051117,
+          "validation_mae_scaled": 0.44468703866004944,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.22234350442886353,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 588,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.18987080454826355,
+          "validation_rmse_scaled": 0.40972830836127516,
+          "validation_mse_scaled": 0.16787728667259216,
+          "validation_mae_scaled": 0.3797416090965271,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.18987081944942474,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 589,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.1799287647008896,
+          "validation_rmse_scaled": 0.38167715063785357,
+          "validation_mse_scaled": 0.14567744731903076,
+          "validation_mae_scaled": 0.3598575294017792,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.1799287497997284,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 591,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.19801625609397888,
+          "validation_rmse_scaled": 0.41563371132921084,
+          "validation_mse_scaled": 0.17275138199329376,
+          "validation_mae_scaled": 0.39603251218795776,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.19801627099514008,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 595,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.1685011237859726,
+          "validation_rmse_scaled": 0.35722297595743685,
+          "validation_mse_scaled": 0.1276082545518875,
+          "validation_mae_scaled": 0.3370022475719452,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.1685011386871338,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 596,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.17723512649536133,
+          "validation_rmse_scaled": 0.372129780980498,
+          "validation_mse_scaled": 0.13848057389259338,
+          "validation_mae_scaled": 0.35447025299072266,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.17723514139652252,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    },
+    {
+      "station_local": 598,
+      "validation": {
+        "q50": {
+          "validation_pinball": 0.1831866204738617,
+          "validation_rmse_scaled": 0.38078896287347136,
+          "validation_mse_scaled": 0.14500023424625397,
+          "validation_mae_scaled": 0.3663732409477234,
+          "checkpoint_selection_loss": "pinball",
+          "best_checkpoint_selection_loss": 0.1831866353750229,
+          "epoch0_zero_residual_candidate": false,
+          "training_windows": 691,
+          "validation_windows": 30
+        }
+      }
+    }
+  ],
+  "tuning_quantiles": [
+    0.5
+  ],
+  "checkpoint_written": false,
+  "elapsed_seconds": 1233.9942784309387
+}

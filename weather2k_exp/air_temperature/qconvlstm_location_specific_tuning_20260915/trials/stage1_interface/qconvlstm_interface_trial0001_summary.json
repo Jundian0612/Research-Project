@@ -1,0 +1,50 @@
+{
+  "stage": "interface",
+  "normalization_source": "obs100_train700",
+  "stdk_q50_loss": "pinball",
+  "qconv_training_target": "quantile_specific_fitted_stdk",
+  "qconv_model_scope": "location_specific",
+  "q50_checkpoint_selection": "pinball",
+  "stdk_validation_aggregation": "batch_mean",
+  "stdk_use_ema": true,
+  "trial": 1,
+  "params": {
+    "QCONV_LR": 0.0001,
+    "QCONV_BATCH_SIZE": 64,
+    "QCONV_EPOCHS": 40,
+    "QCONV_PATIENCE": 10,
+    "CONV_FILTERS": 64,
+    "QCONV_WEIGHT_DECAY": 0.0,
+    "GRID_SIZE": 8,
+    "NEIGHBOURHOOD_RADIUS": 0.1
+  },
+  "seeds": [
+    41,
+    42
+  ],
+  "selection_uses_test_metrics": false,
+  "selection_uses_heldout100_truth": false,
+  "tuning_quantiles": [
+    0.5
+  ],
+  "q50_validation_rmse_scaled_by_seed": [
+    0.3892438378579382,
+    0.3318178157232234
+  ],
+  "mean_q50_validation_rmse_scaled": 0.3605308267905808,
+  "std_q50_validation_rmse_scaled": 0.028713011067357408,
+  "seed_metrics": [
+    {
+      "seed": 41,
+      "q50_validation_rmse_scaled": 0.3892438378579382,
+      "q50_validation_pinball": 0.16587406285107137,
+      "elapsed_seconds": 813.6662838459015
+    },
+    {
+      "seed": 42,
+      "q50_validation_rmse_scaled": 0.3318178157232234,
+      "q50_validation_pinball": 0.13886713284999133,
+      "elapsed_seconds": 705.26602602005
+    }
+  ]
+}

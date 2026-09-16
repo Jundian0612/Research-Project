@@ -4,6 +4,7 @@
 
 ## 目前流程
 
+- `qconvlstm_location_specific_tuning_20260915/`：最新逐目標位置 QConvLSTM 正式調參；使用 seeds 41/42 的 Val150，最佳設定為 grid 11、radius 0.3、filters 32、weight decay 0。
 - `qconvlstm_obs100_ema_tuning_20260912/`：採用 batch-average validation 與 EMA 的最新 STDK+Q 調參結果。
 - `STDK_QConvLSTM_formal_ema_all3_rtx2000_20260912/`：使用最新流程執行三種情境的正式結果目錄。
 - `three_baselines_onefit_seed41_rtx2000_20260912/`：SVGP、純 STDK、DLinear+FRK 在相同 seed 41 下，各訓練一次並評估三種情境；含四模型比較與舊分別訓練對照。
