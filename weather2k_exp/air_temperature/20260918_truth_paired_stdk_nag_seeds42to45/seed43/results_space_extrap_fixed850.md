@@ -1,0 +1,8 @@
+# Scenario summary: space_extrap_fixed850
+
+| scenario | target | space_split | n_train_space | n_unobs_space | n_target_space | model | alpha_obs | lambda_unobs | row_type | seed | RMSE | MSE | MAE | R2 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 43 | 4.802547 | 23.064455 | 3.796213 | 0.470818 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | mean_std | mean +/- std | 4.802547 +/- 0.000000 | 23.064455 +/- 0.000000 | 3.796213 +/- 0.000000 | 0.470818 +/- 0.000000 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | STDK+NagQConvLSTM-truth(block5to5) |  |  | seed | 43 | 4.598069 | 21.142241 | 3.588839 | 0.514920 |
+| space_extrap_fixed850 | Target_Space100 | 100/400/100 | 100 | 400 | 100 | STDK+NagQConvLSTM-truth(block5to5) |  |  | mean_std | mean +/- std | 4.598069 | 21.142241 | 3.588839 | 0.514920 |

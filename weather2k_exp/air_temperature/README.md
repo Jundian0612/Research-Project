@@ -4,12 +4,12 @@
 
 ## 目前流程
 
-- `qconvlstm_location_specific_tuning_20260915/`：最新逐目標位置 QConvLSTM 正式調參；使用 seeds 41/42 的 Val150，最佳設定為 grid 11、radius 0.3、filters 32、weight decay 0。
-- `STDK_QConvLSTM_separate_bestparams_seed41_rtx2000_20260916/`：使用上述最佳參數，在三種情境分別訓練純 STDK 與逐目標位置 STDK+Q 的 seed 41 正式比較。
-- `qconvlstm_obs100_ema_tuning_20260912/`：較早採用 batch-average validation 與 EMA 的調參結果，流程與目前逐目標位置 Q 模型不同。
-- `STDK_QConvLSTM_formal_ema_all3_rtx2000_20260912/`：較早版本的三情境結果，應依該目錄 README 的流程註記比較。
-- `three_baselines_onefit_seed41_rtx2000_20260912/`：SVGP、純 STDK、DLinear+FRK 在相同 seed 41 下，各訓練一次並評估三種情境；含四模型比較與舊分別訓練對照。
-- `STDK_onefit_aligned_seed41_rtx2000_20260913/`：對齊 pinned Spatial-adapter STDK 訓練規則後重新執行的純 STDK seed 41 三情境結果。
+- `20260915_qconvlstm_location_specific_tuning/`：最新逐目標位置 QConvLSTM 正式調參；使用 seeds 41/42 的 Val150，最佳設定為 grid 11、radius 0.3、filters 32、weight decay 0。
+- `20260916_STDK_QConvLSTM_separate_bestparams_seed41_rtx2000/`：使用上述最佳參數，在三種情境分別訓練純 STDK 與逐目標位置 STDK+Q 的 seed 41 正式比較。
+- `20260912_qconvlstm_obs100_ema_tuning/`：較早採用 batch-average validation 與 EMA 的調參結果，流程與目前逐目標位置 Q 模型不同。
+- `20260912_STDK_QConvLSTM_formal_ema_all3_rtx2000/`：較早版本的三情境結果，應依該目錄 README 的流程註記比較。
+- `20260912_three_baselines_onefit_seed41_rtx2000/`：SVGP、純 STDK、DLinear+FRK 在相同 seed 41 下，各訓練一次並評估三種情境；含四模型比較與舊分別訓練對照。
+- `20260913_STDK_onefit_aligned_seed41_rtx2000/`：對齊 pinned Spatial-adapter STDK 訓練規則後重新執行的純 STDK seed 41 三情境結果。
 - `dlinear_frk_tuning_current/`、`qconvlstm_tuning_current/`、`svgp_tuning_current/`：程式使用的調參續跑目錄；根層檔案位置不可任意搬動。
 
 ## 目錄命名

@@ -1,0 +1,8 @@
+# Scenario summary: spatiotemp_100x150
+
+| scenario | target | space_split | n_train_space | n_unobs_space | n_target_space | model | alpha_obs | lambda_unobs | row_type | seed | RMSE | MSE | MAE | R2 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| spatiotemp_100x150 | Target_ST100x150 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 44 | 6.195521 | 38.384480 | 5.089874 | -0.348459 |
+| spatiotemp_100x150 | Target_ST100x150 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | mean_std | mean +/- std | 6.195521 +/- 0.000000 | 38.384480 +/- 0.000000 | 5.089874 +/- 0.000000 | -0.348459 +/- 0.000000 |
+| spatiotemp_100x150 | Target_ST100x150 | 100/400/100 | 100 | 400 | 100 | STDK+NagQConvLSTM-truth(block5to5) |  |  | seed | 44 | 4.995143 | 24.951454 | 4.006294 | 0.123448 |
+| spatiotemp_100x150 | Target_ST100x150 | 100/400/100 | 100 | 400 | 100 | STDK+NagQConvLSTM-truth(block5to5) |  |  | mean_std | mean +/- std | 4.995143 | 24.951454 | 4.006294 | 0.123448 |

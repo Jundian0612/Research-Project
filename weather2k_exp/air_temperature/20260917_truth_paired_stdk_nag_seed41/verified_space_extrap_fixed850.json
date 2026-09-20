@@ -1,0 +1,16 @@
+{
+  "scenario": "space_extrap_fixed850",
+  "seed": 41,
+  "target": "Target_Space100",
+  "checkpoint_sha256": "d70b51b4a29b37fe72b53d972e5fa80a09f26e066fb82f780688671098573aa6",
+  "pure_stdk_rmse": 5.287873217530168,
+  "paired_fitted_stdk_rmse": 5.287873397881372,
+  "qconv_rmse": 4.681380282576674,
+  "q_quantiles": [
+    "q05",
+    "q50",
+    "q95"
+  ],
+  "target_location_count": 100,
+  "heldout_truth_used_for_training": false
+}

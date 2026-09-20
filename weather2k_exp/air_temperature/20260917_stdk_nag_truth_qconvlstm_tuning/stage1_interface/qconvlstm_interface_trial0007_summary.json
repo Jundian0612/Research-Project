@@ -1,0 +1,53 @@
+{
+  "stage": "interface",
+  "normalization_source": "obs100_train700",
+  "stdk_q50_loss": "mse",
+  "stdk_checkpoint_source": "pure_stdk",
+  "qconv_training_target": "weather2k_observed_train500",
+  "qconv_validation_target": "weather2k_observed_train500_val150",
+  "heldout_q_source": "nearest_train500_station",
+  "qconv_model_scope": "location_specific",
+  "q50_checkpoint_selection": "pinball",
+  "stdk_validation_aggregation": "batch_mean",
+  "stdk_use_ema": true,
+  "trial": 7,
+  "params": {
+    "QCONV_LR": 0.001,
+    "QCONV_BATCH_SIZE": 5,
+    "QCONV_EPOCHS": 25,
+    "QCONV_PATIENCE": 5,
+    "CONV_FILTERS": 64,
+    "QCONV_WEIGHT_DECAY": 0.0,
+    "GRID_SIZE": 8,
+    "NEIGHBOURHOOD_RADIUS": 0.3
+  },
+  "seeds": [
+    41,
+    42
+  ],
+  "selection_uses_test_metrics": false,
+  "selection_uses_heldout100_truth": false,
+  "tuning_quantiles": [
+    0.5
+  ],
+  "q50_val_truth_rmse_scaled_by_seed": [
+    0.6059663334147101,
+    0.5925254927278489
+  ],
+  "mean_q50_val_truth_rmse_scaled": 0.5992459130712795,
+  "std_q50_val_truth_rmse_scaled": 0.0067204203434305665,
+  "seed_metrics": [
+    {
+      "seed": 41,
+      "q50_val_truth_rmse_scaled": 0.6059663334147101,
+      "q50_validation_pinball": 0.23661003105342385,
+      "elapsed_seconds": 1779.9253442287445
+    },
+    {
+      "seed": 42,
+      "q50_val_truth_rmse_scaled": 0.5925254927278489,
+      "q50_validation_pinball": 0.2328718785941601,
+      "elapsed_seconds": 1782.9425768852234
+    }
+  ]
+}

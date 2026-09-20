@@ -24,10 +24,10 @@ STDK_QConvLSTM_reproduction_results/table2_stdk_qlstm_qconvlstm/checkpoints/*
 
 # Weather2K STDK + QConvLSTM checkpoints and raw outputs
 weather2k_exp/*/STDK_QConvLSTM_Weather2K_results/
-weather2k_exp/*/STDK_QConvLSTM_Weather2K_495to5_pilot/raw_results/
+weather2k_exp/air_temperature/20260830_STDK_QConvLSTM_Weather2K_495to5_pilot/raw_results/
 
 # Interrupted, protocol-incompatible seed-41 run kept locally for diagnosis.
-weather2k_exp/air_temperature/STDK_QConvLSTM_separate_seed41_rtx2000_20260915/
+weather2k_exp/air_temperature/20260915_STDK_QConvLSTM_separate_seed41_rtx2000/
 .venv-wsl/
 
 # Machine-local environments (already tracked files require git rm --cached)

@@ -1,0 +1,47 @@
+{
+  "stdk_backend": "spatial_adapter",
+  "normalization_source": "obs100_train700",
+  "stdk_q50_loss": "mse",
+  "stdk_checkpoint_source": "pure_stdk",
+  "qconv_training_target": "weather2k_observed_train500",
+  "qconv_validation_target": "weather2k_observed_train500_val150",
+  "heldout_q_source": "nearest_train500_station",
+  "qconv_model_scope": "location_specific",
+  "q50_checkpoint_selection": "pinball",
+  "stdk_validation_aggregation": "batch_mean",
+  "stdk_use_ema": true,
+  "selection_status": "validation_truth_tuned_on_paired_stdk_checkpoint",
+  "selection_metric": "mean_q50_val_truth_rmse_scaled",
+  "selection_uses_test_metrics": false,
+  "selection_uses_heldout100_truth": false,
+  "tuning_seeds": [
+    41,
+    42
+  ],
+  "tuning_quantiles": [
+    0.5
+  ],
+  "tuning_protocol": [
+    "stage1_interface_grid_size_and_neighbourhood_radius",
+    "stage2_learning_rate_filters_and_weight_decay"
+  ],
+  "best_stage": "capacity",
+  "best_trial": 5,
+  "best_value": 0.5890796126317415,
+  "best_std": 0.0013830594373119287,
+  "formal_run_params": {
+    "QCONV_LR": 0.001,
+    "QCONV_BATCH_SIZE": 5,
+    "QCONV_EPOCHS": 25,
+    "QCONV_PATIENCE": 5,
+    "CONV_FILTERS": 32,
+    "QCONV_WEIGHT_DECAY": 1e-05,
+    "GRID_SIZE": 5,
+    "NEIGHBOURHOOD_RADIUS": 0.3
+  },
+  "fixed_paper_flow": {
+    "LOOKBACK": 5,
+    "HORIZON": 5,
+    "QCONV_PROFILE": "github_3block"
+  }
+}

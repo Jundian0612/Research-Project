@@ -1,0 +1,16 @@
+{
+  "scenario": "time_extrap_fixed500",
+  "seed": 42,
+  "target": "Target_Time150",
+  "checkpoint_sha256": "4b65f1e290cbbfb37886516dc802f94be094b4c62271e68c3be5383229f86317",
+  "pure_stdk_rmse": 4.379718089328603,
+  "paired_fitted_stdk_rmse": 4.379718089328603,
+  "qconv_rmse": 4.488405762116477,
+  "q_quantiles": [
+    "q05",
+    "q50",
+    "q95"
+  ],
+  "target_location_count": 500,
+  "heldout_truth_used_for_training": false
+}

@@ -6,6 +6,7 @@
 其餘 100 站保留作空間/時空測試。
 三種執行使用相同 Train700、Val150 與站點切分規則，但模型實例彼此獨立。
 """
+import ast
 import os
 import csv
 import json
@@ -61,11 +62,17 @@ RUN_SVGP = os.environ.get("RUN_SVGP", "1") == "1"
 # One formal seed currently takes about 6.25 hours on the local GTX 1050 Ti.
 # Keep this expensive model opt-in even though it is integrated into the runner.
 RUN_QCONVLSTM = os.environ.get("RUN_QCONVLSTM", "0") == "1"
+_qconv_seed_default = os.environ.get("SEED_LIST", "[41, 42, 43, 44, 45]")
+_qconv_seed_default = ",".join(
+    str(seed) for seed in ast.literal_eval(_qconv_seed_default)
+)
 QCONVLSTM_SEEDS = [
     int(value.strip())
-    for value in os.environ.get("QCONVLSTM_SEEDS", "41,42,43,44,45").split(",")
+    for value in os.environ.get("QCONVLSTM_SEEDS", _qconv_seed_default).split(",")
     if value.strip()
 ]
+if not QCONVLSTM_SEEDS or len(QCONVLSTM_SEEDS) != len(set(QCONVLSTM_SEEDS)):
+    raise ValueError("QCONVLSTM_SEEDS must contain distinct seed numbers")
 QCONVLSTM_FORECAST_MODE = os.environ.get(
     "QCONVLSTM_FORECAST_MODE", "block5to5"
 )
@@ -79,6 +86,10 @@ QCONVLSTM_PREDICTION_MODE = os.environ.get(
 if QCONVLSTM_PREDICTION_MODE not in {"direct", "residual"}:
     raise ValueError("QCONVLSTM_PREDICTION_MODE must be direct or residual")
 QCONVLSTM_SMOKE_TEST = os.environ.get("QCONVLSTM_SMOKE_TEST", "0") == "1"
+QCONVLSTM_RESULT_PREFIX = (
+    "paired_stdk_truth_nag_residual_qconvlstm"
+    if QCONVLSTM_PREDICTION_MODE == "residual" else "paired_stdk_truth_nag_qconvlstm"
+)
 QCONVLSTM_OUTPUT_DIR = Path(
     os.environ.get(
         "QCONVLSTM_OUTPUT_DIR",
@@ -88,19 +99,24 @@ QCONVLSTM_OUTPUT_DIR = Path(
 QCONVLSTM_PARAMS_FILE = Path(
     os.environ.get(
         "QCONVLSTM_PARAMS_FILE",
-        str(ROOT / "2K_best_stdk_qconvlstm_params_500to100.json"),
+        str(ROOT / "2K_stdk_nag_qconvlstm_params.json"),
     )
 ).expanduser().resolve()
 if RUN_QCONVLSTM and not QCONVLSTM_PARAMS_FILE.exists():
     raise FileNotFoundError(
         f"Missing QConvLSTM parameter file: {QCONVLSTM_PARAMS_FILE}"
     )
+if QCONVLSTM_SMOKE_TEST and (RUN_SVGP or RUN_DLINEAR):
+    raise ValueError("Paired STDK+Q smoke mode requires RUN_SVGP=0 and RUN_DLINEAR=0")
 if RUN_QCONVLSTM:
     with QCONVLSTM_PARAMS_FILE.open("r", encoding="utf-8") as _qconv_params_handle:
         _qconv_params = json.load(_qconv_params_handle)
     _required_qconv_protocol = {
-        "stdk_q50_loss": "pinball",
-        "qconv_training_target": "quantile_specific_fitted_stdk",
+        "stdk_q50_loss": "mse",
+        "stdk_checkpoint_source": "pure_stdk",
+        "qconv_training_target": "weather2k_observed_train500",
+        "qconv_validation_target": "weather2k_observed_train500_val150",
+        "heldout_q_source": "nearest_train500_station",
         "qconv_model_scope": "location_specific",
         "q50_checkpoint_selection": "pinball",
     }
@@ -109,9 +125,8 @@ if RUN_QCONVLSTM:
         for key, value in _required_qconv_protocol.items()
     ):
         raise ValueError(
-            f"QConvLSTM parameter file uses the old training flow: "
-            f"{QCONVLSTM_PARAMS_FILE}. Rerun "
-            "tune_stdk_qconvlstm_hyperparams.py before formal evaluation."
+            f"QConvLSTM parameter file is incompatible with the paired "
+            f"pure-STDK checkpoint flow: {QCONVLSTM_PARAMS_FILE}."
         )
 ARCHIVE_DIR = (
     Path(os.environ["RESULT_ARCHIVE_DIR"]).expanduser().resolve()
@@ -410,7 +425,7 @@ def _archive_qconvlstm_forecasts(output_dir: Path, scenario_name: str) -> None:
     suffixes = ("_time_forecasts.csv", "_space_forecasts.csv", "_forecasts.csv")
     for seed in QCONVLSTM_SEEDS:
         stem = (
-            f"location_specific_qconvlstm_{QCONVLSTM_FORECAST_MODE}_"
+            f"{QCONVLSTM_RESULT_PREFIX}_{QCONVLSTM_FORECAST_MODE}_"
             f"{scenario_name}_seed{seed}"
         )
         for suffix in suffixes:
@@ -511,7 +526,7 @@ def _qconvlstm_rows(
     reports = []
     for seed in QCONVLSTM_SEEDS:
         report_path = output_dir / (
-            f"location_specific_qconvlstm_{QCONVLSTM_FORECAST_MODE}_"
+            f"{QCONVLSTM_RESULT_PREFIX}_{QCONVLSTM_FORECAST_MODE}_"
             f"{scenario_name}_seed{seed}.json"
         )
         if not report_path.exists():
@@ -520,7 +535,7 @@ def _qconvlstm_rows(
         reports.append(_load_json(report_path))
 
     target_prefix = TARGET_PREFIX_BY_SCENARIO[scenario_name]
-    model_name = f"STDK+LocationSpecificQConvLSTM({QCONVLSTM_FORECAST_MODE})"
+    model_name = f"STDK+NagQConvLSTM-truth({QCONVLSTM_FORECAST_MODE})"
     rows = []
     for report in reports:
         metrics = report.get("results", {}).get(target_prefix)
@@ -588,9 +603,18 @@ if __name__ == "__main__":
         # STDK and SVGP both consume the same combined train500, so run each
         # baseline once per scenario. 100/400 is retained only as the canonical
         # interface split; it does not change their combined 500-station input.
-        baseline_split = (100, 400, 100)
+        baseline_split = (4, 8, 4) if QCONVLSTM_SMOKE_TEST else (100, 400, 100)
         baseline_env = apply_space_split(sc["env"], baseline_split)
-        baseline_suffix = f"{sc['env']['RESULT_SUFFIX']}_train500_test100"
+        if QCONVLSTM_SMOKE_TEST:
+            baseline_env.update({
+                "N_LAST": "50", "TIME_TRAIN_LEN": "30",
+                "TIME_VAL_LEN": "10", "TIME_TEST_LEN": "10",
+                "STDK_EPOCHS": "1", "SEED_LIST": repr(QCONVLSTM_SEEDS),
+            })
+        baseline_suffix = (
+            f"{sc['env']['RESULT_SUFFIX']}_train{baseline_split[0] + baseline_split[1]}_"
+            f"test{baseline_split[2]}"
+        )
         svgp_env = dict(baseline_env)
         svgp_env["RESULT_SUFFIX"] = f"{baseline_suffix}_{svgp_suffix()}"
 
@@ -651,7 +675,11 @@ if __name__ == "__main__":
         if RUN_QCONVLSTM:
             qconv_args = [
                 "--seeds", *(str(seed) for seed in QCONVLSTM_SEEDS),
+                "--weather-data", os.environ.get(
+                    "WEATHER2K_NPY", str(ROOT.parent / "Josh's Weather2K/Weather2K/weather2k.npy")
+                ),
                 "--params-file", str(QCONVLSTM_PARAMS_FILE),
+                "--stdk-checkpoint-dir", str(RESULT_ROOT / "checkpoints"),
                 "--output-dir", str(QCONVLSTM_OUTPUT_DIR),
                 "--forecast-mode", QCONVLSTM_FORECAST_MODE,
                 "--prediction-mode", QCONVLSTM_PREDICTION_MODE,
@@ -663,6 +691,8 @@ if __name__ == "__main__":
                 qconv_args.extend(["--qconv-epochs", os.environ["QCONV_EPOCHS"]])
             if os.environ.get("QCONV_BATCH_SIZE"):
                 qconv_args.extend(["--qconv-batch-size", os.environ["QCONV_BATCH_SIZE"]])
+            if os.environ.get("QCONV_FILTERS"):
+                qconv_args.extend(["--conv-filters", os.environ["QCONV_FILTERS"]])
             if QCONVLSTM_SMOKE_TEST:
                 qconv_args.append("--smoke-test")
             print(
@@ -677,7 +707,7 @@ if __name__ == "__main__":
                     QCONVLSTM_OUTPUT_DIR, sc["name"], baseline_split
                 )
                 summary_path = QCONVLSTM_OUTPUT_DIR / (
-                    f"location_specific_qconvlstm_{QCONVLSTM_FORECAST_MODE}_{sc['name']}_"
+                    f"{QCONVLSTM_RESULT_PREFIX}_{QCONVLSTM_FORECAST_MODE}_{sc['name']}_"
                     + (
                         "five_seed" if QCONVLSTM_SEEDS == [41, 42, 43, 44, 45]
                         else "seeds" + "_".join(str(seed) for seed in QCONVLSTM_SEEDS)

@@ -1,0 +1,32 @@
+[
+  {
+    "scenario": "Time150",
+    "seed_count": 5,
+    "pure_stdk_rmse_mean": 4.9251215439654805,
+    "pure_stdk_rmse_sd": 0.5927211326854513,
+    "stdk_qconv_rmse_mean": 4.620052079929288,
+    "stdk_qconv_rmse_sd": 0.22799634788578751,
+    "paired_q_minus_pure_rmse_mean": -0.30506946403619184,
+    "paired_q_minus_pure_rmse_sd": 0.5086989059134552
+  },
+  {
+    "scenario": "Space100",
+    "seed_count": 5,
+    "pure_stdk_rmse_mean": 5.012757640341256,
+    "pure_stdk_rmse_sd": 0.24310048296044012,
+    "stdk_qconv_rmse_mean": 4.656980418028017,
+    "stdk_qconv_rmse_sd": 0.08864158276673523,
+    "paired_q_minus_pure_rmse_mean": -0.3557772223132387,
+    "paired_q_minus_pure_rmse_sd": 0.23202491874543438
+  },
+  {
+    "scenario": "ST100x150",
+    "seed_count": 5,
+    "pure_stdk_rmse_mean": 4.956873355412041,
+    "pure_stdk_rmse_sd": 0.6436972219929813,
+    "stdk_qconv_rmse_mean": 4.817842578731006,
+    "stdk_qconv_rmse_sd": 0.1596930809297693,
+    "paired_q_minus_pure_rmse_mean": -0.13903077668103503,
+    "paired_q_minus_pure_rmse_sd": 0.5530184673184172
+  }
+]

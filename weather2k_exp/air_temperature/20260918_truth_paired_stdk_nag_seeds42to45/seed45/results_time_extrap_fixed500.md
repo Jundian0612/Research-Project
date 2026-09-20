@@ -1,0 +1,8 @@
+# Scenario summary: time_extrap_fixed500
+
+| scenario | target | space_split | n_train_space | n_unobs_space | n_target_space | model | alpha_obs | lambda_unobs | row_type | seed | RMSE | MSE | MAE | R2 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | seed | 45 | 4.645825 | 21.583687 | 3.698568 | 0.267700 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | STDK |  |  | mean_std | mean +/- std | 4.645825 +/- 0.000000 | 21.583687 +/- 0.000000 | 3.698568 +/- 0.000000 | 0.267700 +/- 0.000000 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | STDK+NagQConvLSTM-truth(block5to5) |  |  | seed | 45 | 4.859976 | 23.619364 | 3.855860 | 0.198633 |
+| time_extrap_fixed500 | Target_Time150 | 100/400/100 | 100 | 400 | 100 | STDK+NagQConvLSTM-truth(block5to5) |  |  | mean_std | mean +/- std | 4.859976 | 23.619364 | 3.855860 | 0.198633 |

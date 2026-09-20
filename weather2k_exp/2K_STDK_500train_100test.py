@@ -3,8 +3,8 @@
 import importlib.util
 import ast
 import contextlib
-import copy
 import gc
+import hashlib
 import json
 import logging
 import os
@@ -23,7 +23,7 @@ SPATIAL_ADAPTER_ROOT = Path(__file__).resolve().parent.parent / "spatial-adapter
 if str(SPATIAL_ADAPTER_ROOT) in sys.path:
     sys.path.remove(str(SPATIAL_ADAPTER_ROOT))
 sys.path.insert(0, str(SPATIAL_ADAPTER_ROOT))
-from examples.baselines.stdk.utils.ema import ModelEMA
+from examples.baselines.stdk.trainer import Trainer as SpatialAdapterSTDKTrainer
 
 try:
     from tqdm.auto import tqdm
@@ -214,111 +214,25 @@ def build_stdk_model_config():
     }
 
 
-def train_stdk_model(model, train_loader, val_loader, device, config):
-    criterion = torch.nn.MSELoss()
-    optimizer = torch.optim.AdamW(
-        model.parameters(),
-        lr=float(config["lr"]),
-        weight_decay=float(config["weight_decay"]),
+def train_stdk_model(model, train_loader, val_loader, device, config, checkpoint_dir):
+    """Use Spatial Adapter's trainer and retain its selected EMA checkpoint."""
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+    trainer = SpatialAdapterSTDKTrainer(
+        model=model, train_loader=train_loader, val_loader=val_loader,
+        config=config, device=device, output_dir=checkpoint_dir,
     )
-    use_ema = bool(config.get("use_ema", True))
-    ema_decay = 1.0 - 1.0 / (10.0 * len(train_loader))
-    ema = ModelEMA(model, decay=ema_decay) if use_ema else None
-
-    best_state = None
-    best_val_loss = float("inf")
-    patience = int(config.get("patience", 30))
-    patience_counter = 0
-    best_epoch = 0
-
-    epoch_bar = tqdm(range(int(config["epochs"])), desc="STDK epochs", unit="epoch")
-
-    for epoch in epoch_bar:
-        model.train()
-        train_loss = 0.0
-
-        train_bar = tqdm(
-            train_loader,
-            desc=f"epoch {epoch + 1:03d} train",
-            leave=False,
-            unit="batch",
-            total=len(train_loader),
-        )
-
-        for batch in train_bar:
-            optimizer.zero_grad(set_to_none=True)
-            y_pred = model(
-                batch["X"].to(device),
-                batch["coords"].to(device),
-                batch["t"].to(device),
-            )
-            loss = criterion(y_pred, batch["y"].to(device))
-            loss.backward()
-            optimizer.step()
-            if ema is not None:
-                ema.update(model)
-            train_loss += float(loss.item())
-            train_bar.set_postfix(loss=f"{float(loss.item()):.6f}")
-
-        train_loss /= max(1, len(train_loader))
-
-        model.eval()
-        if ema is not None:
-            ema.apply_shadow()
-        val_loss = 0.0
-        val_bar = tqdm(
-            val_loader,
-            desc=f"epoch {epoch + 1:03d} val",
-            leave=False,
-            unit="batch",
-            total=len(val_loader),
-        )
-        with torch.no_grad():
-            for batch in val_bar:
-                y_pred = model(
-                    batch["X"].to(device),
-                    batch["coords"].to(device),
-                    batch["t"].to(device),
-                )
-                loss = criterion(y_pred, batch["y"].to(device))
-                val_loss += float(loss.item())
-                val_bar.set_postfix(loss=f"{float(loss.item()):.6f}")
-
-        val_loss /= max(1, len(val_loader))
-
-        if val_loss < best_val_loss - 1e-12:
-            best_val_loss = val_loss
-            best_state = copy.deepcopy(model.state_dict())
-            best_epoch = epoch + 1
-            patience_counter = 0
-        else:
-            patience_counter += 1
-
-        if ema is not None:
-            ema.restore()
-
-        print(
-            f"Epoch {epoch + 1:03d}/{int(config['epochs'])} "
-            f"train_mse={train_loss:.6f} val_mse={val_loss:.6f}",
-            flush=True,
-        )
-
-        if patience_counter >= patience:
-            print(f"Early stopping at epoch {epoch + 1} (patience={patience})")
-            break
-
-        epoch_bar.set_postfix(train_mse=f"{train_loss:.6f}", val_mse=f"{val_loss:.6f}")
-
-    if best_state is not None:
-        model.load_state_dict(best_state)
-
+    model, history, _ = trainer.fit()
+    if not trainer.best_model_path.is_file():
+        raise RuntimeError(f"Spatial Adapter did not write {trainer.best_model_path}")
+    best_epoch = int(np.argmin(history["val_loss"])) + 1
     return model, {
-        "best_epoch": int(best_epoch),
-        "best_validation_loss": float(best_val_loss),
+        "best_epoch": best_epoch,
+        "best_validation_loss": float(history["val_loss"][best_epoch - 1]),
         "validation_loss_name": "mse",
         "validation_aggregation": "batch_mean",
-        "use_ema": use_ema,
-        "ema_decay": float(ema_decay) if use_ema else None,
+        "use_ema": bool(config.get("use_ema", True)),
+        "ema_decay": float(trainer.ema.decay) if trainer.ema is not None else None,
+        "trainer": "spatial-adapter/examples/baselines/stdk/trainer.py",
     }
 
 
@@ -648,6 +562,7 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
     model = create_model(STDK_CONFIG, train_coords=coords_train500_norm).to(device)
 
     train_start = time.time()
+    checkpoint_dir = RESULT_DIR / "checkpoints" / f"{EXPERIMENT_SCENARIO}_seed{sample_seed}"
     model, stdk_training_summary = _silent_call(
         train_stdk_model,
         model,
@@ -655,8 +570,11 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
         val_loader,
         device,
         STDK_CONFIG,
+        checkpoint_dir,
     )
     stdk_elapsed = time.time() - train_start
+    checkpoint_path = checkpoint_dir / "model_best.pt"
+    checkpoint_sha256 = hashlib.sha256(checkpoint_path.read_bytes()).hexdigest()
 
     # The flattened training/validation tensors are no longer needed after
     # fitting STDK. Release them before constructing interpolation inputs.
@@ -783,6 +701,11 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
         "params_used": STDK_CONFIG,
         "training_summary": stdk_training_summary,
         "stdk_elapsed_seconds": float(stdk_elapsed),
+        "stdk_checkpoint": {
+            "path": str(checkpoint_path.resolve()),
+            "sha256": checkpoint_sha256,
+            "metadata_path": str((checkpoint_dir / "metadata.json").resolve()),
+        },
         "sampling_info": {
             "full_sample_size": int(N_SAMPLE_TARGET),
             "observed_sample_size": int(N_TRAIN_TARGET),
@@ -815,6 +738,44 @@ def run_single_seed_experiment(sample_seed: int) -> dict:
         "n_unknown_eval": int(n_unknown_eval),
         "n_time_used": int(n_time_used),
     }
+
+    # These observed-station train/validation points verify that another script
+    # reconstructed the exact selected checkpoint before training a second stage.
+    probe_station = int(sample_idx_train500[0])
+    probe_times = np.array([0, cut_train - 1, cut_val - 1], dtype=int)
+    probe_prediction = predict_stdk_matrix_chunked(
+        model, full_y_matrix[[probe_station]], coords_full_norm[[probe_station]],
+        probe_times, t_norm_all, batch_size, device,
+    ).reshape(-1)
+    stdk_source_dir = SPATIAL_ADAPTER_ROOT / "examples" / "baselines" / "stdk"
+    source_sha256 = {
+        name: hashlib.sha256((stdk_source_dir / name).read_bytes()).hexdigest()
+        for name in ("st_interp.py", "trainer.py")
+    }
+    _json_dump({
+        "format": "weather2k_spatial_adapter_stdk_v1",
+        "checkpoint_sha256": checkpoint_sha256,
+        "seed": int(sample_seed),
+        "scenario": EXPERIMENT_SCENARIO,
+        "variable": target_var_name,
+        "sampled_global": sample_idx_global.tolist(),
+        "train_local": sample_idx_train500.tolist(),
+        "heldout_local": sample_idx_unknown_eval.tolist(),
+        "obs_local": sample_idx_train.tolist(),
+        "normalization": {"source": "obs100_train700", "mean": y_mean, "std": y_std, "ddof": 0},
+        "time": {"n_last": N_LAST, "train": TIME_TRAIN_LEN,
+                 "val": TIME_VAL_LEN, "test": TIME_TEST_LEN, "stride": TIME_STRIDE},
+        "model_config": STDK_CONFIG,
+        "source_sha256": source_sha256,
+        "prediction_probe": {
+            "station_local": probe_station,
+            "time_indices": probe_times.tolist(),
+            "standardized_prediction": probe_prediction.tolist(),
+        },
+        "training_summary": stdk_training_summary,
+        "target_metrics": result_sections,
+    }, checkpoint_dir / "metadata.json")
+    print(f"Saved Spatial Adapter checkpoint: {checkpoint_path}")
 
     del model
     gc.collect()

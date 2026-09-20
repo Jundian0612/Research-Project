@@ -68,7 +68,7 @@
 - 未知位置的空間推估；
 - 未知位置與未來時間同時發生的時空外推。
 
-完整比較規則見 [Weather2K comparison audit](docs/WEATHER2K_COMPARISON_AUDIT_20260910.md)。STDK 與 QConvLSTM 的實作來源及改編範圍見 [STDK and QConvLSTM source audit](docs/STDK_QCONVLSTM_SOURCE_AUDIT_20260913.md)。
+完整比較規則見 [Weather2K comparison audit](docs/20260910_WEATHER2K_COMPARISON_AUDIT.md)。STDK 與 QConvLSTM 的實作來源及改編範圍見 [STDK and QConvLSTM source audit](docs/20260913_STDK_QCONVLSTM_SOURCE_AUDIT.md)。
 
 ## Repository structure
 
@@ -122,10 +122,10 @@ PyTorch 應依作業系統、GPU 與 CUDA 版本使用官方指令安裝。新�
 ## Documentation
 
 - [Weather2K environment and data setup](docs/SETUP_WEATHER2K.md)
-- [Weather2K comparison audit](docs/WEATHER2K_COMPARISON_AUDIT_20260910.md)
-- [Weather2K observed100 alignment](docs/WEATHER2K_OBS100_ALIGNMENT_20260910.md)
-- [STDK alignment with Spatial-adapter](docs/STDK_SPATIAL_ADAPTER_ALIGNMENT_20260913.md)
-- [STDK and QConvLSTM source audit](docs/STDK_QCONVLSTM_SOURCE_AUDIT_20260913.md)
+- [Weather2K comparison audit](docs/20260910_WEATHER2K_COMPARISON_AUDIT.md)
+- [Weather2K observed100 alignment](docs/20260910_WEATHER2K_OBS100_ALIGNMENT.md)
+- [STDK alignment with Spatial-adapter](docs/20260913_STDK_SPATIAL_ADAPTER_ALIGNMENT.md)
+- [STDK and QConvLSTM source audit](docs/20260913_STDK_QCONVLSTM_SOURCE_AUDIT.md)
 - [Repository hygiene](docs/REPOSITORY_HYGIENE.md)
 
 ## References

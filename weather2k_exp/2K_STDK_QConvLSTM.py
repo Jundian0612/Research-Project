@@ -1,36 +1,38 @@
 #!/usr/bin/env python3
-"""Weather2K Spatial-adapter STDK + location-specific 5-to-5 QConvLSTM.
+"""Weather2K Spatial-adapter STDK checkpoint + Nag-style QConvLSTM.
 
 Each seed samples 600 stations, trains only on train500, and evaluates on a
 strict held-out100 whose observations never enter either training stage.
-The front model keeps the Weather2K Spatial-adapter architecture, while the
-probabilistic flow follows the author-data reconstruction: fit q50/q05/q95
-STDK with pinball loss, form quantile-specific local grids and target series,
-then fit a separate released three-block QConvLSTM at every target location,
-as formulated for s_0 in the paper, with paper Eq. (7). The Weather2K split is
-an explicit dataset adaptation. No model checkpoint is written.
+The first stage loads the exact best/EMA MSE checkpoint written by the pure
+STDK script and never refits it. Nag's released three-block QConvLSTM is then
+fitted per target location and quantile using local grids from that frozen
+checkpoint and observed training-station temperatures as labels. For a
+held-out target, its nearest train500 station supplies Q's Train700/Val150
+labels and grids; the held-out target's observations are final-test only.
+Weather2K's split, normalization and 150-step evaluation remain explicit
+adaptations of Nag's five-step simulation.
 """
 from __future__ import annotations
 
-import argparse, csv, importlib.util, json, math, random, sys, time
+import argparse, csv, hashlib, importlib.util, json, math, random, sys, time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 import numpy as np
 import torch
-from torch.utils.data import DataLoader, Dataset, Subset
+from torch.utils.data import DataLoader, Dataset
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 BASE = ROOT / "STDK_QConvLSTM_reproduction_results/code/STDK_QConvLSTM_reproduction.py"
 SPATIAL_STDK = ROOT / "spatial-adapter/examples/baselines/stdk/st_interp.py"
+SPATIAL_TRAINER = ROOT / "spatial-adapter/examples/baselines/stdk/trainer.py"
 DATA = ROOT / "Josh's Weather2K/Weather2K/weather2k.npy"
 OUTPUT = HERE
-BEST_PARAMS = HERE / "2K_best_stdk_qconvlstm_params_500to100.json"
+BEST_PARAMS = HERE / "2K_stdk_nag_qconvlstm_params.json"
 SPATIAL_ADAPTER_ROOT = ROOT / "spatial-adapter"
 if str(SPATIAL_ADAPTER_ROOT) in sys.path:
     sys.path.remove(str(SPATIAL_ADAPTER_ROOT))
 sys.path.insert(0, str(SPATIAL_ADAPTER_ROOT))
-from examples.baselines.stdk.utils.ema import ModelEMA
 VARIABLES = ("air_pressure", "air_temperature", "relative_humidity", "wind_speed",
              "wind_direction", "precipitation", "solar_radiation",
              "dew_point_temperature", "cloud_cover", "visibility")
@@ -50,7 +52,7 @@ def load_spatial_stdk():
 @dataclass
 class Config:
     seed: int; n_sample: int = 600; n_train: int = 500; n_heldout: int = 100
-    n_last: int = 1000; train_times: int = 700; val_times: int = 150
+    n_last: int = 1000; n_obs: int = 100; train_times: int = 700; val_times: int = 150
     test_times: int = 150; lookback: int = 5; horizon: int = 5
     grid_size: int = 8; radius: float = .2; stdk_epochs: int = 350
     qconv_epochs: int = 25; stdk_batch: int = 512; qconv_batch: int = 64
@@ -61,8 +63,11 @@ class Config:
     scenario: str = "all_three"
     stdk_backend: str = "spatial_adapter"
     normalization_source: str = "obs100_train700"
-    stdk_q50_loss: str = "pinball"
-    qconv_training_target: str = "quantile_specific_fitted_stdk"
+    stdk_q50_loss: str = "mse"
+    stdk_checkpoint_source: str = "pure_stdk"
+    qconv_training_target: str = "weather2k_observed_train500"
+    qconv_validation_target: str = "weather2k_observed_train500_val150"
+    heldout_q_source: str = "nearest_train500_station"
     qconv_model_scope: str = "location_specific"
     q50_checkpoint_selection: str = "pinball"
     stdk_validation_aggregation: str = "batch_mean"
@@ -73,14 +78,14 @@ def model_name(cfg):
     return (
         "Spatial-adapter STDK+location-specific-residual-QConvLSTM"
         if cfg.prediction_mode == "residual" else
-        "STDK+location-specific-QConvLSTM"
+        "Spatial-adapter STDK+Nag-style location-specific QConvLSTM"
     )
 
 def output_prefix(cfg):
     return (
-        "location_specific_residual_qconvlstm"
+        "paired_stdk_truth_nag_residual_qconvlstm"
         if cfg.prediction_mode == "residual" else
-        "location_specific_qconvlstm"
+        "paired_stdk_truth_nag_qconvlstm"
     )
 
 def output_stem(cfg):
@@ -105,6 +110,71 @@ def spatial_stdk_config(cfg):
         "use_delta_reparameterization": False,
     }
 
+
+def load_pure_stdk_checkpoint(spatial, cfg, device, checkpoint_dir,
+                              coords, chosen, train, held, obs, mean, std):
+    """Reject a checkpoint unless its data, normalization and recipe match."""
+    directory = checkpoint_dir / f"{cfg.scenario}_seed{cfg.seed}"
+    weights_path = directory / "model_best.pt"
+    metadata_path = directory / "metadata.json"
+    if not weights_path.is_file() or not metadata_path.is_file():
+        raise FileNotFoundError(
+            f"Pure STDK checkpoint missing: {weights_path}. Run the pure STDK "
+            "script first with the same seed, scenario and output directory."
+        )
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    digest = hashlib.sha256(weights_path.read_bytes()).hexdigest()
+    expected_lists = {
+        "sampled_global": chosen.tolist(), "train_local": train.tolist(),
+        "heldout_local": held.tolist(), "obs_local": obs.tolist(),
+    }
+    for key, expected in expected_lists.items():
+        if metadata.get(key) != expected:
+            raise ValueError(f"STDK checkpoint {key} differs from Weather2K split")
+    expected_time = {"n_last": cfg.n_last, "train": cfg.train_times,
+                     "val": cfg.val_times, "test": cfg.test_times, "stride": 1}
+    if metadata.get("time") != expected_time:
+        raise ValueError("STDK checkpoint time split differs from Q experiment")
+    if (metadata.get("format") != "weather2k_spatial_adapter_stdk_v1"
+        or metadata.get("seed") != cfg.seed
+        or metadata.get("scenario") != cfg.scenario
+        or metadata.get("variable") != cfg.variable
+        or metadata.get("model_config") != spatial_stdk_config(cfg)
+        or metadata.get("checkpoint_sha256") != digest):
+        raise ValueError("STDK checkpoint source, recipe or SHA256 does not match")
+    norm = metadata.get("normalization", {})
+    if (norm.get("source") != "obs100_train700"
+        or not np.isclose(norm.get("mean", np.nan), mean, rtol=1e-6, atol=1e-6)
+        or not np.isclose(norm.get("std", np.nan), std, rtol=1e-6, atol=1e-6)):
+        raise ValueError("STDK checkpoint normalization differs from Q experiment")
+    expected_sources = {
+        "st_interp.py": hashlib.sha256(SPATIAL_STDK.read_bytes()).hexdigest(),
+        "trainer.py": hashlib.sha256(SPATIAL_TRAINER.read_bytes()).hexdigest(),
+    }
+    if metadata.get("source_sha256") != expected_sources:
+        raise ValueError("Spatial Adapter STDK source changed since checkpoint training")
+    model = spatial.create_model(spatial_stdk_config(cfg), train_coords=coords[train]).to(device)
+    model.load_state_dict(torch.load(weights_path, map_location=device, weights_only=True))
+    model.eval()
+    for parameter in model.parameters():
+        parameter.requires_grad_(False)
+    probe = metadata.get("prediction_probe", {})
+    probe_station = probe.get("station_local")
+    probe_times = probe.get("time_indices")
+    if (probe_station not in train or not isinstance(probe_times, list)
+        or not probe_times or max(probe_times) >= cfg.train_times + cfg.val_times):
+        raise ValueError("Pure STDK checkpoint prediction probe is missing or invalid")
+    reproduced = predict_spatial_stdk(
+        model, coords[[probe_station]], np.asarray(probe_times, dtype=np.int64),
+        cfg, device,
+    ).reshape(-1)
+    if not np.allclose(
+        reproduced, probe.get("standardized_prediction", []),
+        rtol=1e-5, atol=1e-6,
+    ):
+        raise ValueError("Loaded STDK checkpoint does not reproduce pure-STDK predictions")
+    return model, metadata, {"path": str(weights_path.resolve()), "sha256": digest}
+
 def flatten_stdk_points(coords, times, targets, total_times):
     """Time-major tensors matching the standalone Spatial-adapter STDK baseline."""
     coords=np.asarray(coords,dtype=np.float32); times=np.asarray(times,dtype=np.int64)
@@ -114,82 +184,6 @@ def flatten_stdk_points(coords, times, targets, total_times):
     if targets is None: values=np.zeros((len(coords_flat),),dtype=np.float32)
     else: values=np.asarray(targets,dtype=np.float32)[:,times].T.reshape(-1)
     return coords_flat,time_flat.astype(np.float32),values
-
-def fit_spatial_stdk(base, spatial, coords, scaled_values, train_times, val_times,
-                     quantile, cfg, device, qlambda, median_model=None):
-    """Fit quantile STDK using the reconstruction's pinball-loss workflow."""
-    config=spatial_stdk_config(cfg)
-    tr_coords,tr_time,tr_y=flatten_stdk_points(
-        coords,train_times,scaled_values,cfg.n_last
-    )
-    va_coords,va_time,va_y=flatten_stdk_points(
-        coords,val_times,scaled_values,cfg.n_last
-    )
-    train_ds=torch.utils.data.TensorDataset(
-        torch.from_numpy(tr_coords),torch.from_numpy(tr_time),torch.from_numpy(tr_y[:,None])
-    )
-    seed_offset=0 if quantile==.5 else int(quantile*100)
-    generator=torch.Generator().manual_seed(cfg.seed+1000+seed_offset)
-    loader=DataLoader(train_ds,batch_size=cfg.stdk_batch,shuffle=True,generator=generator)
-    torch.manual_seed(cfg.seed+seed_offset); np.random.seed(cfg.seed+seed_offset)
-    model=spatial.create_model(config,train_coords=tr_coords).to(device)
-    optimizer=torch.optim.AdamW(model.parameters(),lr=config["lr"],weight_decay=config["weight_decay"])
-    use_ema=bool(config.get("use_ema",True))
-    ema_decay=1.0-1.0/(10.0*len(loader))
-    ema=ModelEMA(model,decay=ema_decay) if use_ema else None
-    vc=torch.from_numpy(va_coords); vt=torch.from_numpy(va_time)
-    vy=torch.from_numpy(va_y[:,None])
-    if median_model is not None:
-        median_model.eval()
-        for parameter in median_model.parameters(): parameter.requires_grad_(False)
-    best=float("inf"); state=None; wait=0; best_epoch=0
-    for epoch in range(1,cfg.stdk_epochs+1):
-        model.train()
-        for batch_coords,batch_time,batch_y in loader:
-            batch_coords=batch_coords.to(device); batch_time=batch_time.to(device); batch_y=batch_y.to(device)
-            empty=batch_coords.new_empty((len(batch_coords),0)); optimizer.zero_grad(set_to_none=True)
-            raw=model(empty,batch_coords,batch_time)
-            if quantile==.5:
-                prediction=raw; loss=base.pinball(prediction,batch_y,quantile)
-            else:
-                with torch.no_grad(): center=median_model(empty,batch_coords,batch_time)
-                prediction=base.constrained_quantile(raw,center,quantile,qlambda)
-                loss=base.pinball(prediction,batch_y,quantile)
-            loss.backward(); optimizer.step()
-            if ema is not None: ema.update(model)
-        model.eval()
-        if ema is not None: ema.apply_shadow()
-        val_total=0.0; val_batches=0
-        with torch.no_grad():
-            for start in range(0,len(vc),cfg.stdk_batch):
-                c=vc[start:start+cfg.stdk_batch].to(device)
-                t=vt[start:start+cfg.stdk_batch].to(device)
-                y=vy[start:start+cfg.stdk_batch].to(device)
-                empty=c.new_empty((len(c),0)); raw=model(empty,c,t)
-                if quantile==.5:
-                    prediction=raw
-                    batch_loss=base.pinball(prediction,y,quantile)
-                else:
-                    center=median_model(empty,c,t)
-                    prediction=base.constrained_quantile(raw,center,quantile,qlambda)
-                    batch_loss=base.pinball(prediction,y,quantile)
-                val_total+=float(batch_loss); val_batches+=1
-        val_loss=val_total/max(1,val_batches)
-        if epoch==1 or epoch%10==0:
-            print(f"Spatial-adapter STDK q={quantile:.2f} epoch={epoch:03d} val_pinball={val_loss:.6f}")
-        if val_loss < best-1e-12:
-            best=val_loss; wait=0; best_epoch=epoch
-            state={k:v.detach().cpu().clone() for k,v in model.state_dict().items()}
-        else: wait+=1
-        if ema is not None: ema.restore()
-        if wait>=config["patience"]: break
-    if state is not None: model.load_state_dict(state)
-    if median_model is not None:
-        for parameter in median_model.parameters(): parameter.requires_grad_(True)
-    return model.eval(),{"quantile":quantile,"best_validation_loss":best,
-                         "best_epoch":best_epoch,"validation_loss_name":"pinball",
-                         "validation_aggregation":"batch_mean","use_ema":use_ema,
-                         "ema_decay":ema_decay if use_ema else None}
 
 def predict_spatial_stdk(model, coords, times, cfg, device):
     coords_flat,time_flat,_=flatten_stdk_points(coords,times,None,cfg.n_last)
@@ -202,7 +196,7 @@ def predict_spatial_stdk(model, coords, times, cfg, device):
     return np.concatenate(predictions).reshape(len(times),len(coords)).astype(np.float32)
 
 class SharedWindows(Dataset):
-    """Window dataset; formal QConvLSTM fits pass exactly one target station."""
+    """Train700 windows from one observed training source station."""
     def __init__(self, frames, median, targets, lookback, horizon, qlambda):
         assert frames.shape == median.shape and frames.shape[:2] == targets.shape
         self.x = torch.from_numpy(frames[:, :, None]); self.mx = torch.from_numpy(median[:, :, None])
@@ -216,7 +210,7 @@ class SharedWindows(Dataset):
 
 
 class SharedValidation(Dataset):
-    """One Val150 forecast origin per supervised training station."""
+    """Val150 forecast blocks from one observed training source station."""
     def __init__(self, frames, median, targets, qlambda):
         assert frames.shape == median.shape
         assert frames.shape[0] == targets.shape[0]
@@ -269,6 +263,23 @@ def norm_coords(x):
     lo=x.min(0); span=x.max(0)-lo; span[span==0]=1
     return ((x-lo)/span).astype(np.float32)
 
+def q_training_source_stations(coords, train, targets, scenario):
+    """Map each target to a station whose truth is allowed for Q fitting.
+
+    Time150 targets are supervised train500 sites and use their own history.
+    Spatial targets are strict held-out sites, so use the nearest train500
+    station as a deterministic supervised proxy; never read held-out labels.
+    """
+    if scenario == "time_extrap_fixed500":
+        if not np.isin(targets, train).all():
+            raise ValueError("Time150 Q targets must belong to train500")
+        return targets.copy()
+    distances = np.sum(
+        (coords[targets, None, :] - coords[train][None, :, :]) ** 2,
+        axis=-1,
+    )
+    return train[np.argmin(distances, axis=1)]
+
 def frames_for(base, models, centers, times, cfg, device):
     quantiles=tuple(q for q in (.05,.5,.95) if q in models)
     if .5 not in quantiles:
@@ -282,7 +293,8 @@ def frames_for(base, models, centers, times, cfg, device):
             ).reshape(len(times),cfg.grid_size,cfg.grid_size)
         median_grid=raw_prediction(models[.5])
         for q in out:
-            if q==.5: grid_q=median_grid
+            if models.get("shared_stdk_checkpoint") or q == .5:
+                grid_q=median_grid
             else:
                 raw=raw_prediction(models[q]); deviation=models["lambda"]*abs(q-.5)/(1.+np.exp(-raw))
                 grid_q=median_grid-deviation if q<.5 else median_grid+deviation
@@ -291,13 +303,16 @@ def frames_for(base, models, centers, times, cfg, device):
     return {q:np.stack(v).astype(np.float32) for q,v in out.items()}
 
 def predict_stdk_quantiles(base, models, centers, times, cfg, device):
-    """Direct Spatial-adapter STDK quantiles at station coordinates.
+    """Direct STDK point prediction replicated for the Q warm-up interface.
 
     This is used only as the causal warm-up for spatial evaluation times that
-    do not have five earlier Weather2K frames.  It never reads held-out values.
+    do not have five earlier Weather2K frames.  The pure STDK has no intervals.
+    It never reads held-out values.
     """
     times=np.asarray(times,dtype=np.int64)
     median=predict_spatial_stdk(models[.5],centers,times,cfg,device)
+    if models.get("shared_stdk_checkpoint"):
+        return np.repeat(median.T[..., None], 3, axis=-1).astype(np.float32)
     quantiles=[]
     for q in (.05,.5,.95):
         if q==.5:
@@ -309,19 +324,6 @@ def predict_stdk_quantiles(base, models, centers, times, cfg, device):
         quantiles.append(prediction.T.astype(np.float32))
     return np.stack(quantiles,axis=-1)
 
-
-def predict_stdk_target_series(base, models, centers, times, cfg, device, quantiles):
-    """Return the fitted STDK series used as quantile-specific Q targets."""
-    median=predict_spatial_stdk(models[.5],centers,times,cfg,device).T
-    output={.5:median.astype(np.float32)}
-    for q in quantiles:
-        if q==.5:
-            continue
-        raw=predict_spatial_stdk(models[q],centers,times,cfg,device).T
-        deviation=models["lambda"]*abs(q-.5)/(1.+np.exp(-raw))
-        prediction=median-deviation if q<.5 else median+deviation
-        output[q]=prediction.astype(np.float32)
-    return output
 
 def add_direct_stdk_baseline(prediction, stdk_models, centers, times, cfg, device):
     """Convert residual quantiles to final quantiles on standardized scale."""
@@ -338,14 +340,8 @@ def add_direct_stdk_baseline(prediction, stdk_models, centers, times, cfg, devic
 
 def fit_location(base, ds, q, cfg, device, median=None, validation_ds=None):
     if validation_ds is None:
-        # Backward-compatible fallback for callers without an external Val block.
-        nval_per_station=max(1,int(.05*ds.nw)); train_idx=[]; val_idx=[]
-        for station in range(ds.y.shape[0]):
-            begin=station*ds.nw; split=begin+ds.nw-nval_per_station; end=begin+ds.nw
-            train_idx.extend(range(begin,split)); val_idx.extend(range(split,end))
-        train=Subset(ds,train_idx); val=Subset(ds,val_idx)
-    else:
-        train=ds; val=validation_ds
+        raise ValueError("Q checkpoint selection requires observed Val150 truth")
+    train=ds; val=validation_ds
     tl=DataLoader(train,batch_size=cfg.qconv_batch,shuffle=True); vl=DataLoader(val,batch_size=cfg.qconv_batch)
     bc=base.Config(seed=cfg.seed,train_times=cfg.train_times,horizon=cfg.horizon,
         lookback=cfg.lookback,grid_size=cfg.grid_size,qconv_epochs=cfg.qconv_epochs,
@@ -506,7 +502,7 @@ def aggregate_location_validation(location_records, active_quantiles):
     return summary
 
 
-def run_seed(base, spatial, all_coords, all_values, cfg, output):
+def run_seed(base, spatial, all_coords, all_values, cfg, output, checkpoint_dir):
     began=time.time(); seed_all(cfg.seed)
     # Exact legacy RandomState sampling used by the existing Weather2K models.
     chosen=np.sort(np.random.RandomState(cfg.seed).choice(len(all_coords),cfg.n_sample,replace=False))
@@ -514,7 +510,7 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
     train=np.setdiff1d(np.arange(cfg.n_sample),held)
     if len(train)!=cfg.n_train: raise AssertionError("not train500/heldout100")
     coords=norm_coords(all_coords[chosen]); values=all_values[chosen,-cfg.n_last:]
-    obs=np.sort(np.random.RandomState(cfg.seed).choice(train,min(100,len(train)),replace=False))
+    obs=np.sort(np.random.RandomState(cfg.seed).choice(train,min(cfg.n_obs,len(train)),replace=False))
     train_block=values[obs,:cfg.train_times]
     mean=float(train_block.mean()); std=float(train_block.std())
     if std < 1e-12: std=1.
@@ -529,17 +525,13 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
     print(f"seed={cfg.seed} device={device} train={len(train)} heldout={len(held)}")
     train_times=np.arange(cfg.train_times,dtype=np.int64)
     val_times=np.arange(cfg.train_times,cfg.train_times+cfg.val_times,dtype=np.int64)
-    med,median_stdk_validation=fit_spatial_stdk(
-        base,spatial,coords[train],scaled_train,train_times,val_times,.5,cfg,device,qlambda
+    med, stdk_metadata, checkpoint_identity = load_pure_stdk_checkpoint(
+        spatial,cfg,device,checkpoint_dir,coords,chosen,train,held,obs,mean,std
     )
-    sm={.5:med,"lambda":qlambda}; stdk_validation={"q50":median_stdk_validation}
     active_quantiles=(.5,) if cfg.q50_only else (.05,.5,.95)
-    for q in (.05,.95):
-        if q in active_quantiles:
-            sm[q],tail_validation=fit_spatial_stdk(
-                base,spatial,coords[train],scaled_train,train_times,val_times,q,cfg,device,qlambda,med
-            )
-            stdk_validation[f"q{int(q*100):02d}"]=tail_validation
+    sm={q:med for q in active_quantiles}
+    sm.update({"lambda":qlambda,"shared_stdk_checkpoint":True})
+    stdk_validation={"q50":stdk_metadata["training_summary"]}
     target_by_scenario={
         "time_extrap_fixed500":("Target_Time150",train),
         "space_extrap_fixed850":("Target_Space100",held),
@@ -547,37 +539,51 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
     }
     target_name,target_station_local=target_by_scenario[cfg.scenario]
     target_centers=coords[target_station_local]
+    source_station_local=q_training_source_stations(
+        coords,train,target_station_local,cfg.scenario
+    )
+    source_centers=coords[source_station_local]
+    train_lookup={int(station):position for position,station in enumerate(train)}
+    source_train_rows=np.asarray(
+        [train_lookup[int(station)] for station in source_station_local],dtype=np.int64
+    )
+    # Only the 500 supervised stations are normalized before final evaluation.
+    # Their observed Train700 and Val150 responses are Q's actual labels.
+    source_truth=scaled_train[source_train_rows]
     print(
         f"QConvLSTM scope=location_specific scenario={cfg.scenario} "
-        f"target_locations={len(target_centers)}"
+        f"target_locations={len(target_centers)} "
+        f"truth_source_stations={len(np.unique(source_station_local))}"
     )
 
-    # Paper-style location-specific forecasting: each target s_0 receives its
-    # own fitted-STDK series, local grids and independently optimized Q models.
-    train_frames=frames_for(base,sm,target_centers,train_times,cfg,device)
-    qconv_train_targets=predict_stdk_target_series(
-        base,sm,target_centers,train_times,cfg,device,active_quantiles
-    )
+    # Each target gets independent Q models. Held-out targets borrow observed
+    # training labels and corresponding STDK grids from their nearest train500
+    # station; no held-out response is available to train or select Q.
+    train_frames=frames_for(base,sm,source_centers,train_times,cfg,device)
+    qconv_train_targets={
+        q:source_truth[:,:cfg.train_times] for q in active_quantiles
+    }
     if cfg.prediction_mode == "residual":
         train_stdk_baseline=predict_spatial_stdk(
-            med,target_centers,train_times,cfg,device
+            med,source_centers,train_times,cfg,device
         ).T
         qconv_train_targets={
             q:target-train_stdk_baseline for q,target in qconv_train_targets.items()
         }
-    qconv_val_targets=predict_stdk_target_series(
-        base,sm,target_centers,val_times,cfg,device,active_quantiles
-    )
+    qconv_val_targets={
+        q:source_truth[:,cfg.train_times:cfg.train_times+cfg.val_times]
+        for q in active_quantiles
+    }
     if cfg.prediction_mode == "residual":
         val_stdk_baseline=predict_spatial_stdk(
-            med,target_centers,val_times,cfg,device
+            med,source_centers,val_times,cfg,device
         ).T
         qconv_val_targets={
             q:target-val_stdk_baseline for q,target in qconv_val_targets.items()
         }
     if cfg.forecast_mode == "block5to5":
         val_frames,val_starts=block_history_windows(
-            base,sm,target_centers,cfg.train_times,cfg.val_times,cfg,device
+            base,sm,source_centers,cfg.train_times,cfg.val_times,cfg,device
         )
         val_targets={q:block_targets(qconv_val_targets[q],cfg.horizon) for q in active_quantiles}
         val_windows_per_location=len(val_starts)
@@ -616,6 +622,10 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
                 )
         location_validation.append({
             "station_local":int(station_local),
+            "training_source_station_local":int(source_station_local[position]),
+            "training_source_is_target":bool(
+                source_station_local[position] == station_local
+            ),
             "validation":{f"q{int(q*100):02d}":validation[q] for q in validation},
         })
         print(
@@ -670,8 +680,14 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
           "split":{"sampled_global":chosen.tolist(),"train_local":train.tolist(),
                    "heldout_local":held.tolist(),"heldout_truth_used_for_training":False,
                    "heldout_truth_used_for_selection":False},
-          "selection_data":f"Per-location fitted-STDK Train700/chronological Val150 series on {len(target_centers)} target locations",
-          "qconv_training_target":"quantile-specific fitted STDK series",
+          "selection_data":(
+              f"Observed train500-station Train700/Val150 truth for "
+              f"{len(target_centers)} target-specific Q fits; held-out targets "
+              "use their nearest supervised train500 station"
+          ),
+          "qconv_training_target":cfg.qconv_training_target,
+          "qconv_validation_target":cfg.qconv_validation_target,
+          "heldout_q_source":cfg.heldout_q_source,
           "qconv_model_scope":"one independently fitted q05/q50/q95 QConvLSTM per target location",
           "prediction_definition":(
               "direct STDK q50 baseline + learned QConvLSTM residual quantiles"
@@ -679,9 +695,10 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
               "QConvLSTM direct target quantiles"
           ),
           "stdk_backend":"spatial_adapter","stdk_validation":stdk_validation,
+          "stdk_checkpoint":checkpoint_identity,
           "validation":validation,"location_validation":location_validation,
           "tuning_quantiles":[float(q) for q in active_quantiles],
-          "checkpoint_written":False,"elapsed_seconds":time.time()-began}
+          "qconv_checkpoint_written":False,"elapsed_seconds":time.time()-began}
         output.mkdir(parents=True,exist_ok=True)
         stem=f"{output_stem(cfg)}_validation"
         (output/f"{stem}.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
@@ -713,27 +730,41 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
         stdk_suffix="stdk_forecasts.csv"
     results={target_name:score(prediction,truth)}
     stdk_results={target_name:score(stdk_prediction,truth)}
+    pure_metric = stdk_metadata["target_metrics"][target_name]
+    if not np.isclose(stdk_results[target_name]["RMSE"], pure_metric["RMSE"], atol=1e-4):
+        raise AssertionError("Loaded STDK does not reproduce pure-STDK target RMSE")
+    stdk_results[target_name]["MPIW_90"] = None
+    stdk_results[target_name]["coverage_90"] = None
     report={"model":model_name(cfg),"config":asdict(cfg),"normalization":normalization,
       "metrics":results[target_name],"results":results,
       "fitted_stdk_baseline":{
-          "model":"Spatial-adapter STDK (same fitted models)",
+          "model":"Spatial-adapter pure STDK (identical checkpoint)",
           "refitted":False,"results":stdk_results,
           "normalization":normalization,
-          "note":"Same fitted q05/q50/q95 STDK models used to generate QConvLSTM grids; not the historical obs100-scaled standalone run.",
+          "note":"Exactly the pure STDK MSE/EMA checkpoint; only a point forecast is defined.",
       },
       "split":{"sampled_global":chosen.tolist(),"train_local":train.tolist(),"heldout_local":held.tolist(),
                "heldout_truth_used_for_training":False,"heldout_truth_role":"final_metrics_only"},
           "evaluation_protocol":{
           "training_scope":"independent QConvLSTM fit for every target location in this scenario",
           "scenario":cfg.scenario,
-          "train":f"one quantile-specific fitted STDK Train700 series per target location ({len(target_centers)} independent fits)",
-          "validation":"the same target location's fitted STDK Val150 series, checkpoint selection only",
+          "train":(
+              f"observed Train700 truth at each of {len(target_centers)} target-specific "
+              "Q fits' supervised source stations"
+          ),
+          "validation":(
+              "observed Val150 truth at the corresponding supervised source "
+              "station; pinball checkpoint selection"
+          ),
           "Target_Time150":"Test150 x train500",
           "Target_Space100":"Fixed850 x held-out100",
           "Target_ST100x150":"Test150 x held-out100",
           "forecast_mode":cfg.forecast_mode,
           "prediction_mode":cfg.prediction_mode,
-          "qconv_training_target":"quantile-specific fitted STDK series",
+          "qconv_training_target":cfg.qconv_training_target,
+          "qconv_validation_target":cfg.qconv_validation_target,
+          "heldout_q_source":cfg.heldout_q_source,
+          "training_source_station_local":source_station_local.tolist(),
           "qconv_model_scope":"location_specific",
           "qconv_models_per_location":len(active_quantiles),
           "qconv_total_models":len(target_centers)*len(active_quantiles),
@@ -752,8 +783,9 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
           "heldout_truth_used_for_training":False,
       },
       "stdk_backend":"spatial_adapter","stdk_validation":stdk_validation,
+      "stdk_checkpoint":checkpoint_identity,
       "validation":validation,"location_validation":location_validation,
-      "checkpoint_written":False,"elapsed_seconds":time.time()-began}
+      "qconv_checkpoint_written":False,"elapsed_seconds":time.time()-began}
     output.mkdir(parents=True,exist_ok=True)
     stem=output_stem(cfg)
     (output/f"{stem}.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
@@ -778,7 +810,9 @@ def run_seed(base, spatial, all_coords, all_values, cfg, output):
         for target in results:
             writer.writerow([cfg.seed,target,"fitted_stdk",*stdk_results[target].values()])
             writer.writerow([cfg.seed,target,model_name(cfg),*results[target].values()])
-    print(json.dumps(results,indent=2)); print("No checkpoint was written."); return report
+    print(json.dumps(results,indent=2))
+    print("QConvLSTM checkpoint not written; pure-STDK checkpoint reused.")
+    return report
 
 def parse_args():
     pre=argparse.ArgumentParser(add_help=False)
@@ -789,8 +823,11 @@ def parse_args():
         payload=json.loads(known.params_file.read_text(encoding="utf-8"))
         if (payload.get("stdk_backend")=="spatial_adapter"
             and payload.get("normalization_source")=="obs100_train700"
-            and payload.get("stdk_q50_loss")=="pinball"
-            and payload.get("qconv_training_target")=="quantile_specific_fitted_stdk"
+            and payload.get("stdk_q50_loss")=="mse"
+            and payload.get("stdk_checkpoint_source")=="pure_stdk"
+            and payload.get("qconv_training_target")=="weather2k_observed_train500"
+            and payload.get("qconv_validation_target")=="weather2k_observed_train500_val150"
+            and payload.get("heldout_q_source")=="nearest_train500_station"
             and payload.get("qconv_model_scope")=="location_specific"
             and payload.get("q50_checkpoint_selection")=="pinball"
             and payload.get("stdk_validation_aggregation")=="batch_mean"
@@ -800,11 +837,13 @@ def parse_args():
             print(
                 f"Ignoring incompatible QConvLSTM params from {known.params_file}: "
                 "expected spatial_adapter, obs100_train700 normalization, "
-                "pinball q50, quantile-specific fitted-STDK targets, "
+                "pure-STDK MSE checkpoint and observed train500 Q targets, "
                 "location-specific QConvLSTM models, "
                 "batch-mean STDK validation and EMA."
             )
     p=argparse.ArgumentParser(description=__doc__,parents=[pre]); p.add_argument("--weather-data",type=Path,default=DATA)
+    p.add_argument("--stdk-checkpoint-dir",type=Path,default=OUTPUT/"checkpoints",
+                   help="Directory containing pure STDK scenario_seed*/model_best.pt checkpoints.")
     p.add_argument("--weather-variable",choices=VARIABLES,default="air_temperature"); p.add_argument("--seed",type=int,default=41)
     p.add_argument("--seeds",type=int,nargs="+"); p.add_argument("--output-dir",type=Path,default=OUTPUT)
     p.add_argument(
@@ -844,12 +883,11 @@ def parse_args():
     )
     p.add_argument("--smoke-test",action="store_true")
     args=p.parse_args()
-    if not tuned and not (args.validation_only or args.smoke_test):
+    if not tuned:
         p.error(
-            "Formal evaluation requires compatible retuned params "
-            "(obs100_train700, q50 pinball, fitted-STDK targets, "
-            "location-specific QConvLSTM, batch-mean STDK validation, EMA). "
-            "Run tuning first."
+            "This paired workflow requires a compatible Spatial-adapter STDK "
+            "+ Nag QConvLSTM parameter file. The previous pinball-STDK "
+            "tuning file cannot be reused."
         )
     return args
 
@@ -881,10 +919,11 @@ def main():
                    grid_size=args.grid_size,radius=args.neighbourhood_radius,
                    validation_only=args.validation_only,q50_only=args.q50_only)
         if args.smoke_test:
-            cfg.n_sample,cfg.n_train,cfg.n_heldout=16,12,4; cfg.n_last,cfg.train_times,cfg.val_times,cfg.test_times=50,30,10,10
+            cfg.n_sample,cfg.n_train,cfg.n_heldout,cfg.n_obs=16,12,4,4; cfg.n_last,cfg.train_times,cfg.val_times,cfg.test_times=50,30,10,10
             cfg.horizon=10 if cfg.forecast_mode == "direct5to150" else 5
             cfg.stdk_epochs,cfg.qconv_epochs,cfg.qconv_batch=1,1,8; cfg.smoke=True
-        reports.append(run_seed(base,spatial,coords,values,cfg,args.output_dir))
+        reports.append(run_seed(base,spatial,coords,values,cfg,args.output_dir,
+                                args.stdk_checkpoint_dir.expanduser().resolve()))
     if len(reports)>1 and not args.validation_only:
         summary={
             "model":model_name(cfg),

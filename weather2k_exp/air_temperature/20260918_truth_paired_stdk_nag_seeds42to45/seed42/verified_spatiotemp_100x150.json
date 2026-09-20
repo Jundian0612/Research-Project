@@ -1,0 +1,16 @@
+{
+  "scenario": "spatiotemp_100x150",
+  "seed": 42,
+  "target": "Target_ST100x150",
+  "checkpoint_sha256": "4b65f1e290cbbfb37886516dc802f94be094b4c62271e68c3be5383229f86317",
+  "pure_stdk_rmse": 4.4879531674041,
+  "paired_fitted_stdk_rmse": 4.48795337990059,
+  "qconv_rmse": 4.7696266258507505,
+  "q_quantiles": [
+    "q05",
+    "q50",
+    "q95"
+  ],
+  "target_location_count": 100,
+  "heldout_truth_used_for_training": false
+}

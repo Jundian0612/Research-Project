@@ -1,0 +1,5 @@
+scenario,target,space_split,n_train_space,n_unobs_space,n_target_space,model,alpha_obs,lambda_unobs,row_type,seed,RMSE,MSE,MAE,R2
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,STDK,,,seed,41,4.528860,20.510574,3.561088,0.323508
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,STDK,,,mean_std,mean +/- std,4.528860 +/- 0.000000,20.510574 +/- 0.000000,3.561088 +/- 0.000000,0.323508 +/- 0.000000
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,STDK+NagQConvLSTM-truth(block5to5),,,seed,41,4.239650,17.974628,3.369299,0.407150
+time_extrap_fixed500,Target_Time150,100/400/100,100,400,100,STDK+NagQConvLSTM-truth(block5to5),,,mean_std,mean +/- std,4.239650,17.974628,3.369299,0.407150

@@ -1,0 +1,29 @@
+{
+  "time_extrap_fixed500": {
+    "target": "Target_Time150",
+    "checkpoint_sha256": "d70b51b4a29b37fe72b53d972e5fa80a09f26e066fb82f780688671098573aa6",
+    "compared_predictions": 75000,
+    "max_absolute_prediction_difference": 1.9073486328125e-06,
+    "pure_stdk_rmse": 4.528860159115129,
+    "recomputed_pure_stdk_rmse": 4.52886022258862,
+    "point_predictions_same_within_1e-4": true
+  },
+  "space_extrap_fixed850": {
+    "target": "Target_Space100",
+    "checkpoint_sha256": "d70b51b4a29b37fe72b53d972e5fa80a09f26e066fb82f780688671098573aa6",
+    "compared_predictions": 85000,
+    "max_absolute_prediction_difference": 3.814697265625e-06,
+    "pure_stdk_rmse": 5.287873217530168,
+    "recomputed_pure_stdk_rmse": 5.287873499769333,
+    "point_predictions_same_within_1e-4": true
+  },
+  "spatiotemp_100x150": {
+    "target": "Target_ST100x150",
+    "checkpoint_sha256": "d70b51b4a29b37fe72b53d972e5fa80a09f26e066fb82f780688671098573aa6",
+    "compared_predictions": 15000,
+    "max_absolute_prediction_difference": 3.814697265625e-06,
+    "pure_stdk_rmse": 4.493609022706603,
+    "recomputed_pure_stdk_rmse": 4.493609206300775,
+    "point_predictions_same_within_1e-4": true
+  }
+}
