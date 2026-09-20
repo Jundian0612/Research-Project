@@ -51,7 +51,7 @@ def main():
 
     raw = np.load(ROOT / "Josh's Weather2K/Weather2K/weather2k.npy", mmap_mode="r")
     all_values = np.asarray(raw[:, 4, :], dtype=np.float32)
-    prediction_audit = json.loads((HERE / "all_five_seed_stage1_prediction_audit.json").read_text())
+    prediction_audit = json.loads((HERE / "metrics" / "all_five_seed_stage1_prediction_audit.json").read_text())
     prediction_by_pair = {(r["seed"], r["scenario"]): r for r in prediction_audit}
     assert len(prediction_by_pair) == 15
     cases = []
@@ -62,10 +62,10 @@ def main():
             checkpoint = output / "checkpoints" / f"{scenario}_seed{seed}" / "model_best.pt"
             metadata = json.loads(checkpoint.with_name("metadata.json").read_text())
             pure = json.loads(
-                (output / f"2K_stdk_metrics_{suffix}_train500_test100.json").read_text()
+                (output / "metrics" / f"2K_stdk_metrics_{suffix}_train500_test100.json").read_text()
             )["seed_runs"][0]["payload"]
             q = json.loads(
-                (output / f"paired_stdk_truth_nag_qconvlstm_block5to5_{scenario}_seed{seed}.json").read_text()
+                (output / "metrics" / f"paired_stdk_truth_nag_qconvlstm_block5to5_{scenario}_seed{seed}.json").read_text()
             )
             config, sampling, split = q["config"], pure["sampling_info"], q["split"]
             digest = sha(checkpoint)
@@ -154,7 +154,7 @@ def main():
                     assert val["checkpoint_selection_loss"] == "pinball"
                     assert val["training_windows"] > 0 and val["validation_windows"] > 0
 
-            forecast = output / (
+            forecast = output / "forecasts" / (
                 f"paired_stdk_truth_nag_qconvlstm_block5to5_{scenario}_seed{seed}_{forecast_suffix}"
             )
             expected_stations_set = set(expected_stations)
@@ -203,7 +203,7 @@ def main():
         "cases": cases,
     }
     assert len(cases) == 15
-    (HERE / "all_five_seed_protocol_audit.json").write_text(json.dumps(report, indent=2) + "\n")
+    (HERE / "metrics" / "all_five_seed_protocol_audit.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps({k: report[k] for k in ("case_count", "test_point_count", "locked_q_params_sha256")}, indent=2))
 
 

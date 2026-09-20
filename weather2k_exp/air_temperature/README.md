@@ -4,6 +4,7 @@
 
 ## 目前流程
 
+- `20260917_truth_paired_stdk_nag_seed41/`、`20260918_truth_paired_stdk_nag_seeds42to45/`：配對 Pure STDK 與 STDK+Nag-style QConvLSTM 的正式 seeds 41–45 結果；各資料夾 README 說明 metrics、tables、forecasts 與驗證紀錄，後者的 `tables/five_seed_summary.md` 是五 seed 比較入口。
 - `20260915_qconvlstm_location_specific_tuning/`：最新逐目標位置 QConvLSTM 正式調參；使用 seeds 41/42 的 Val150，最佳設定為 grid 11、radius 0.3、filters 32、weight decay 0。
 - `20260916_STDK_QConvLSTM_separate_bestparams_seed41_rtx2000/`：使用上述最佳參數，在三種情境分別訓練純 STDK 與逐目標位置 STDK+Q 的 seed 41 正式比較。
 - `20260912_qconvlstm_obs100_ema_tuning/`：較早採用 batch-average validation 與 EMA 的調參結果，流程與目前逐目標位置 Q 模型不同。

@@ -62,7 +62,7 @@ def main():
         norm = metadata["normalization"]
         predictions = predictions * norm["std"] + norm["mean"]
 
-        csv_path = HERE / f"paired_stdk_truth_nag_qconvlstm_block5to5_{scenario}_seed41_{suffix}"
+        csv_path = HERE / "forecasts" / f"paired_stdk_truth_nag_qconvlstm_block5to5_{scenario}_seed41_{suffix}"
         with csv_path.open(newline="") as handle:
             rows = list(csv.DictReader(handle))
         assert len(rows) == predictions.size
@@ -95,7 +95,7 @@ def main():
         if device.type == "cuda":
             torch.cuda.empty_cache()
 
-    (HERE / "stage1_prediction_audit.json").write_text(
+    (HERE / "metrics" / "stage1_prediction_audit.json").write_text(
         json.dumps(results, ensure_ascii=False, indent=2) + "\n"
     )
 

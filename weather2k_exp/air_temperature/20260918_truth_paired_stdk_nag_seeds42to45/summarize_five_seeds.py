@@ -23,7 +23,7 @@ for scenario, label in scenarios:
     paired = []
     for seed in range(41, 46):
         directory = first if seed == 41 else root / f"seed{seed}"
-        record = json.loads((directory / f"verified_{scenario}.json").read_text())
+        record = json.loads((directory / "metrics" / f"verified_{scenario}.json").read_text())
         assert record["seed"] == seed and record["scenario"] == scenario
         pure, q = record["pure_stdk_rmse"], record["qconv_rmse"]
         rows.append({"scenario": label, "seed": seed, "pure_stdk_rmse": pure,
@@ -43,16 +43,17 @@ for scenario, label in scenarios:
         "paired_q_minus_pure_rmse_sd": statistics.pstdev(deltas),
     })
 
-with (root / "five_seed_per_seed.csv").open("w", newline="") as handle:
+(root / "tables").mkdir(exist_ok=True)
+with (root / "tables" / "five_seed_per_seed.csv").open("w", newline="") as handle:
     writer = csv.DictWriter(handle, fieldnames=rows[0])
     writer.writeheader()
     writer.writerows(rows)
-with (root / "five_seed_summary.csv").open("w", newline="") as handle:
+with (root / "tables" / "five_seed_summary.csv").open("w", newline="") as handle:
     writer = csv.DictWriter(handle, fieldnames=summary[0])
     writer.writeheader()
     writer.writerows(summary)
-(root / "five_seed_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
-with (root / "five_seed_summary.md").open("w") as handle:
+(root / "tables" / "five_seed_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+with (root / "tables" / "five_seed_summary.md").open("w") as handle:
     handle.write("# Paired pure STDK vs STDK+Q, seeds 41–45\n\n")
     handle.write("Q hyperparameters are the same locked file for all seeds. ")
     handle.write("SD uses ddof=0, matching the repository's summary convention.\n\n")

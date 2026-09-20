@@ -2,8 +2,8 @@
 
 All 15 seed × scenario pairs passed the independent checks in
 `audit_all_stage1_predictions.py` and `audit_all_protocol.py`. The machine-readable
-records are `all_five_seed_stage1_prediction_audit.json` and
-`all_five_seed_protocol_audit.json`. Source-file checksums still match the
+records are `metrics/all_five_seed_stage1_prediction_audit.json` and
+`metrics/all_five_seed_protocol_audit.json`. Source-file checksums still match the
 formal-run `code.sha256` snapshot.
 
 | Seed | Pure/Q Stage-1 checkpoint SHA-256 prefix | Largest absolute Stage-1 prediction difference | Saved scaler mean / SD | Best STDK EMA epoch |

@@ -17,11 +17,12 @@ printf 'Started: %s\nSeed: 41\nScenarios: ST100x150, Space100, Time150\n' "$(dat
 sha256sum -c "$run_root/code.sha256" | tee -a "$run_root/run.log"
 sha256sum -c "$run_root/params.sha256" | tee -a "$run_root/run.log"
 "$python_bin" -c 'import torch; assert torch.cuda.is_available(), "CUDA unavailable"'
+"$python_bin" weather2k_exp/organize_paired_stdk_results.py "$run_root"
 
 for scenario in spatiotemp_100x150 space_extrap_fixed850 time_extrap_fixed500; do
   sha256sum -c "$run_root/code.sha256" > /dev/null
   sha256sum -c "$run_root/params.sha256" > /dev/null
-  if [[ -f "$run_root/verified_${scenario}.json" ]]; then
+  if [[ -f "$run_root/metrics/verified_${scenario}.json" ]]; then
     "$python_bin" "$run_root/verify_seed41.py" "$scenario" | tee -a "$run_root/run.log"
     printf 'Reused verified scenario: %s\n' "$scenario" | tee -a "$run_root/run.log"
     continue
@@ -35,4 +36,5 @@ for scenario in spatiotemp_100x150 space_extrap_fixed850 time_extrap_fixed500; d
   sha256sum -c "$run_root/code.sha256" > /dev/null
   sha256sum -c "$run_root/params.sha256" > /dev/null
   "$python_bin" "$run_root/verify_seed41.py" "$scenario" | tee -a "$run_root/run.log"
+  "$python_bin" weather2k_exp/organize_paired_stdk_results.py "$run_root"
 done

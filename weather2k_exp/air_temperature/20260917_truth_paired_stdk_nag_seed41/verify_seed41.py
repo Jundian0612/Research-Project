@@ -7,6 +7,14 @@ import sys
 from pathlib import Path
 
 root = Path(__file__).resolve().parent
+
+
+def result_path(filename: str) -> Path:
+    """Prefer a fresh runner output, then the organized archived copy."""
+    fresh = root / filename
+    return fresh if fresh.is_file() else root / "metrics" / filename
+
+
 scenario = sys.argv[1]
 targets = {
     "time_extrap_fixed500": ("Target_Time150", "time500", 500),
@@ -18,10 +26,10 @@ checkpoint = root / "checkpoints" / f"{scenario}_seed41" / "model_best.pt"
 digest = hashlib.sha256(checkpoint.read_bytes()).hexdigest()
 metadata = json.loads(checkpoint.with_name("metadata.json").read_text())
 pure = json.loads(
-    (root / f"2K_stdk_metrics_{suffix}_train500_test100.json").read_text()
+    result_path(f"2K_stdk_metrics_{suffix}_train500_test100.json").read_text()
 )["seed_runs"][0]["payload"]
 paired = json.loads(
-    (root / f"paired_stdk_truth_nag_qconvlstm_block5to5_{scenario}_seed41.json").read_text()
+    result_path(f"paired_stdk_truth_nag_qconvlstm_block5to5_{scenario}_seed41.json").read_text()
 )
 locked = json.loads((root / "locked_q_params.json").read_text())["formal_run_params"]
 
@@ -83,5 +91,6 @@ result = {
     "target_location_count": target_count,
     "heldout_truth_used_for_training": False,
 }
-(root / f"verified_{scenario}.json").write_text(json.dumps(result, indent=2))
+(root / "metrics").mkdir(exist_ok=True)
+(root / "metrics" / f"verified_{scenario}.json").write_text(json.dumps(result, indent=2))
 print(json.dumps(result, indent=2))

@@ -16,14 +16,21 @@ target, suffix, target_count = {
     "spatiotemp_100x150": ("Target_ST100x150", "st_100x150", 100),
 }[scenario]
 output = root / f"seed{seed}"
+
+
+def result_path(filename: str) -> Path:
+    fresh = output / filename
+    return fresh if fresh.is_file() else output / "metrics" / filename
+
+
 checkpoint = output / "checkpoints" / f"{scenario}_seed{seed}" / "model_best.pt"
 digest = hashlib.sha256(checkpoint.read_bytes()).hexdigest()
 metadata = json.loads(checkpoint.with_name("metadata.json").read_text())
 pure = json.loads(
-    (output / f"2K_stdk_metrics_{suffix}_train500_test100.json").read_text()
+    result_path(f"2K_stdk_metrics_{suffix}_train500_test100.json").read_text()
 )["seed_runs"][0]["payload"]
 paired = json.loads(
-    (output / f"paired_stdk_truth_nag_qconvlstm_block5to5_{scenario}_seed{seed}.json").read_text()
+    result_path(f"paired_stdk_truth_nag_qconvlstm_block5to5_{scenario}_seed{seed}.json").read_text()
 )
 locked = json.loads((root / "locked_q_params.json").read_text())
 assert locked["selection_uses_test_metrics"] is False
@@ -87,5 +94,6 @@ result = {
     "target_location_count": target_count,
     "heldout_truth_used_for_training": False,
 }
-(output / f"verified_{scenario}.json").write_text(json.dumps(result, indent=2) + "\n")
+(output / "metrics").mkdir(exist_ok=True)
+(output / "metrics" / f"verified_{scenario}.json").write_text(json.dumps(result, indent=2) + "\n")
 print(json.dumps(result), flush=True)

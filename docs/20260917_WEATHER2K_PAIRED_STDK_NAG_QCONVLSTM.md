@@ -115,8 +115,10 @@ are under `weather2k_exp/air_temperature/20260917_stdk_nag_truth_qconvlstm_tunin
 the selected settings were copied to
 `weather2k_exp/2K_stdk_nag_qconvlstm_params.json`.
 
-The sweep fitted q50 only. The three-quantile, three-scenario formal run has
-not yet been performed with these settings. The validation score is measured
+The sweep fitted q50 only. The three-quantile, three-scenario formal run was
+subsequently completed for seeds 41–45; see the
+[five-seed result table](../weather2k_exp/air_temperature/20260918_truth_paired_stdk_nag_seeds42to45/tables/five_seed_summary.md).
+The validation score is measured
 at nearest supervised source stations for held-out spatial targets, not on
 strict held-out100 or Test150 truth. The run's `code.sha256` pins the source
 version used by all trials.
@@ -126,17 +128,12 @@ version used by all trials.
 In the GPU-enabled environment, from the repository root:
 
 ```bash
-source .venv-wsl/bin/activate
-OUT=weather2k_exp/air_temperature/20260917_truth_paired_stdk_nag_seed41
-mkdir -p "$OUT"
-RUN_SVGP=0 RUN_DLINEAR=0 RUN_STDK=1 RUN_QCONVLSTM=1 \
-SEED_LIST='[41]' WEATHER2K_OUTPUT_DIR="$OUT" \
-QCONVLSTM_OUTPUT_DIR="$OUT" PYTHONUNBUFFERED=1 \
-python -u weather2k_exp/experiments_runner.py
+bash weather2k_exp/air_temperature/20260917_truth_paired_stdk_nag_seed41/run_seed41.sh
 ```
 
-The runner fits pure STDK and then Q for Time150, Space100, and ST100×150.
-Inspect `results_<scenario>.csv`, the paired Q `*_comparison.csv`, and
+The launcher fits pure STDK and then Q for Time150, Space100, and ST100×150.
+Inspect the archived `tables/results_<scenario>.csv`, paired Q
+`tables/*_comparison.csv`, `metrics/verified_<scenario>.json`, and
 `checkpoints/<scenario>_seed41/metadata.json`. This run can take much longer
 than pure STDK because the Q stage fits one model per target station and
 quantile. Do not merge its metrics with earlier Q runs that used STDK

@@ -64,7 +64,7 @@ def main():
             norm = metadata["normalization"]
             predictions = predictions * norm["std"] + norm["mean"]
 
-            path = output / (
+            path = output / "forecasts" / (
                 f"paired_stdk_truth_nag_qconvlstm_block5to5_{scenario}_seed{seed}_{suffix}"
             )
             with path.open(newline="") as handle:
@@ -101,7 +101,7 @@ def main():
             if device.type == "cuda":
                 torch.cuda.empty_cache()
 
-    (HERE / "all_five_seed_stage1_prediction_audit.json").write_text(
+    (HERE / "metrics" / "all_five_seed_stage1_prediction_audit.json").write_text(
         json.dumps(results, indent=2) + "\n"
     )
 

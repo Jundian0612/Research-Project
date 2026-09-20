@@ -17,6 +17,7 @@ printf 'Started: %s\nSeeds: 42, 43, 44, 45\n' "$(date -Is)" | tee -a "$run_root/
 sha256sum -c "$run_root/code.sha256" | tee -a "$run_root/run.log"
 sha256sum -c "$run_root/params.sha256" | tee -a "$run_root/run.log"
 "$python_bin" -c 'import torch; assert torch.cuda.is_available(), "CUDA unavailable"'
+"$python_bin" weather2k_exp/organize_paired_stdk_results.py "$run_root"
 
 for seed in 42 43 44 45; do
   seed_root="$run_root/seed$seed"
@@ -24,7 +25,7 @@ for seed in 42 43 44 45; do
   for scenario in spatiotemp_100x150 space_extrap_fixed850 time_extrap_fixed500; do
     sha256sum -c "$run_root/code.sha256" > /dev/null
     sha256sum -c "$run_root/params.sha256" > /dev/null
-    if [[ -f "$seed_root/verified_${scenario}.json" ]]; then
+    if [[ -f "$seed_root/metrics/verified_${scenario}.json" ]]; then
       "$python_bin" "$run_root/verify_pair.py" "$seed" "$scenario" | tee -a "$run_root/run.log"
       printf 'Reused verified seed=%s scenario=%s\n' "$seed" "$scenario" | tee -a "$run_root/run.log"
       continue
@@ -43,6 +44,7 @@ for seed in 42 43 44 45; do
     sha256sum -c "$run_root/code.sha256" > /dev/null
     sha256sum -c "$run_root/params.sha256" > /dev/null
     "$python_bin" "$run_root/verify_pair.py" "$seed" "$scenario" | tee -a "$run_root/run.log"
+    "$python_bin" weather2k_exp/organize_paired_stdk_results.py "$run_root"
   done
 done
 

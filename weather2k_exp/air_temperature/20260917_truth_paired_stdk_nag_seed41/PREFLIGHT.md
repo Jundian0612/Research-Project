@@ -22,6 +22,8 @@ identical. A three-scenario reduced run also confirmed that Q's loaded
 checkpoint SHA and fitted-STDK RMSE match pure STDK for each scenario.
 
 `run_seed41.sh` runs the three full scenarios in the order ST100×150,
-Space100, Time150, validating each result before continuing. `exit_code` is
-written at completion; `0` indicates all three passed. No test result is
-used to change Q hyperparameters during this run.
+Space100, Time150, validating each result before continuing. Pair checks are
+stored in `metrics/verified_SCENARIO.json`; forecasts and display tables are
+in `forecasts/` and `tables/`. `exit_code` is written at completion; `0`
+indicates all three passed. No test result is used to change Q hyperparameters
+during this run.
